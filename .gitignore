@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Local secrets and machine settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Build outputs and dependencies (stack not selected yet)
+node_modules/
+dist/
+build/
+.build/
+DerivedData/
+target/
+.venv/
+__pycache__/
+*.pyc
+
+# Local runtime state and logs
+*.log
+.local/
+
+# Editor-specific local settings
+.idea/
+.vscode/
+
+# Keep .kiro/ tracked for authentic development records.
