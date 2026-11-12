@@ -38,3 +38,17 @@
 居民可以是原创小动物、小精灵或其他角色，具体形象尚未决定。“窗间”指窗口之间的生活缝隙；Windowfolk 指生活在窗口世界里的小居民。
 
 作品拟探索 Kiroween 的 Resurrection 主题：让旧式桌面陪伴重新活过来，并赋予窗口新的互动意义。实现方式与具体玩法细节由后续设计决定。
+
+## 参考项目
+
+以下项目提供相近能力，可用于理解已有实现，不代表窗间已选定技术栈或引入其代码。能力描述来自仓库文档，尚未本机实测。
+
+| 项目 | 可以参考什么 | 注意事项 |
+| --- | --- | --- |
+| [DesktopPetMac](https://github.com/iappyx/DesktopPetMac) | Swift + AppKit 的 macOS 桌宠；窗口边界检测、窗口上行走、重力、拖拽和动画状态机。 | 代码为 MIT；宠物素材属于各自作者。与窗间的目标平台最贴近。 |
+| [Nano Pet](https://github.com/Poseima/nano-pet) | macOS 窗口标题栏行走、爬边、窗口间跳跃，以及专注模式与全屏隐藏的体验。 | 代码许可证需进一步确认；展示中的已有 IP 角色不能默认用于本项目。 |
+| [Desktop Virtual Buddy](https://github.com/spyderweb47/Desktop-Virtual-buddy) | Electron + TypeScript；把 Windows 窗口矩形转成可行走平台，结合 Shimeji 行为树处理移动与攀爬。 | 窗口探测路径针对 Windows，不能当成已支持 macOS；复用前核对许可证。 |
+| [AI Desktop Pet](https://github.com/AkshitIreddy/AI-Desktop-Pet) | Tauri 透明覆盖层、窗口感知、鼠标穿透和多宠物互动。 | 仓库标注 MIT；AI/语音能力依赖额外服务，不是窗间的必要部分。平台效果仍需实测。 |
+| [VPet](https://github.com/LorisYounger/VPet) | 互动投喂、物品、工作、存档和模组生态，可作为养成桌宠的玩法对照。 | C# / WPF，非直接可用的 Mac 底座；代码 Apache-2.0，自带动画另有授权声明。 |
+
+这些项目已经覆盖了不少“角色在窗口上活动”的能力；窗间希望进一步探索的是：用户改变窗口和通路后，居民能完成什么，以及世界因此留下什么。代码许可与角色、动画、音效许可需分别核对。
