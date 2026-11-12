@@ -28,3 +28,7 @@ __pycache__/
 .vscode/
 
 # Keep .kiro/ tracked for authentic development records.
+
+# build-app.sh output
+Windowfolk.app/
+.Windowfolk.app.*/
