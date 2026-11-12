@@ -1,0 +1,43 @@
+{
+  "groundObjects" : [
+    {
+      "flower" : {
+        "plantedAt" : 1794447570.566,
+        "reached" : "bloom",
+        "storyRound" : 1
+      },
+      "id" : "AB60575D-F9AD-4EDD-9DD5-8E9C9E6B3179",
+      "kind" : "flower",
+      "x" : 697.6257181167603
+    },
+    {
+      "id" : "AC70F915-BD57-4B7F-9476-B2F4D02ACDC1",
+      "kind" : "fruit",
+      "x" : 666.4755249023438
+    },
+    {
+      "id" : "plank-1",
+      "kind" : "plank",
+      "x" : 450
+    }
+  ],
+  "residents" : [
+    {
+      "heldItem" : null,
+      "id" : "resident_a",
+      "x" : 625.3007173538208
+    },
+    {
+      "heldItem" : null,
+      "id" : "resident_b",
+      "x" : 503.7830400466919
+    }
+  ],
+  "savedAt" : 1794447851.421,
+  "story" : {
+    "doneAt" : 1794447754.994,
+    "round" : 1,
+    "stage" : "done"
+  },
+  "version" : 1
+}

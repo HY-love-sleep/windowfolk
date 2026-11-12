@@ -1,0 +1,13 @@
+{"actor":null,"detail":{"giver":"resident_a","receiver":"resident_b","round":"1"},"target":null,"time":"2026-11-12T09:53:49+08:00","type":"round_started"}
+{"actor":"resident_a","detail":{"on":"app:WindowfolkQAFixture"},"target":"resident_b","time":"2026-11-12T09:53:49+08:00","type":"waiting_started"}
+{"actor":"player","detail":{"from":"app:WindowfolkQAFixture","to":"app:WindowfolkQAFixture"},"target":"plank:1","time":"2026-11-12T09:53:54+08:00","type":"plank_placed"}
+{"actor":null,"detail":{"cause":"collapsed","from":"app:WindowfolkQAFixture","to":"app:WindowfolkQAFixture"},"target":"plank:1","time":"2026-11-12T09:54:01+08:00","type":"plank_dropped"}
+{"actor":"resident_a","detail":{"from_state":"hanging"},"target":null,"time":"2026-11-12T09:54:02+08:00","type":"fell"}
+{"actor":"resident_a","detail":{},"target":"ground","time":"2026-11-12T09:54:02+08:00","type":"landed"}
+{"actor":"resident_a","detail":{"on":"ground"},"target":"resident_b","time":"2026-11-12T09:54:02+08:00","type":"waiting_started"}
+{"actor":"player","detail":{"bottom":"ground","top":"app:WindowfolkQAFixture"},"target":"ladder:1","time":"2026-11-12T09:54:05+08:00","type":"ladder_placed"}
+{"actor":"resident_a","detail":{"direction":"up","from":"ground","to":"app:WindowfolkQAFixture"},"target":"ladder:1","time":"2026-11-12T09:54:28+08:00","type":"climbed_ladder"}
+{"actor":"resident_a","detail":{"flower":"flower:9B3A9014-4DE9-473B-8647-0556822D8AE5","round":"1"},"target":"resident_b","time":"2026-11-12T09:54:30+08:00","type":"planted"}
+{"actor":null,"detail":{},"target":"flower:9B3A9014-4DE9-473B-8647-0556822D8AE5","time":"2026-11-12T09:54:33+08:00","type":"sprouted"}
+{"actor":null,"detail":{},"target":"flower:9B3A9014-4DE9-473B-8647-0556822D8AE5","time":"2026-11-12T09:54:35+08:00","type":"bloomed"}
+{"actor":"resident_b","detail":{"fruit":"fruit:A87CCF75-C97A-4306-B4A7-63B1894EA6B6","round":"1"},"target":"resident_a","time":"2026-11-12T09:54:41+08:00","type":"gift_delivered"}

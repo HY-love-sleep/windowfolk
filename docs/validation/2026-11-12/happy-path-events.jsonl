@@ -1,0 +1,8 @@
+{"actor":null,"detail":{"giver":"resident_a","receiver":"resident_b","round":"1"},"target":null,"time":"2026-11-12T09:39:52+08:00","type":"round_started"}
+{"actor":"resident_a","detail":{"on":"app:WindowfolkQAFixture"},"target":"resident_b","time":"2026-11-12T09:39:52+08:00","type":"waiting_started"}
+{"actor":"player","detail":{"from":"app:WindowfolkQAFixture","to":"app:WindowfolkQAFixture"},"target":"plank:1","time":"2026-11-12T09:40:37+08:00","type":"plank_placed"}
+{"actor":"resident_a","detail":{"from":"app:WindowfolkQAFixture","to":"app:WindowfolkQAFixture"},"target":"plank:1","time":"2026-11-12T09:40:46+08:00","type":"crossed_bridge"}
+{"actor":"resident_a","detail":{"flower":"flower:AB60575D-F9AD-4EDD-9DD5-8E9C9E6B3179","round":"1"},"target":"resident_b","time":"2026-11-12T09:40:54+08:00","type":"planted"}
+{"actor":null,"detail":{},"target":"flower:AB60575D-F9AD-4EDD-9DD5-8E9C9E6B3179","time":"2026-11-12T09:42:24+08:00","type":"sprouted"}
+{"actor":null,"detail":{},"target":"flower:AB60575D-F9AD-4EDD-9DD5-8E9C9E6B3179","time":"2026-11-12T09:42:30+08:00","type":"bloomed"}
+{"actor":"resident_b","detail":{"fruit":"fruit:AC70F915-BD57-4B7F-9476-B2F4D02ACDC1","round":"1"},"target":"resident_a","time":"2026-11-12T09:42:34+08:00","type":"gift_delivered"}
