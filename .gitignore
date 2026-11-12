@@ -32,3 +32,6 @@ __pycache__/
 # build-app.sh output
 Windowfolk.app/
 .Windowfolk.app.*/
+
+# Local recordings and large media (upload elsewhere, link from docs)
+artifacts/
