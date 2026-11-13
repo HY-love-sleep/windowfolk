@@ -9,10 +9,18 @@ public enum Command: Hashable, Sendable {
     case debugSeek
     /// 调试：都都未持有 Item 时给它一个 Growth_Stage 为 `pot` 的花盆（非剧情花）；已持有时不变（Requirement 26.4、26.5）。
     case debugGiveFlower
-    /// 调试：快进（Requirement 17.5 至 17.7、26.6）。剧情未启用时忽略。
+    /// 调试：快进（v2 Requirement 8.8 至 8.10，由 `WishDirector.fastForward` 处理）。剧情未启用时忽略。
     case fastForward
-    /// 调试：重新开始剧情（Requirement 20.6、26.7）。剧情未启用时忽略。
-    case restartStory
+    /// 调试：重置世界（v2 Requirement 17.6，取代 v1「重新开始剧情」）：执行 v1 R20.6 的处理，清除全部 Decor、
+    /// Wish、Unlocked_Decor 和相关计数，同一帧重新分配 Home_Window。剧情未启用时忽略。
+    case resetWorld
+    /// 调试：触发心愿（v2 Requirement 17.2、17.3）。`ResidentID` 为 Wisher；送花时忽略，取下一次的 Giver。
+    /// 剧情未启用时忽略。
+    case triggerWish(WishType, ResidentID?)
+    /// 调试：昼夜覆盖（v2 Requirement 17.4）。同一帧内生效。
+    case setDayNight(DayNightOverride)
+    /// 调试：解锁全部物件（v2 Requirement 17.5）。新加入的 Decor_Type 各写一条 `decor_unlocked`。
+    case unlockAllDecor
 }
 
 /// 剧情的渲染信息（任务 13.6 绘制气泡和动画使用）。
@@ -54,11 +62,24 @@ public struct FrameInput: Sendable {
     public var commands: [Command]
     /// Story_Clock 读数（墙上时间）。物理和动画的 dt 由相邻两次读数相减得到。
     public var now: Date
+    /// Local_Clock 的时区，用于 Night 判定（v2 Requirement 5.1）。`now` 同时作为 Local_Clock 的时刻。
+    public var timeZone: TimeZone
+    /// 世界因全屏应用隐藏（v1 R23）。为 true 时两位居民都不显示 Thought（v2 Requirement 14.3）。
+    public var worldHidden: Bool
+    /// 「小心思」是否生效（已按 `LLMSettingsValidation.effective` 处理，v2 Requirement 14.1、14.10）。
+    public var thoughtsEnabled: Bool
+    /// 自上一帧以来回到主线程的 Thought 结果 `(请求 id, 结果)`，按返回顺序（v2 Requirement 12.5）。
+    public var thoughtResults: [(UInt64, ThoughtResult)]
 
     public init(
         poll: WindowPollResult, screen: ScreenInfo, pointer: [PointerEvent] = [],
-        commands: [Command] = [], now: Date
+        commands: [Command] = [], now: Date, timeZone: TimeZone = .current,
+        worldHidden: Bool = false, thoughtsEnabled: Bool = false, thoughtResults: [(UInt64, ThoughtResult)] = []
     ) {
+        self.timeZone = timeZone
+        self.worldHidden = worldHidden
+        self.thoughtsEnabled = thoughtsEnabled
+        self.thoughtResults = thoughtResults
         self.poll = poll
         self.screen = screen
         self.pointer = pointer
@@ -95,11 +116,18 @@ public struct ResidentView: Hashable, Sendable {
     public var poke: PokeState?
     /// 戳居民跳跃的向上显示偏移（pt，向上为正）。只影响绘制和命中矩形。
     public var jumpLift: Double
+    /// 正在显示的 Thought 文本（已规整，v2 Requirement 14.2）；没有时为 nil。渲染层按 `ThoughtLayout` 布局。
+    public var thought: String?
+    /// 坐在 Chair 上的显示上移量（pt，向上为正，`SpriteMetrics.residentSeatLift`）；不坐时为 0。
+    public var seatLift: Double
 
     public init(
         id: ResidentID, state: ResidentState, position: Point?, facing: Facing, isHidden: Bool,
-        heldItem: ItemID? = nil, bubble: Bubble? = nil, poke: PokeState? = nil, jumpLift: Double = 0
+        heldItem: ItemID? = nil, bubble: Bubble? = nil, poke: PokeState? = nil, jumpLift: Double = 0,
+        thought: String? = nil, seatLift: Double = 0
     ) {
+        self.thought = thought
+        self.seatLift = seatLift
         self.id = id
         self.state = state
         self.position = position
@@ -194,6 +222,26 @@ public struct ItemView: Hashable, Sendable {
     }
 }
 
+/// 一个 Decor 的渲染信息（v2 任务 3.1）。附着在 Hidden_Window 上的 Decor 不在 `WorldView.decors` 中。
+public struct DecorView: Hashable, Sendable {
+    public var id: DecorID
+    public var type: DecorType
+    /// 底边中点的屏幕坐标（Core 坐标）。
+    public var position: Point
+    /// 正在下落。
+    public var isFalling: Bool
+    /// 正在被玩家拖动。
+    public var isDragged: Bool
+
+    public init(id: DecorID, type: DecorType, position: Point, isFalling: Bool = false, isDragged: Bool = false) {
+        self.id = id
+        self.type = type
+        self.position = position
+        self.isFalling = isFalling
+        self.isDragged = isDragged
+    }
+}
+
 /// 给渲染和命中检测用的只读快照。
 public struct WorldView: Hashable, Sendable {
     public var screen: ScreenInfo
@@ -217,14 +265,33 @@ public struct WorldView: Hashable, Sendable {
     public var isInteracting: Bool
     /// 剧情信息；剧情未启用时为 nil。
     public var story: StoryView?
+    /// 可见的 Decor（放置、下落中、拖动中），按 `DecorID` 排序。附着在 Hidden_Window 上的 Decor 不在此列。
+    public var decors: [DecorView]
+    /// Unlocked_Decor，决定 Toolbox 中 Decor_Slot 的布局（v2 Requirement 2.1、2.2）。
+    public var unlockedDecor: Set<DecorType>
+    /// Decor_Slot 达到上限时的晃动；没有晃动时为 nil（v2 Requirement 2.4）。
+    public var toolboxShake: ToolboxShake?
+    /// 各 active Visit_Wish 的 Visit_Flag 位置：Visit_Target 当前最长一段 Window_Ledge 的中点，渲染层画在其上方
+    /// （v2 Requirement 9.2）。Visit_Target 隐藏或没有窗沿时不在此列（v2 Requirement 9.7）。按 Wish 顺序。
+    public var visitFlags: [Point]
+    /// 当前是否为 Night（v2 Requirement 5.10：Lamp 发光）。
+    ///
+    /// `WorldView` 不含任何倒计时、计数、进度或结局字段，渲染层没有数据可以显示这些内容（v2 Requirement 10.4）。
+    public var isNight: Bool
 
     public init(
         screen: ScreenInfo, surfaces: [Surface], showSurfaces: Bool, residents: [ResidentView] = [],
         planks: [PlankView] = [], ladders: [LadderView] = [], preview: Preview? = nil,
         hitRegions: [HitRegion] = [], isInteracting: Bool = false, items: [ItemView] = [],
-        story: StoryView? = nil
+        story: StoryView? = nil, decors: [DecorView] = [], unlockedDecor: Set<DecorType> = [],
+        toolboxShake: ToolboxShake? = nil, visitFlags: [Point] = [], isNight: Bool = false
     ) {
+        self.visitFlags = visitFlags
+        self.isNight = isNight
         self.story = story
+        self.decors = decors
+        self.unlockedDecor = unlockedDecor
+        self.toolboxShake = toolboxShake
         self.screen = screen
         self.surfaces = surfaces
         self.showSurfaces = showSurfaces
@@ -237,8 +304,8 @@ public struct WorldView: Hashable, Sendable {
         self.isInteracting = isInteracting
     }
 
-    /// Toolbox 外框（Requirement 8.1、8.4）。
-    public var toolbox: Rect { ToolboxLayout.frame(screen: screen) }
+    /// Toolbox 外框（Requirement 8.1、8.4），按 Unlocked_Decor 布局（v2 Requirement 2.1、2.2）。
+    public var toolbox: Rect { ToolboxLayout.frame(screen: screen, unlocked: unlockedDecor) }
 }
 
 /// 一次 `step` 的输出。事件列表由任务 14 加入。
@@ -259,12 +326,16 @@ public struct StepOutput: Sendable {
     /// 本次要写入 Event_Log 的事件记录（Requirement 21.1），按发生顺序排列，`time` 为本帧的 `now`（截断到秒）。
     /// 只含 Requirement 21.1 列出的 14 种事件；应用层编码后追加到 `events.jsonl`（任务 14.2）。
     public var events: [EventRecord]
+    /// 本帧发出的 Thought 请求（至多一个）。由应用层在 Game_Loop 之外异步执行，结果随之后的
+    /// `FrameInput.thoughtResults` 送回（v2 Requirement 12.5）。
+    public var thoughtRequests: [ThoughtRequest]
 
     public init(
         view: WorldView, windowChanges: WindowChanges, interactions: [InteractionOutcome] = [],
         failedPlanks: [PlankID] = [], failedLadders: [LadderID] = [], nextRate: PollRate,
-        storyEvents: [StoryEvent] = [], events: [EventRecord] = []
+        storyEvents: [StoryEvent] = [], events: [EventRecord] = [], thoughtRequests: [ThoughtRequest] = []
     ) {
+        self.thoughtRequests = thoughtRequests
         self.storyEvents = storyEvents
         self.events = events
         self.view = view
@@ -286,13 +357,13 @@ public final class WorldEngine {
     public static let supportTolerance: Double = 1.0
 
     public let constants: Tunables
-    public private(set) var state: WorldState
+    public internal(set) var state: WorldState
     /// 上一次 step 的时钟读数；首次 step 之前为构造时传入的 `clockStart`。
     public private(set) var lastNow: Date
     /// 最近一次 step 使用的 dt（秒），已限制在 [0, maxDeltaTime]。
     public private(set) var lastDeltaTime: Double = 0
     /// 居民闲逛等行为使用的随机源。
-    public private(set) var rng: RandomSource
+    public internal(set) var rng: RandomSource
     /// 临时演示用：尚未放置演示居民时为 true。剧情启用时不使用（居民由剧情开局放置）。
     private var demoResidentPending: Bool
     /// 剧情是否启用：启用时每帧调用 `StoryDirector.update`，首次 step 起按窗口开局（Requirement 15）。
@@ -301,7 +372,20 @@ public final class WorldEngine {
     /// 重写 Goal，因此「让都都去找嘟嘟」记录下发出命令时的阶段和轮次，在此期间每帧剧情更新之后把都都的 Goal
     /// 设回 `reach(嘟嘟)`。都都走到嘟嘟身边（同一 Surface、x 差 ≤ Gift_Reach_Distance）、Story_Stage 或轮次变化、
     /// 或剧情重新开始时覆盖结束，Goal 回到剧情分配的值。覆盖不改变 Story_Stage。
-    private var seekOverride: (stage: StoryStage?, round: Int)?
+    var seekOverride: (stage: StoryStage?, round: Int)?
+    /// 剧情未启用时的调试寻找（`debugSeek`）进行中：自主活动启用时都都在此期间不由 Activity_Planner 控制，
+    /// 走到嘟嘟身边后结束（见 `WorldEngine+V2.swift`）。
+    var debugSeekActive = false
+    /// 自主活动（Activity_Planner）是否启用（v2 任务 5.6）。见 `init` 的 `activities` 参数。
+    public let activitiesEnabled: Bool
+    /// Nav_Graph 真正重建的次数（v2 design.md「NavGraph 水平度量」），供追逐判断「Nav_Graph 发生变化」。
+    public private(set) var navVersion = 0
+    /// Visit_Wish 刚完成、下一次选择 Activity 时应把 `go_home` 放进候选的居民（v2 Requirement 9.8）。
+    /// 为其选出下一个 Activity 后移除。不保存。
+    var preferHome: Set<ResidentID> = []
+    /// Home_Window 分配成功时是否把居民放到家里：首次开局和「重置世界」为 true；恢复存档后为 false，
+    /// 只分配家、不移动居民（v2 design.md「已确认决策 2」）。
+    private var homesPlaceResidents = true
     /// 本次 step 重算路面之前的木板 Surface，用于确定桥塌那一刻居民的屏幕坐标。
     private var previousPlankSurfaces: [PlankID: Surface] = [:]
     /// 本次 step 中刚进入 `hanging` 的居民：Hang_Duration 从下一帧开始累计，计时起点就是失效那一帧。
@@ -309,7 +393,7 @@ public final class WorldEngine {
     /// 上次建图时的输入（路面、参与建图的木板与梯子）；不变时不重建 Nav_Graph。
     private var navInputs: (surfaces: [Surface], planks: [PlacedPlank], ladders: [NavLadder])?
     /// 本次 step 正在收集的事件记录（任务 14.3）。
-    private var eventLog = EventLogBuilder(now: Date(timeIntervalSince1970: 0))
+    var eventLog = EventLogBuilder(now: Date(timeIntervalSince1970: 0))
     /// 居民状态的比较基准：每个可能改变居民的阶段之后与之比较，产生 `fell`、`landed`、`waiting_started`、
     /// `crossed_bridge`、`climbed_ladder`，再更新基准。
     private var residentBaseline: [ResidentID: Resident] = [:]
@@ -333,15 +417,20 @@ public final class WorldEngine {
     ///     由剧情开局放置两位居民；false 时既不启用剧情也不放置任何居民（测试通过 `place(_:)` 自行放置）。
     ///   - story: 显式指定是否启用剧情。为 false 且 `demoResident` 为 true 时，回到旧的临时演示放置：
     ///     第一次 step 在首个可见窗沿中点放 Resident_A、离它最远的另一窗口窗沿放 Resident_B（没有窗沿时放在 Ground 上）。
+    ///   - activities: 是否启用自主活动（v2 Activity_Planner）。默认（nil）与剧情相同：剧情启用的完整 V2 世界里
+    ///     居民自主活动，Busy_Resident（参与 active Wish 的居民、Wish 完成后庆祝中的居民、调试寻找中的都都）之外的
+    ///     居民由 Activity_Planner 选择并推进 Activity。剧情关闭的测试世界默认不启用，居民按 v1 的 Goal 行动
+    ///     （`Goal.none` 在当前 Surface 闲逛，v1 Property 24 的调整）；测试可显式传 true 或 false。
     public init(
         constants: Tunables = Tunables(), clockStart: Date, screen: ScreenInfo = WorldState.emptyScreen,
         rng: RandomSource = .systemSeeded(), demoResident: Bool = true, story: Bool? = nil,
-        restored: SaveFile? = nil
+        restored: SaveFile? = nil, activities: Bool? = nil
     ) {
+        let storyOn = story ?? demoResident
+        self.activitiesEnabled = activities ?? storyOn
         self.constants = constants
         self.lastNow = clockStart
         self.rng = rng
-        let storyOn = story ?? demoResident
         self.storyEnabled = storyOn
         self.demoResidentPending = demoResident && !storyOn && restored == nil
         self.pendingRestore = restored
@@ -380,6 +469,21 @@ public final class WorldEngine {
         guard state.items.give(item, to: &r) else { return false }
         state.residents[id] = r
         return true
+    }
+
+    /// 放入或替换一个 Decor（测试和存档恢复使用），下一次 step 起生效。不检查 Max_Decor_Count。
+    /// 通过 `DecorStore.init` 重建，保证之后新分配的 ID 不与它冲突。
+    public func insertDecor(_ decor: Decor) {
+        var all = state.decors.decors
+        all[decor.id] = decor
+        state.decors = DecorStore(
+            decors: all, unlocked: state.decors.unlocked,
+            nextID: state.decors.nextID, nextSeq: state.decors.nextSeq)
+    }
+
+    /// 把 `t` 加入 Unlocked_Decor（测试和存档恢复使用），不写事件记录。
+    public func unlockDecor(_ t: DecorType) {
+        state.decors.unlock(t)
     }
 
     /// 放入一块木板（测试和存档恢复使用），返回新分配的 ID。下一次 step 起生效。
@@ -423,11 +527,14 @@ public final class WorldEngine {
     ///    隐藏窗口上的对象保持不变（Requirement 5.3、5.4）；
     /// 7. 玩家输入（点击、拖动、木板与梯子松手）；架设或下落后立即重算路面（Requirement 9.6、10.5）；
     /// 8. 路面、木板或梯子变化时重建 Nav_Graph（Requirement 12.1）；
-    /// 8b. 剧情（剧情启用时）：处理「快进」「重新开始剧情」，`StoryDirector.update` 推进阶段并分配 Goal，
-    ///    再应用调试寻找覆盖；居民更新之后应用剧情气泡覆盖（`Waiting` 中 Giver 显示许愿气泡）；
+    /// 8b. 剧情与心愿（剧情启用时，v2 任务 7.4）：Home_Window 未分配时分配并开始 Wish 调度；处理「快进」「重置世界」
+    ///    「触发心愿」；`WishDirector.plan`；`StoryDirector.update`（Story_Stage 只在 Flower_Wish 进行中推进）；
+    ///    调试寻找覆盖；随后 `ActivityPlanner.plan`。居民移动之后 `WishDirector.resolve`、`ActivityPlanner.resolve`，
+    ///    再应用剧情气泡、Wish_Bubble 和 Zzz 覆盖；
     /// 9. 居民行为与下落推进（隐藏窗口上和戳跳跃中的居民跳过移动，Requirement 7.7）；
     /// 10. 下落中的木板和梯子推进并落位（Requirement 9.8、10.6）；
     /// 11. 无悬空不变量检查，违规者转为下落（Requirement 29.5、29.6）。
+    /// 11b. v2 第 16 步：`ThoughtEngine.step`（收结果、显示、移除、按本帧事件发请求），写 `thought_shown`；
     /// 12. 轮询频率策略给出下一周期频率（Requirement 24）。
     @discardableResult
     public func step(_ input: FrameInput) -> StepOutput {
@@ -439,6 +546,7 @@ public final class WorldEngine {
         for command in input.commands {
             apply(command)
         }
+        advanceToolboxShake(dt: dt)
 
         if input.screen != state.screen {
             state.screen = input.screen
@@ -475,26 +583,39 @@ public final class WorldEngine {
         resolveLoosePlanks()
         resolveLooseLadders()
         resolveItemAttachments()
+        resolveDecorAttachments()
         noteResidentTransitions()
 
         let interactions = handlePointer(input.pointer)
         recordInteractions(interactions)
+        unseatFromDraggedChairs(interactions)
         noteResidentTransitions()
 
         rebuildNavIfNeeded()
+        updateDayNight(now: input.now, timeZone: input.timeZone)
+        // 剧情和 Wish 事件在 `updateStory` 内按发生顺序写入事件记录。
         let storyEvents = updateStory(commands: input.commands, now: input.now, dt: dt)
-        recordStoryEvents(storyEvents)
+        planActivities(now: input.now)
         // 剧情直接设置的状态（开局落位、种花、庆祝）不属于 Requirement 21.1 的事件，只更新比较基准。
         rebaselineResidents()
         updateResidents(dt: dt)
         noteResidentTransitions()
+        resolveWishes(now: input.now)
+        resolveActivities(now: input.now)
         applyStoryBubbles()
+        applyWishBubbles()
+        applyActivityBubbles()
         advanceFallingPlanks(dt: dt)
         advanceFallingLadders(dt: dt)
         reconcileItems()
         advanceFallingItems(dt: dt)
+        advanceFallingDecors(dt: dt)
         enforceSupport()
+        endAirborneActivities()
+        reconcileSeats()
         noteResidentTransitions()
+        // v2 第 16 步：全部事件产生之后推进 Thought_Engine（v2 Requirement 14.1），`thought_shown` 追加到本帧记录末尾。
+        let thoughtRequests = updateThoughts(input)
 
         let events = eventLog.records
         eventLog = EventLogBuilder(now: input.now)
@@ -503,7 +624,7 @@ public final class WorldEngine {
         return StepOutput(
             view: view, windowChanges: changes, interactions: interactions,
             failedPlanks: failed, failedLadders: failedLadders, nextRate: nextRate, storyEvents: storyEvents,
-            events: events)
+            events: events, thoughtRequests: thoughtRequests)
     }
 
     // MARK: - 轮询频率（任务 17.1）
@@ -512,7 +633,7 @@ public final class WorldEngine {
     /// `planting`、`celebrating` 是限时动画，`hanging` 的 Hang_Duration 计时需要 100ms 精度（Requirement 13.4）。
     /// 隐藏窗口上的居民暂停行动，不计入。
     public static let activeResidentStates: Set<ResidentState> = [
-        .walking, .carrying, .falling, .hanging, .climbing, .planting, .celebrating,
+        .walking, .carrying, .running, .falling, .hanging, .climbing, .planting, .celebrating,
     ]
 
     /// 比较本帧与上一帧，生成活动样本并交给 `PollRatePolicy`（Requirement 24.2 至 24.6、29.2）。
@@ -544,47 +665,169 @@ public final class WorldEngine {
     }
 
     /// 在第一次成功轮询的那一帧把待恢复的存档放回世界（Requirement 22.6 至 22.10、19.6、19.7）。
+    ///
+    /// V2（任务 10.4）：先按存档放回物件、Decor、居民、剧情和 WishBook（Unlocked_Decor、冷却起点、Flower_Wish
+    /// 次数），再按 v1 选家规则重新分配 Home_Window（不移动居民，design.md「已确认决策」），然后恢复 active Wish
+    /// （Visit_Target 匹配排除 Home_Window）。恢复时放弃的 Wish 写 `wish_dropped`（v2 Requirement 15.8、18.2）。
     private func applyPendingRestore(poll: WindowPollResult, now: Date) {
         guard let save = pendingRestore, case .success = poll else { return }
         pendingRestore = nil
         demoResidentPending = false
+        homesPlaceResidents = false
         restoreLanding = SaveSnapshot.restore(save, into: &state, now: now, constants: constants)
-        if storyEnabled { StoryDirector.assignGoals(state.story, world: &state) }
+        guard storyEnabled else { return }
+        assignHomesIfNeeded(now: now)
+        let dropped = SaveSnapshot.restoreWishes(save, into: &state, now: now, constants: constants)
+        for s in dropped {
+            recordWish(.wishDropped, type: s.type, wisher: s.wisher, visitApp: s.visitTargetApp,
+                       state: .dropped, outcome: nil)
+        }
+        StoryDirector.assignGoals(state.story, world: &state, wishDriven: true)
     }
 
-    // MARK: - 剧情（任务 13.5）
+    // MARK: - 剧情与心愿（v2 任务 7.4）
 
-    /// 处理本帧的「快进」「重新开始剧情」命令，然后推进一帧剧情，最后应用调试寻找覆盖。
-    /// 在 Nav_Graph 重建之后、居民移动之前调用（design.md「每帧更新顺序」第 7 步）。
-    /// 快进和重新开始放在这里而不是帧首，是因为两者都要用本帧的路面和通路图（开局选家、可达性判定）。
+    /// design.md「每帧更新顺序（V2）」第 9、10 步，在 Nav_Graph 重建之后、Activity_Planner 和居民移动之前调用：
+    /// 1. Home_Window 未分配时尝试分配（首次开局放置居民；恢复存档后不移动居民），成功那一帧开始 Wish 调度
+    ///    （Requirement 6.1）；
+    /// 2. 本帧的「快进」「重置世界」「触发心愿」（需要本帧的路面和通路图）；
+    /// 3. `WishDirector.plan`；
+    /// 4. `StoryDirector.update(wishDriven: true)`：Story_Stage 只在 Flower_Wish 进行中推进；没有 Flower_Wish 时
+    ///    只推进已种下花的生长和心形气泡计时；
+    /// 5. 调试寻找覆盖。
+    /// 返回本帧的剧情事件（含 Flower_Wish 开始时的 `round_started`），Wish 事件直接写入事件记录。
     private func updateStory(commands: [Command], now: Date, dt: Double) -> [StoryEvent] {
         guard storyEnabled, pendingRestore == nil else { return [] }
-        var story = state.story
-        var world = state
-        var events: [StoryEvent] = []
+        var storyEvents: [StoryEvent] = []
+        assignHomesIfNeeded(now: now)
         for command in commands {
             switch command {
             case .fastForward:
-                events += StoryDirector.fastForward(&story, world: &world, constants: constants, now: now)
-            case .restartStory:
-                events += StoryDirector.restart(&story, world: &world, constants: constants, now: now)
-                seekOverride = nil
+                var book = state.wishes
+                let events = WishDirector.fastForward(&book, world: &state, constants: constants, now: now)
+                state.wishes = book
+                storyEvents += events
+                recordStoryEvents(events)
+            case .resetWorld:
+                resetWorld(now: now)
+            case let .triggerWish(type, wisher):
+                var book = state.wishes
+                var world = state
+                let events = WishDirector.trigger(
+                    type, wisher: wisher, book: &book, world: &world, ctx: wishContext(now: now), rng: &rng)
+                world.wishes = book
+                state = world
+                storyEvents += recordWishEvents(events)
             default:
                 break
             }
         }
-        events += StoryDirector.update(&story, world: &world, constants: constants, now: now, dt: dt)
+
+        var book = state.wishes
+        var world = state
+        let events = WishDirector.plan(&book, world: &world, ctx: wishContext(now: now), rng: &rng)
+        world.wishes = book
+        state = world
+        storyEvents += recordWishEvents(events)
+
+        var story = state.story
+        world = state
+        let flowerEvents = StoryDirector.update(
+            &story, world: &world, constants: constants, now: now, dt: dt, wishDriven: true)
         world.story = story
         state = world
+        storyEvents += flowerEvents
+        recordStoryEvents(flowerEvents)
         applySeekOverride()
-        return events
+        return storyEvents
     }
 
-    /// 调试寻找覆盖（见 `seekOverride`）。
+    /// Home_Window 未分配时按 v1 规则分配（v1 R15.1 至 15.4、15.7）。首次开局时放置居民（没有两个合格窗口时
+    /// 放在 Ground 上，只放一次）；恢复存档后不移动居民。成功那一帧设置 `nextCheckAt`（Requirement 6.1）。
+    private func assignHomesIfNeeded(now: Date) {
+        guard state.story.homes.isEmpty else { return }
+        var story = state.story
+        var world = state
+        let ok = StoryDirector.assignHomes(
+            &story, world: &world, constants: constants, placeResidents: homesPlaceResidents)
+        world.story = story
+        state = world
+        if ok { WishDirector.startScheduling(&state.wishes, now: now, constants: constants) }
+    }
+
+    /// 「重置世界」（v2 Requirement 17.6、1.6、22.7）：v1「重新开始剧情」的清理（删除全部 Flower 和 Fruit，
+    /// 保留 Plank 和 Ladder），加上清除全部 Decor、Wish（含 Busy_Resident 身份、冷却起点、Flower_Wish 次数、
+    /// 上次 Done 时间）、Unlocked_Decor 和 Activity；居民 Walk_Distance 归零、恢复正常速度和度量，`sitting`、
+    /// `sleeping`、`running`、`waiting` 转 `idle`。不写任何 Wish 记录；昼夜覆盖、`events.jsonl` 不变。
+    /// 随后同一帧重新分配 Home_Window 并放置居民。结果与当前 Wish_State 和 Story_Stage 无关。
+    private func resetWorld(now: Date) {
+        var story = state.story
+        var world = state
+        StoryDirector.clear(&story, world: &world)
+        world.story = story
+        state = world
+        state.decors = DecorStore()
+        state.wishes = WishBook()
+        state.activities = [:]
+        state.toolboxShake = nil
+        preferHome = []
+        seekOverride = nil
+        debugSeekActive = false
+        switch state.gesture {
+        case .dragging(.decor, _, _), .pressed(.decor, _), .pressed(.toolbox(.decor), _):
+            state.gesture = .swallowed
+        default:
+            break
+        }
+        for id in sortedResidentIDs {
+            guard var r = state.residents[id] else { continue }
+            r.walkDistance = 0
+            r.speedFactor = 1
+            r.routeMetric = .standard
+            r.seat = nil
+            switch r.state {
+            case .waiting:
+                ResidentController.leaveWaiting(&r)
+                r.state = .idle
+            case .sitting, .sleeping, .running:
+                r.state = .idle
+            default:
+                break
+            }
+            r.route = nil
+            r.goal = .none
+            state.residents[id] = r
+        }
+        homesPlaceResidents = true
+        assignHomesIfNeeded(now: now)
+    }
+
+    /// 第 13 步：`WishDirector.resolve`（居民移动之后，按移动后的位置重建上下文）。Visit_Wish 完成后把 Wisher
+    /// 放进 `preferHome`（Requirement 9.8）。
+    private func resolveWishes(now: Date) {
+        guard storyEnabled, pendingRestore == nil else { return }
+        var book = state.wishes
+        var world = state
+        let events = WishDirector.resolve(&book, world: &world, ctx: wishContext(now: now))
+        world.wishes = book
+        state = world
+        for case let .fulfilled(w, _) in events where w.type == .visit {
+            preferHome.insert(w.wisher)
+        }
+        _ = recordWishEvents(events)
+    }
+
+    /// 当前世界的 WishDirector 输入。
+    private func wishContext(now: Date) -> WishContext {
+        WishContext(world: state, now: now, navVersion: navVersion, constants: constants)
+    }
+
+    /// 调试寻找覆盖（见 `seekOverride`）。都都参与非送花 Wish 时结束覆盖，Goal 交给 WishDirector。
     private func applySeekOverride() {
         guard let o = seekOverride else { return }
         let story = state.story
-        guard o.stage == story.stage, o.round == story.round,
+        let inOtherWish = state.wishes.wish(of: .a).map { $0.type != .flower } ?? false
+        guard o.stage == story.stage, o.round == story.round, !inOtherWish,
               state.residents[.a] != nil, state.residents[.b] != nil else {
             seekOverride = nil
             return
@@ -594,7 +837,11 @@ public final class WorldEngine {
            let lb = StoryDirector.location(.b, world: state, ctx: ctx),
            la.surface == lb.surface, abs(la.x - lb.x) <= constants.giftReachDistance {
             seekOverride = nil
-            StoryDirector.assignGoals(story, world: &state)
+            if story.stage != nil {
+                StoryDirector.assignGoals(story, world: &state, wishDriven: true)
+            } else if state.residents[.a]?.goal == .reach(.b) {
+                state.residents[.a]?.goal = .hold(face: nil)
+            }
             return
         }
         if state.residents[.a]?.goal != .reach(.b) { state.residents[.a]?.goal = .reach(.b) }
@@ -710,6 +957,19 @@ public final class WorldEngine {
             }
             state.items[iid] = item
         }
+        // Decor（v2 Requirement 3.9）：与物件相同，按 Decor 图形宽度夹紧。
+        for did in state.decors.sortedIDs {
+            guard var d = state.decors.decors[did] else { continue }
+            switch d.placement {
+            case let .attached(a):
+                d.placement = .attached(groundAttachment(a, width: SpriteMetrics.decorSize(d.type).width))
+            case let .falling(f, byPlayer):
+                d.placement = .falling(clampFall(f), byPlayer: byPlayer)
+            case .dragged:
+                continue
+            }
+            state.decors.decors[did] = d
+        }
         for pid in state.planks.planks.keys.sorted() {
             switch state.planks.planks[pid] {
             case let .loose(a)?:
@@ -767,6 +1027,14 @@ public final class WorldEngine {
             item.placement = .falling(Physics.startFall(at: p, screen: state.screen))
             state.items[iid] = item
         }
+        // 窗沿上的 Decor：与物件相同，被动下落（v2 Requirement 3.9）。
+        for did in state.decors.sortedIDs {
+            guard var d = state.decors.decors[did], case let .attached(.window(wid, offset)) = d.placement,
+                  let snap = closed[wid] else { continue }
+            let p = Point(x: snap.frame.minX + offset, y: snap.frame.minY)
+            d.placement = .falling(Physics.startFall(at: p, screen: state.screen), byPlayer: false)
+            state.decors.decors[did] = d
+        }
     }
 
     /// 校验每块已架设木板（Requirement 9.9、9.12）。端点窗口隐藏时 `validity(of:)` 返回 nil，木板保持不变。
@@ -819,6 +1087,16 @@ public final class WorldEngine {
             let p = Point(x: sl.x + (sr.x - sl.x) * u, y: sl.y + (sr.y - sl.y) * u)
             item.placement = .falling(Physics.startFall(at: p, screen: state.screen))
             state.items[iid] = item
+        }
+        // 木板上的 Decor：与物件相同，从失效那一刻所在的屏幕坐标被动下落（v2 Requirement 3.9）。
+        for did in state.decors.sortedIDs {
+            guard var d = state.decors.decors[did], case let .attached(.plank(pid, t)) = d.placement,
+                  pid == placed.id else { continue }
+            let u = min(max(t, 0), 1)
+            let (sl, sr) = previousPlankSurfaces[placed.id].map { ($0.start, $0.end) } ?? (l, r)
+            let p = Point(x: sl.x + (sr.x - sl.x) * u, y: sl.y + (sr.y - sl.y) * u)
+            d.placement = .falling(Physics.startFall(at: p, screen: state.screen), byPlayer: false)
+            state.decors.decors[did] = d
         }
 
         // 木板从两端中点下落，按中心 x 落到正下方第一条 Surface（与松手时的红色预览一致）。
@@ -936,33 +1214,63 @@ public final class WorldEngine {
     private func resolveItemAttachments() {
         for iid in state.items.sortedIDs {
             guard var item = state.items[iid], case let .attached(a) = item.placement else { continue }
-            if isAttachmentHidden(a) { continue }
-            switch a {
-            case let .window(wid, offset):
-                guard let snap = state.windows.visibleSnapshot(wid) else {
-                    item.placement = .falling(fallbackFall())
-                    state.items[iid] = item
-                    continue
-                }
-                if let clamped = AttachmentResolver.clamp(offset: offset, window: snap, ledges: state.surfaces) {
-                    guard clamped != offset else { continue }
-                    item.placement = .attached(.window(wid, offset: clamped))
-                } else {
-                    let p = Point(x: snap.frame.minX + offset, y: snap.frame.minY)
-                    item.placement = .falling(Physics.startFall(at: p, screen: state.screen))
-                }
-            case .ground:
+            switch resolveLoose(a) {
+            case .keep:
                 continue
-            case .plank:
-                // 所在木板仍架设且两端可见时有位置，跟随木板；否则木板已失效或移走，从顶部兜底下落。
-                guard position(of: a) == nil else { continue }
-                item.placement = .falling(fallbackFall())
-            case .ladder, .free:
-                // 物件不应附着在梯子上或自由悬空：从当前位置下落。
-                item.placement = .falling(position(of: a).map { Physics.startFall(at: $0, screen: state.screen) }
-                    ?? fallbackFall())
+            case let .attach(clamped):
+                item.placement = .attached(clamped)
+            case let .fall(f):
+                item.placement = .falling(f)
             }
             state.items[iid] = item
+        }
+    }
+
+    /// 放着的 Decor 的跟随、夹紧与下落，规则与物件相同（v2 Requirement 3.9）；下落为被动下落。
+    private func resolveDecorAttachments() {
+        for did in state.decors.sortedIDs {
+            guard var d = state.decors.decors[did], case let .attached(a) = d.placement else { continue }
+            switch resolveLoose(a) {
+            case .keep:
+                continue
+            case let .attach(clamped):
+                d.placement = .attached(clamped)
+            case let .fall(f):
+                d.placement = .falling(f, byPlayer: false)
+            }
+            state.decors.decors[did] = d
+        }
+    }
+
+    /// 放着的物件或 Decor 的附着解析结果。
+    private enum LooseResolution {
+        /// 保持不变（跟随窗口或木板、位于 Ground、所在窗口或木板端点窗口隐藏）。
+        case keep
+        /// 夹紧到同一窗口的剩余窗沿。
+        case attach(Attachment)
+        /// 从给定状态开始下落。
+        case fall(FallState)
+    }
+
+    /// 物件与 Decor 共用的附着解析（见 `resolveItemAttachments`）。
+    private func resolveLoose(_ a: Attachment) -> LooseResolution {
+        if isAttachmentHidden(a) { return .keep }
+        switch a {
+        case let .window(wid, offset):
+            guard let snap = state.windows.visibleSnapshot(wid) else { return .fall(fallbackFall()) }
+            if let clamped = AttachmentResolver.clamp(offset: offset, window: snap, ledges: state.surfaces) {
+                return clamped == offset ? .keep : .attach(.window(wid, offset: clamped))
+            }
+            let p = Point(x: snap.frame.minX + offset, y: snap.frame.minY)
+            return .fall(Physics.startFall(at: p, screen: state.screen))
+        case .ground:
+            return .keep
+        case .plank:
+            // 所在木板仍架设且两端可见时有位置，跟随木板；否则木板已失效或移走，从顶部兜底下落。
+            return position(of: a) == nil ? .fall(fallbackFall()) : .keep
+        case .ladder, .free:
+            // 不应附着在梯子上或自由悬空：从当前位置下落。
+            return .fall(position(of: a).map { Physics.startFall(at: $0, screen: state.screen) } ?? fallbackFall())
         }
     }
 
@@ -983,7 +1291,8 @@ public final class WorldEngine {
     /// 当前状态下的交互上下文。
     private func interactionContext() -> InteractionContext {
         InteractionContext(
-            screen: state.screen, windows: state.windows, surfaces: state.surfaces, hitRegions: hitRegions())
+            screen: state.screen, windows: state.windows, surfaces: state.surfaces, hitRegions: hitRegions(),
+            unlockedDecor: state.decors.unlocked, jumpBlocked: jumpBlockedResidents())
     }
 
     /// 依次处理本帧的鼠标事件。木板架设或下落后立即重算路面，使新 Surface 在本次 step 结束前生效。
@@ -995,15 +1304,22 @@ public final class WorldEngine {
             var planks = state.planks
             var ladders = state.ladders
             var items = state.items
+            var decors = state.decors
             var residents = state.residents
             let result = InteractionController.handle(
                 event, gesture: &gesture, context: context,
-                planks: &planks, ladders: &ladders, items: &items, residents: &residents, constants: constants)
+                planks: &planks, ladders: &ladders, items: &items, decors: &decors,
+                residents: &residents, constants: constants)
             state.gesture = gesture
             state.planks = planks
             state.ladders = ladders
             state.items = items
+            state.decors = decors
             state.residents = residents
+            for case let .decorLimitReached(type) in result {
+                // v2 Requirement 2.4：该 Decor_Slot 左右晃动一次。
+                state.toolboxShake = ToolboxShake(zone: .decor(type), remaining: constants.toolboxShakeDuration)
+            }
             if result.contains(where: \.changesTopology) {
                 rebuildSurfaces()
             }
@@ -1027,6 +1343,7 @@ public final class WorldEngine {
             return
         }
         navInputs = (state.surfaces, planks, ladders)
+        navVersion += 1
         state.nav = NavGraph.build(surfaces: state.surfaces, planks: planks, ladders: ladders, constants: constants)
     }
 
@@ -1051,6 +1368,8 @@ public final class WorldEngine {
             guard var r = state.residents[id] else { continue }
             if isOnHiddenWindow(r) { continue }
             let jumping = InteractionController.advancePoke(&r, dt: dt)
+            let before = r.state
+            let beforeX = ResidentController.currentSurface(of: r, world: context)?.position.x
             if justHung.contains(id) {
                 // 失效那一帧不累计悬挂时长。
             } else if r.state == .falling, let allowed = restoreLanding.landingSurfaces(for: id, in: state.surfaces) {
@@ -1060,6 +1379,12 @@ public final class WorldEngine {
                 ResidentController.advanceFall(&r, world: limited, dt: dt)
             } else if !jumping || r.state == .falling || r.state == .hanging {
                 ResidentController.update(&r, world: context, dt: dt, rng: &rng)
+            }
+            // Walk_Distance：`walking` / `running` 帧的水平位移绝对值；下落、悬挂、爬梯的位移不计入（Requirement 4.14）。
+            if r.state == .walking || r.state == .running,
+               before != .falling, before != .hanging, before != .climbing,
+               let x0 = beforeX, let x1 = ResidentController.currentSurface(of: r, world: context)?.position.x {
+                r.walkDistance += abs(x1 - x0)
             }
             state.residents[id] = r
             if r.state != .falling { restoreLanding.residents[id] = nil }
@@ -1141,6 +1466,59 @@ public final class WorldEngine {
         }
     }
 
+    /// 下落中的 Decor 推进一帧，落点规则与物件相同（含已架设木板）。落地时更新 `placedSeq`。
+    /// 玩家松手下落（`byPlayer`）落地时写 `decor_placed`；被动下落落地不写记录（v2 Requirement 3.10、18.4）。
+    /// 存档恢复的 Decor 只落在 Ground 上（v2 Requirement 15.2）。
+    private func advanceFallingDecors(dt: Double) {
+        let landing = state.surfaces
+        // 已被移除（收回 Toolbox、重置世界）的 Decor 不再受恢复落点限制，避免 ID 复用后误用。
+        restoreLanding.decors.formIntersection(state.decors.decors.keys)
+        for did in state.decors.sortedIDs {
+            guard var d = state.decors.decors[did], case .falling(var fall, let byPlayer) = d.placement else {
+                restoreLanding.decors.remove(did)
+                continue
+            }
+            let allowed = restoreLanding.decors.contains(did) ? landing.filter { $0.id == .ground } : landing
+            if let surface = Physics.advance(&fall, dt: dt, surfaces: allowed, gravity: constants.fallGravity),
+               let a = AttachmentResolver.attachment(landingOn: surface, atX: fall.position.x, windows: state.windows) {
+                d.placement = .attached(a)
+                state.decors.decors[did] = d
+                state.decors.markPlaced(did)
+                restoreLanding.decors.remove(did)
+                if byPlayer { recordDecorPlaced(did, type: d.type, surface: SurfaceKindTag(surface.id)) }
+            } else {
+                d.placement = .falling(fall, byPlayer: byPlayer)
+                state.decors.decors[did] = d
+            }
+        }
+    }
+
+    /// Toolbox 晃动的剩余时间按 dt 减少，减到 0 时清除（v2 Requirement 2.4）。
+    private func advanceToolboxShake(dt: Double) {
+        guard var shake = state.toolboxShake else { return }
+        shake.remaining -= dt
+        state.toolboxShake = shake.remaining > 0 ? shake : nil
+    }
+
+    /// Decor 的渲染信息，按 `DecorID` 排序。附着在 Hidden_Window（或端点窗口隐藏的木板）上的 Decor 不绘制。
+    private func decorViews() -> [DecorView] {
+        state.decors.sortedIDs.compactMap { did -> DecorView? in
+            guard let d = state.decors.decors[did] else { return nil }
+            switch d.placement {
+            case let .attached(a):
+                if isAttachmentHidden(a) { return nil }
+                guard let p = position(of: a) else { return nil }
+                return DecorView(id: did, type: d.type, position: p)
+            case let .falling(f, _):
+                return DecorView(id: did, type: d.type, position: f.position, isFalling: true)
+            case .dragged:
+                // 拖动中：位于指针减去抓取偏移处（v2 Requirement 3.1）。
+                guard let p = InteractionController.draggedDecorPosition(did, gesture: state.gesture) else { return nil }
+                return DecorView(id: did, type: d.type, position: p, isDragged: true)
+            }
+        }
+    }
+
     /// 物件的渲染信息，按 `ItemID` 排序。被持有的物件位于持有者绘制位置加固定偏移，覆盖行走、小跳、往下跳、
     /// 爬梯、悬挂和下落全过程（Requirement 14.4）；持有者隐藏时不绘制。
     private func itemViews(residents: [ResidentView]) -> [ItemView] {
@@ -1182,6 +1560,13 @@ public final class WorldEngine {
             item.placement = .falling(p.map { Physics.startFall(at: $0, screen: state.screen) } ?? fallbackFall())
             state.items[iid] = item
         }
+        for did in state.decors.sortedIDs {
+            guard var d = state.decors.decors[did], !isSupported(d) else { continue }
+            let p: Point? = if case let .attached(a) = d.placement { position(of: a) } else { nil }
+            d.placement = .falling(
+                p.map { Physics.startFall(at: $0, screen: state.screen) } ?? fallbackFall(), byPlayer: false)
+            state.decors.decors[did] = d
+        }
     }
 
     // MARK: - 无悬空不变量
@@ -1197,7 +1582,24 @@ public final class WorldEngine {
             guard let item = state.items[iid], !isSupported(item) else { return nil }
             return "item \(iid.rawValue.uuidString): unsupported with placement \(item.placement)"
         }
-        return residents + items + state.items.holdingViolations(residents: state.residents)
+        let decors = state.decors.sortedIDs.compactMap { did -> String? in
+            guard let d = state.decors.decors[did], !isSupported(d) else { return nil }
+            return "decor \(did.rawValue): unsupported with placement \(d.placement)"
+        }
+        return residents + items + decors + state.items.holdingViolations(residents: state.residents)
+    }
+
+    /// Decor 是否满足无悬空不变量（v2 Requirement 3.12）：拖动中、下落中豁免；附着在 Hidden_Window
+    /// （或端点窗口隐藏的木板）上豁免；否则底边与某条 Surface 的竖直距离不超过 1pt 且 x 落在该 Surface 范围内。
+    private func isSupported(_ d: Decor) -> Bool {
+        switch d.placement {
+        case .falling, .dragged:
+            return true
+        case let .attached(a):
+            if isAttachmentHidden(a) { return true }
+            guard let p = position(of: a) else { return false }
+            return state.surfaces.contains { isOn(p, $0) }
+        }
     }
 
     /// 物件是否满足无悬空不变量：下落中、被持有（Requirement 29.5 (c)）或被玩家拖动中豁免；
@@ -1231,12 +1633,12 @@ public final class WorldEngine {
     }
 
     /// 附着的窗口是 Hidden_Window；站在木板上时，木板任一端窗口是 Hidden_Window。
-    private func isOnHiddenWindow(_ r: Resident) -> Bool {
+    func isOnHiddenWindow(_ r: Resident) -> Bool {
         isAttachmentHidden(r.attachment)
     }
 
     /// Attachment 指向 Hidden_Window：窗口隐藏；木板任一端窗口隐藏；梯子上端窗口隐藏。
-    private func isAttachmentHidden(_ a: Attachment) -> Bool {
+    func isAttachmentHidden(_ a: Attachment) -> Bool {
         switch a {
         case let .window(wid, _):
             return state.windows.isHidden(wid)
@@ -1252,13 +1654,13 @@ public final class WorldEngine {
     }
 
     /// Attachment 的当前屏幕坐标（含木板和梯子）。
-    private func position(of a: Attachment) -> Point? {
+    func position(of a: Attachment) -> Point? {
         AttachmentResolver.screenPosition(
             a, windows: state.windows, planks: state.planks.lookup(windows: state.windows),
             ladders: state.ladders.lookup(windows: state.windows), screen: state.screen)
     }
 
-    private var sortedResidentIDs: [ResidentID] {
+    var sortedResidentIDs: [ResidentID] {
         state.residents.keys.sorted()
     }
 
@@ -1326,7 +1728,8 @@ public final class WorldEngine {
             return ResidentView(
                 id: r.id, state: r.state, position: pos,
                 facing: r.facing, isHidden: hidden, heldItem: r.heldItem, bubble: r.bubble, poke: r.poke,
-                jumpLift: InteractionController.jumpLift(r.poke, constants: constants))
+                jumpLift: InteractionController.jumpLift(r.poke, constants: constants),
+                thought: hidden ? nil : r.thought?.text, seatLift: SpriteMetrics.residentSeatLift(r.state))
         }
     }
 
@@ -1366,27 +1769,35 @@ public final class WorldEngine {
         }
     }
 
-    /// 当前帧的命中区域：可见居民（含跳跃偏移）、放着的与下落中的物件、可见木板与梯子、
-    /// Toolbox 两个取物区（Requirement 7.1）。
+    /// 当前帧的命中区域：可见居民（含跳跃偏移）、放着的与下落中的物件、可见的 Decor、可见木板与梯子、
+    /// Toolbox 各取物区（Requirement 7.1，v2 Requirement 3.7）。
     private func hitRegions() -> [HitRegion] {
         let residents = residentViews()
         return hitRegions(residents: residents, planks: plankViews(), ladders: ladderViews(),
-                          items: itemViews(residents: residents))
+                          items: itemViews(residents: residents), decors: decorViews())
     }
 
     private func hitRegions(
-        residents: [ResidentView], planks: [PlankView], ladders: [LadderView], items: [ItemView]
+        residents: [ResidentView], planks: [PlankView], ladders: [LadderView], items: [ItemView],
+        decors: [DecorView]
     ) -> [HitRegion] {
         var regions: [HitRegion] = []
         for r in residents {
             guard !r.isHidden, let p = r.position else { continue }
             regions.append(HitRegion(
-                target: .resident(r.id), rect: SpriteMetrics.residentRect(bottomCenter: p, lift: r.jumpLift)))
+                target: .resident(r.id),
+                rect: SpriteMetrics.residentRect(
+                    bottomCenter: p, lift: r.jumpLift + SpriteMetrics.residentSeatLift(r.state))))
         }
         // 被持有的物件不单独可点（Requirement 11.8），拖动中的物件由手势持有。
         for iv in items where iv.holder == nil && !iv.isDragged {
             regions.append(HitRegion(
                 target: .item(iv.id), rect: SpriteMetrics.itemRect(kind: iv.kind, bottomCenter: iv.position)))
+        }
+        // 拖动中的 Decor 由手势持有；隐藏窗口上的 Decor 不在 `decors` 中。
+        for dv in decors where !dv.isDragged {
+            regions.append(HitRegion(
+                target: .decor(dv.id), rect: SpriteMetrics.decorRect(type: dv.type, bottomCenter: dv.position)))
         }
         for pv in planks {
             let rect: Rect
@@ -1404,9 +1815,10 @@ public final class WorldEngine {
             }
             regions.append(HitRegion(target: .ladder(lv.id), rect: rect))
         }
-        for zone in ToolboxZone.allCases {
-            regions.append(HitRegion(
-                target: .toolbox(zone), rect: ToolboxLayout.zoneFrame(zone, screen: state.screen)))
+        let unlocked = state.decors.unlocked
+        for zone in ToolboxLayout.zones(unlocked: unlocked) {
+            guard let rect = ToolboxLayout.zoneFrame(zone, screen: state.screen, unlocked: unlocked) else { continue }
+            regions.append(HitRegion(target: .toolbox(zone), rect: rect))
         }
         return regions
     }
@@ -1417,14 +1829,19 @@ public final class WorldEngine {
         let planks = plankViews()
         let ladders = ladderViews()
         let items = itemViews(residents: residents)
-        let regions = hitRegions(residents: residents, planks: planks, ladders: ladders, items: items)
+        let decors = decorViews()
+        let regions = hitRegions(residents: residents, planks: planks, ladders: ladders, items: items,
+                                 decors: decors)
         let context = InteractionContext(
-            screen: state.screen, windows: state.windows, surfaces: state.surfaces, hitRegions: regions)
+            screen: state.screen, windows: state.windows, surfaces: state.surfaces, hitRegions: regions,
+            unlockedDecor: state.decors.unlocked)
         return WorldView(
             screen: state.screen, surfaces: state.surfaces, showSurfaces: state.showSurfaces,
             residents: residents, planks: planks, ladders: ladders,
             preview: InteractionController.preview(gesture: state.gesture, context: context, constants: constants),
-            hitRegions: regions, isInteracting: state.gesture.isActive, items: items, story: storyView())
+            hitRegions: regions, isInteracting: state.gesture.isActive, items: items, story: storyView(),
+            decors: decors, unlockedDecor: state.decors.unlocked, toolboxShake: state.toolboxShake,
+            visitFlags: visitFlags(), isNight: state.isNight)
     }
 
     private func apply(_ command: Command) {
@@ -1435,8 +1852,19 @@ public final class WorldEngine {
             guard var a = state.residents[.a], state.residents[.b] != nil else { return }
             a.goal = .reach(.b)
             state.residents[.a] = a
-            if storyEnabled { seekOverride = (state.story.stage, state.story.round) }
-        case .fastForward, .restartStory:
+            if storyEnabled {
+                seekOverride = (state.story.stage, state.story.round)
+            } else {
+                debugSeekActive = true
+            }
+        case let .setDayNight(o):
+            state.dayNightOverride = o
+        case .unlockAllDecor:
+            // 按 chair、lamp 顺序解锁；已解锁的不重复写记录（v2 Requirement 17.5、1.4）。
+            for t in DecorType.allCases {
+                if state.decors.unlock(t) { recordDecorUnlocked(t) }
+            }
+        case .fastForward, .resetWorld, .triggerWish:
             // 在 `updateStory` 中处理（需要本帧的路面和通路图）。
             break
         case .debugGiveFlower:
@@ -1471,6 +1899,7 @@ enum EventRef {
     static func ladder(_ id: LadderID) -> String { "ladder:\(id.rawValue)" }
     static func flower(_ id: ItemID) -> String { "flower:\(id.rawValue.uuidString)" }
     static func fruit(_ id: ItemID) -> String { "fruit:\(id.rawValue.uuidString)" }
+    static func decor(_ id: DecorID) -> String { "decor:\(id.rawValue)" }
     static let ground = "ground"
 }
 
@@ -1624,10 +2053,82 @@ extension WorldEngine {
                              detail: ladderDetail(state.ladders.ladders[lid]?.placed))
             case let .ladderDropped(lid):
                 recordLadderDropped(lid, placed: nil, actor: player, cause: "released")
-            case .poked, .dragStarted, .itemAttached, .itemDropped:
+            case let .decorPlaced(did, type, surface):
+                recordDecorPlaced(did, type: type, surface: surface)
+            case let .decorRemoved(did, type):
+                eventLog.add(.decorRemoved, actor: player, target: EventRef.decor(did),
+                             detail: ["decor_type": type.rawValue])
+            case .poked, .dragStarted, .itemAttached, .itemDropped,
+                 .decorLimitReached, .decorDropped, .decorDiscarded:
+                // 玩家松手下落的 Decor 在落地时写 `decor_placed`（`advanceFallingDecors`）；
+                // 新建后放回 Toolbox 的 Decor 不写事件（v2 Requirement 3.5）。
                 break
             }
         }
+    }
+
+    /// `decor_placed`：玩家松手附着，或玩家松手下落后落地（v2 Requirement 3.10、18.4）。
+    private func recordDecorPlaced(_ id: DecorID, type: DecorType, surface: SurfaceKindTag) {
+        eventLog.add(.decorPlaced, actor: EventRecord.playerActor, target: EventRef.decor(id),
+                     detail: ["decor_type": type.rawValue, "surface": surface.rawValue])
+    }
+
+    /// `decor_unlocked`：`actor`、`target` 为 null，`detail` 含 `decor_type`（v2 Requirement 1.4、18.4）。
+    func recordDecorUnlocked(_ type: DecorType) {
+        eventLog.add(.decorUnlocked, detail: ["decor_type": type.rawValue])
+    }
+
+    /// WishDirector 事件按发生顺序写入事件记录（v2 design.md「EventType 扩充」表格，Requirement 18.2）：
+    /// WishDirector 已保证 `wish_started` 在由它引起的 `decor_unlocked` 和剧情事件之前，`sat`、`slept`、
+    /// Visit_Wish 的 `visited` 在对应的 `wish_fulfilled` 之前。返回其中的剧情事件（Flower_Wish 开始时的
+    /// `round_started` 等），供 `StepOutput.storyEvents` 使用。
+    @discardableResult
+    func recordWishEvents(_ events: [WishEvent]) -> [StoryEvent] {
+        var story: [StoryEvent] = []
+        for e in events {
+            switch e {
+            case let .started(w):
+                recordWish(.wishStarted, w, state: .active, outcome: nil)
+            case let .fulfilled(w, outcome):
+                recordWish(.wishFulfilled, w, state: .fulfilled, outcome: outcome)
+            case let .dropped(w):
+                recordWish(.wishDropped, w, state: .dropped, outcome: nil)
+            case let .decorUnlocked(t):
+                recordDecorUnlocked(t)
+            case let .visitedWindow(r, ownerName):
+                eventLog.add(.visited, actor: EventRecord.residentRef(r), target: EventRecord.appRef(ownerName),
+                             detail: ["source": "visit_wish"])
+            case let .activity(a):
+                recordActivityEvents([a])
+            case let .story(s):
+                recordStoryEvents([s])
+                story.append(s)
+            }
+        }
+        return story
+    }
+
+    /// `wish_started` / `wish_fulfilled` / `wish_dropped`：`actor` 为 Wisher；`target` 为 Flower_Wish 的
+    /// Receiver、Chase_Wish 的另一位居民、Visit_Wish 的 `app:<名称>`，Chair_Wish 和 Lamp_Wish 为 null；
+    /// `detail` 含 `wish_type`、`wish_state`，Chase_Wish 的 `wish_fulfilled` 另含 `chase_outcome`。
+    private func recordWish(_ type: EventType, _ w: Wish, state ws: WishState, outcome: ChaseOutcome?) {
+        recordWish(type, type: w.type, wisher: w.wisher, visitApp: w.visitTarget?.ownerName,
+                   state: ws, outcome: outcome)
+    }
+
+    private func recordWish(
+        _ type: EventType, type wishType: WishType, wisher: ResidentID, visitApp: String?,
+        state ws: WishState, outcome: ChaseOutcome?
+    ) {
+        let target: String?
+        switch wishType {
+        case .flower, .chase: target = EventRecord.residentRef(wisher.other)
+        case .visit: target = visitApp.map(EventRecord.appRef)
+        case .chair, .lamp: target = nil
+        }
+        var detail = ["wish_type": wishType.rawValue, "wish_state": ws.rawValue]
+        if let outcome { detail["chase_outcome"] = outcome.rawValue }
+        eventLog.add(type, actor: EventRecord.residentRef(wisher), target: target, detail: detail)
     }
 
     /// 剧情事件：`round_started`、`sprouted`、`bloomed` 没有发起方；`planted` 的发起方是 Giver、对象是 Receiver；

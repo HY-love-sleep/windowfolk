@@ -3,7 +3,10 @@ import Testing
 @testable import WindowfolkCore
 
 /// 任务 13.13：剧情的具体例子，用 WorldEngine（剧情启用）+ FakeWindowSource + 手动时钟驱动。
-/// 「Done 中快进立即开始下一轮」已由 StoryEngineTests.storyRunsToDoneWithFastForward 覆盖，这里不重复。
+/// 「Done 后快进结束 Round_Interval 等待」已由 StoryEngineTests.storyRunsToDoneWithFastForward 覆盖，这里不重复。
+///
+/// V2（任务 7.4，design.md「v1 属性的调整」）：开局只分配家，送花由 `triggerWish(.flower, nil)` 启动
+/// （`begin()`）；进入 Done 的同一次更新中 Flower_Wish 完成、Story_Stage 清为 nil。
 struct StoryExampleTests {
     static let screen = ScreenInfo(
         frame: Rect(minX: 0, minY: 0, width: 1440, height: 900),
@@ -47,6 +50,12 @@ struct StoryExampleTests {
             return done()
         }
 
+        /// 触发送花（V2）。
+        @discardableResult
+        func begin(sourceLocation: SourceLocation = #_sourceLocation) -> StepOutput {
+            step([.triggerWish(.flower, nil)], sourceLocation: sourceLocation)
+        }
+
         var story: StoryState { engine.state.story }
         func resident(_ id: ResidentID) -> Resident { engine.state.residents[id]! }
 
@@ -87,8 +96,12 @@ struct StoryExampleTests {
         #expect(h.engine.state.items.items.isEmpty)
 
         h.source.add(Self.win(2, x: 700, y: 400))
-        let out = h.step()
+        h.step()
         #expect(h.story.homes == [.a: 1, .b: 2])
+        // V2：分配家并放置居民，但不直接开始送花（v2 Requirement 6.1）。
+        #expect(h.story.stage == nil)
+        if case .window(1, _) = h.resident(.a).attachment {} else { Issue.record("A not placed home") }
+        let out = h.begin()
         #expect(h.story.stage == .waiting)
         #expect(out.storyEvents.contains(.roundStarted(round: 1, giver: .a, receiver: .b)))
         #expect(h.resident(.a).heldItem == h.story.currentFlower)
@@ -100,6 +113,7 @@ struct StoryExampleTests {
 
     @Test func flowerPlantedOnReceiversWindowLedge() throws {
         let h = Harness(Self.touching)
+        h.begin()
         #expect(h.run { h.story.stage == .growing })
         let placement = try #require(h.flowerPlacement())
         guard case let .attached(.window(wid, offset)) = placement else {
@@ -117,7 +131,7 @@ struct StoryExampleTests {
         let h = Harness(Self.apart)
         let pid = h.engine.insertPlank(.placed(PlacedPlank(
             id: PlankID(0), endA: PlankEnd(window: 1, offset: 200), endB: PlankEnd(window: 2, offset: 0))))
-        h.step()
+        h.begin()
         #expect(h.story.stage == .travel)
         h.move(.b, to: .plank(pid, t: 0.5))
         #expect(h.run { h.story.stage == .growing })
@@ -129,7 +143,7 @@ struct StoryExampleTests {
 
     @Test func flowerPlantedOnGroundWhenBothOnGround() throws {
         let h = Harness(Self.apart)
-        h.step()
+        h.begin()
         #expect(h.story.stage == .waiting)
         h.move(.a, to: .ground(x: 300))
         h.move(.b, to: .ground(x: 600))
@@ -146,6 +160,7 @@ struct StoryExampleTests {
 
     @Test func plantingTimerPausesWhileHomeHidden() throws {
         let h = Harness(Self.touching)
+        h.begin()
         #expect(h.run { h.story.stage == .planting })
         h.step()
         h.step()
@@ -174,6 +189,7 @@ struct StoryExampleTests {
 
     @Test func receiverKeepsFruitAfterFallAndDeliversOnGround() throws {
         let h = Harness(Self.touching)
+        h.begin()
         #expect(h.run { h.story.stage == .growing })
         h.step([.fastForward])
         h.step([.fastForward])
@@ -200,7 +216,9 @@ struct StoryExampleTests {
         #expect(h.story.stage == .returnGift)
         #expect(h.resident(.b).goal == .reach(.a))
 
-        #expect(h.run { h.story.stage == .done })
+        // 进入 Done 的同一次更新中 Flower_Wish 完成，Story_Stage 清为 nil（v2 Requirement 8.4）。
+        #expect(h.run { h.engine.state.wishes.active.isEmpty })
+        #expect(h.story.stage == nil)
         let placement = try #require(h.engine.state.items[fruit]?.placement)
         guard case let .attached(.ground(x)) = placement else {
             Issue.record("fruit not on ground: \(placement)"); return
@@ -211,10 +229,11 @@ struct StoryExampleTests {
 
         let frames = Int(StoryDirector.celebrateDuration / Self.dt) + 3
         for _ in 0 ..< frames { h.step() }
+        // 庆祝结束后恢复自主活动（v2 Requirement 8.4）。
         for id in ResidentID.allCases {
-            #expect(h.resident(id).state == .idle || h.resident(id).state == .walking)
+            #expect(h.resident(id).state != .celebrating)
         }
-        #expect(h.story.stage == .done)
+        #expect(h.story.stage == nil)
     }
 }
 

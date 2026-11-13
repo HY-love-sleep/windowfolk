@@ -2,9 +2,10 @@ import Foundation
 
 // MARK: - 状态与标识
 
-/// 居民状态（Resident_State），共 9 个取值。
+/// 居民状态（Resident_State），共 12 个取值（V2 新增 sitting、sleeping、running）。
 public enum ResidentState: String, Hashable, Sendable, Codable, CaseIterable {
     case idle, walking, carrying, waiting, falling, hanging, climbing, planting, celebrating
+    case sitting, sleeping, running
 }
 
 /// 居民标识。`a` 为都都（Resident_A），`b` 为嘟嘟（Resident_B）。
@@ -26,6 +27,21 @@ public enum Goal: Hashable, Sendable {
     case confined
     /// 每帧追踪另一位居民的当前位置，沿 Nav_Graph 路线移动；不可达时等待。
     case reach(ResidentID)
+    /// 停在原地，不水平移动，状态为 `idle`；`face` 非空时每帧朝向该目标（V2）。
+    case hold(face: FaceTarget?)
+    /// 停在原地，不水平移动，状态为 `waiting` 且不显示「...」气泡；`face` 非空时每帧朝向该目标
+    /// （追逐中 Chaser 没有路线可达 Runner 时，v2 Requirement 21.3）。
+    case wait(face: FaceTarget?)
+    /// 前往 Surface 上的某个 x：同一 Surface 且 `|x - 目标 x| <= arriveWithin` 时到达并停下
+    /// （Chair、Lamp、Story_Flower、Flee_Target，V2）。
+    case reachPoint(SurfaceID, x: Double, arriveWithin: Double)
+    /// 前往该窗口任意一段 Window_Ledge；站在其中任一段上即到达并停下（`go_home`、Visit_Wish，V2）。
+    case reachWindow(WindowID)
+}
+
+/// `Goal.hold` 的朝向目标。
+public enum FaceTarget: Hashable, Sendable {
+    case resident(ResidentID)
 }
 
 /// 朝向。
@@ -91,6 +107,13 @@ public enum Bubble: Hashable, Sendable {
     case dots
     /// 心形气泡。
     case heart
+    /// 「Zzz」图标气泡：居民处于 `sleeping` 时显示（v2 Requirement 5.6）。
+    case zzz
+    /// 花朵图标气泡：`admire_flower` 停留期间显示（v2 Requirement 4.10）。
+    case flower
+    /// Wish_Bubble（v2 Requirement 6.8、6.9、7.1、7.4、9.3、20.3）：以图形绘制的心愿图标，不含文字。
+    /// Flower_Wish 仍用 v1 的 `wish(receiver:)`。
+    case wishIcon(WishIcon)
 }
 
 /// 闲逛计时与地面等待中心。
@@ -134,6 +157,16 @@ public struct Resident: Hashable, Sendable {
     public var wander: WanderState
     /// 下落状态；只在 `state == .falling` 时非空。
     public var fall: FallState?
+    /// 水平速度倍数：大于 1 时在 Surface 上水平移动为 `running`（追逐中为 1.6 或 1.5，Requirement 21.1）。
+    public var speedFactor: Double
+    /// 规划路线时使用的度量：追逐、选 Decor、Visit_Wish 用 `.horizontal`，其余 `.standard`。
+    public var routeMetric: RouteMetric
+    /// Walk_Distance：`walking` / `running` 帧的水平位移绝对值累计（pt，Requirement 4.14）。
+    public var walkDistance: Double
+    /// 正在坐的 Chair。
+    public var seat: DecorID?
+    /// 正在显示的 Thought（Requirement 14.2）；只由 `ThoughtEngine.step` 写入。
+    public var thought: ThoughtDisplay?
 
     public init(
         id: ResidentID,
@@ -148,7 +181,12 @@ public struct Resident: Hashable, Sendable {
         poke: PokeState? = nil,
         bubble: Bubble? = nil,
         wander: WanderState = WanderState(),
-        fall: FallState? = nil
+        fall: FallState? = nil,
+        speedFactor: Double = 1,
+        routeMetric: RouteMetric = .standard,
+        walkDistance: Double = 0,
+        seat: DecorID? = nil,
+        thought: ThoughtDisplay? = nil
     ) {
         self.id = id
         self.state = state
@@ -163,5 +201,10 @@ public struct Resident: Hashable, Sendable {
         self.bubble = bubble
         self.wander = wander
         self.fall = fall
+        self.speedFactor = speedFactor
+        self.routeMetric = routeMetric
+        self.walkDistance = walkDistance
+        self.seat = seat
+        self.thought = thought
     }
 }

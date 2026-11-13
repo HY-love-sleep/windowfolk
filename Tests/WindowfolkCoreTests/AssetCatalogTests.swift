@@ -8,16 +8,51 @@ import Testing
 
     // MARK: - 期望的清单
 
-    /// 气泡种类到素材图标的映射。switch 穷举 `Bubble`，新增剧情气泡时编译失败，提醒补素材。
-    static func icon(for bubble: Bubble) -> BubbleIcon {
+    /// 气泡种类到素材图标的期望映射。switch 穷举 `Bubble` 和 `WishIcon`，新增气泡时编译失败，提醒补素材。
+    static func icon(for bubble: Bubble) -> BubbleIcon? {
         switch bubble {
         case .wish: return .wish
         case .dots: return .dots
         case .heart: return .heart
+        case .zzz: return .zzz
+        case .flower: return .flower
+        case .wishIcon(.chair): return .chair
+        case .wishIcon(.lamp): return .lamp
+        case .wishIcon(.flag): return .flag
+        case .wishIcon(.footprints): return .footprints
         }
     }
 
-    /// Requirement 25.2 列出的全部图形：两位居民 × 9 个状态、3 个生长阶段、果子、木板、梯子、工具箱、4 种气泡。
+    /// 每种 `Bubble` 各一个代表值（`wish` 与 `flag` 的参数不影响图标）。
+    static let allBubbles: [Bubble] = [
+        .wish(receiver: .b), .wish(receiver: .a), .dots, .heart, .zzz, .flower,
+        .wishIcon(.chair), .wishIcon(.lamp), .wishIcon(.flag(arrow: .left)), .wishIcon(.flag(arrow: .right)),
+        .wishIcon(.footprints),
+    ]
+
+    /// v1 R25.8 的全部文件名（v2 Requirement 16.3：新文件名不得与之重复）。
+    static var v1FileNames: Set<String> {
+        var names: [String] = []
+        let v1States: [ResidentState] = [.idle, .walking, .carrying, .waiting, .falling, .hanging,
+                                         .climbing, .planting, .celebrating]
+        for id in ResidentID.allCases {
+            for state in v1States { names.append("\(id.rawValue)_\(state.rawValue).png") }
+        }
+        names += ["flower_pot", "flower_sprout", "flower_bloom", "fruit", "plank", "ladder", "toolbox",
+                  "bubble_wish", "bubble_dots", "bubble_question", "bubble_heart"].map { "\($0).png" }
+        return Set(names)
+    }
+
+    /// v2 Requirement 16.1 的 16 项新素材。
+    static let v2Keys: [String] = [
+        "resident_a_sitting", "resident_a_sleeping", "resident_a_running",
+        "resident_b_sitting", "resident_b_sleeping", "resident_b_running",
+        "decor_chair", "decor_lamp_off", "decor_lamp_on", "visit_flag",
+        "bubble_chair", "bubble_lamp", "bubble_flag", "bubble_flower", "bubble_zzz", "bubble_footprints",
+    ]
+
+    /// v1 R25.2 与 v2 R16.1 列出的全部图形：两位居民 × 12 个状态、3 个生长阶段、果子、木板、梯子、工具箱、
+    /// 10 种气泡、Chair、Lamp 两种外观、Visit_Flag。
     static var requiredKeys: [String] {
         var keys: [String] = []
         for id in ResidentID.allCases {
@@ -25,24 +60,62 @@ import Testing
         }
         keys += ["flower_pot", "flower_sprout", "flower_bloom", "fruit", "plank", "ladder", "toolbox"]
         keys += ["bubble_wish", "bubble_dots", "bubble_question", "bubble_heart"]
+        keys += ["bubble_chair", "bubble_lamp", "bubble_flag", "bubble_flower", "bubble_zzz", "bubble_footprints"]
+        keys += ["decor_chair", "decor_lamp_off", "decor_lamp_on", "visit_flag"]
         return keys
     }
 
     // MARK: - 清单完整性
 
     @Test func catalogCoversEveryRequiredItemExactlyOnce() {
-        #expect(ResidentState.allCases.count == 9)
+        #expect(ResidentState.allCases.count == 12)
         #expect(ResidentID.allCases.count == 2)
 
         let keys = AssetCatalog.all.map(\.key)
-        // 18 + 3 + 4（果子、木板、梯子、工具箱）+ 4 = 29。
-        #expect(Self.requiredKeys.count == 29)
+        // 24 + 3 + 4（果子、木板、梯子、工具箱）+ 10 种气泡 + 4（Chair、Lamp 两种外观、Visit_Flag）= 45。
+        #expect(Self.requiredKeys.count == 45)
+        #expect(BubbleIcon.allCases.count == 10)
         #expect(keys.count == Self.requiredKeys.count)
         #expect(Set(keys).count == keys.count, "清单中有重复的素材键")
         #expect(Set(keys) == Set(Self.requiredKeys))
 
         let fileNames = AssetCatalog.all.map(\.fileName)
         #expect(Set(fileNames).count == fileNames.count, "清单中有重复的文件名")
+    }
+
+    /// v2 Requirement 16.1、16.3：16 项新素材都在清单中，文件名两两不同且不与 v1 重复，v1 文件名全部保留。
+    @Test func v2AssetsAreNewAndDistinct() {
+        #expect(Self.v2Keys.count == 16)
+        #expect(Set(Self.v2Keys).count == 16)
+        let v2Files = Set(Self.v2Keys.map { "\($0).png" })
+        #expect(v2Files.isDisjoint(with: Self.v1FileNames))
+        #expect(Self.v1FileNames.count == 29)
+        let catalogFiles = Set(AssetCatalog.all.map(\.fileName))
+        #expect(catalogFiles == Self.v1FileNames.union(v2Files))
+
+        // 尺寸与帧数（design.md「新增素材清单」）。
+        #expect(AssetCatalog.frameCount(for: .sitting) == 2)
+        #expect(AssetCatalog.frameCount(for: .sleeping) == 4)
+        #expect(AssetCatalog.frameCount(for: .running) == 6)
+        #expect(AssetCatalog.spec(AssetCatalog.chairKey)?.size == AssetSize(width: 24, height: 24))
+        #expect(AssetCatalog.spec(AssetCatalog.lampOffKey)?.size == AssetSize(width: 16, height: 32))
+        #expect(AssetCatalog.spec(AssetCatalog.lampOnKey)?.size == AssetSize(width: 16, height: 32))
+        #expect(AssetCatalog.spec(AssetCatalog.visitFlagKey)?.size == AssetSize(width: 16, height: 24))
+        for key in ["decor_chair", "decor_lamp_off", "decor_lamp_on", "visit_flag"] {
+            #expect(AssetCatalog.spec(key)?.frames == 1)
+            #expect(AssetCatalog.spec(key)?.tiling == AssetTiling.none)
+        }
+
+        // Lamp 按 Night 选外观（v2 Requirement 16.5）。
+        #expect(AssetCatalog.decorKey(.chair, isNight: false) == "decor_chair")
+        #expect(AssetCatalog.decorKey(.chair, isNight: true) == "decor_chair")
+        #expect(AssetCatalog.decorKey(.lamp, isNight: false) == "decor_lamp_off")
+        #expect(AssetCatalog.decorKey(.lamp, isNight: true) == "decor_lamp_on")
+        for type in DecorType.allCases {
+            for night in [false, true] {
+                #expect(AssetCatalog.spec(AssetCatalog.decorKey(type, isNight: night))?.size == SpriteMetrics.decorSize(type))
+            }
+        }
     }
 
     @Test func keyHelpersResolveToCatalogEntries() {
@@ -63,10 +136,12 @@ import Testing
         for icon in BubbleIcon.allCases {
             #expect(AssetCatalog.spec(AssetCatalog.bubbleKey(icon))?.size == AssetCatalog.bubbleSize)
         }
-        // 剧情气泡和戳居民的「?」都有对应素材。
-        let used: Set<BubbleIcon> = [
-            Self.icon(for: .wish(receiver: .b)), Self.icon(for: .dots), Self.icon(for: .heart), .question,
-        ]
+        // 每种气泡都有对应素材，与 Core 的映射一致；加上戳居民的「?」，恰好用到全部图标。
+        for bubble in Self.allBubbles {
+            #expect(Self.icon(for: bubble) != nil, "\(bubble) 没有图标")
+            #expect(Self.icon(for: bubble) == BubbleIcon(bubble), "\(bubble)")
+        }
+        let used = Set(Self.allBubbles.compactMap(Self.icon(for:)) + [.question])
         #expect(used == Set(BubbleIcon.allCases))
 
         #expect(AssetCatalog.spec(AssetCatalog.fruitKey)?.size == AssetCatalog.fruitSize)
@@ -83,6 +158,11 @@ import Testing
         #expect(SpriteMetrics.fruit == AssetCatalog.fruitSize)
         #expect(SpriteMetrics.toolbox == AssetCatalog.toolboxSize)
         #expect(SpriteMetrics.bubble == AssetCatalog.bubbleSize)
+        #expect(SpriteMetrics.chair == AssetCatalog.chairSize)
+        #expect(SpriteMetrics.lamp == AssetCatalog.lampSize)
+        #expect(SpriteMetrics.visitFlag == AssetCatalog.visitFlagSize)
+        let flag = SpriteMetrics.visitFlagRect(bottomCenter: Point(x: 100, y: 200))
+        #expect(flag == Rect(minX: 92, minY: 176, width: 16, height: 24))
         #expect(SpriteMetrics.plankThickness == AssetCatalog.plankTileSize.height)
         #expect(SpriteMetrics.ladderWidth == AssetCatalog.ladderTileSize.width)
         #expect(SpriteMetrics.itemSize(.fruit) == AssetCatalog.fruitSize)

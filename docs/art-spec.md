@@ -1,4 +1,4 @@
-# 窗间 · Windowfolk 素材规格（v1）
+# 窗间 · Windowfolk 素材规格（v2）
 
 本文档写明替换占位图形所需的全部 PNG 素材。按规格把 PNG 放进素材目录，重启应用后对应的占位图形就会被替换，显示尺寸和位置不变。不合格或缺失的文件只让那一项继续使用占位图形，应用不会弹出任何提示。
 
@@ -61,10 +61,13 @@
 | `climbing` | 4 | 背对或侧对画面爬梯子，左右手交替上举；**不要画梯子** | 是 |
 | `planting` | 6 | 前 4 帧蹲下埋土，后 2 帧一起跳一下 | 否，约 2 秒播一遍 |
 | `celebrating` | 6 | 举手欢呼、跳起，可以有小星星；最后一帧回到站姿 | 否，播一遍 |
+| `sitting` | 2 | 坐在椅子上，身体压扁、腿向前伸，轻微呼吸；**不要画椅子** | 是 |
+| `sleeping` | 4 | 横躺、闭眼，身体随呼吸起伏 | 是 |
+| `running` | 6 | 前倾奔跑、耳朵向后，一个完整步伐周期 | 是 |
 
 ## 5. 素材清单与文件名
 
-共 29 个文件。像素尺寸一栏是整张 PNG 的尺寸。
+共 45 个文件。像素尺寸一栏是整张 PNG 的尺寸。其中 v1 的 29 个文件名不变；v2 新增 16 个：两位居民各 3 个状态（`sitting`、`sleeping`、`running`，见 5.1）、6 个图标气泡（见 5.3）、Chair、Lamp 两种外观和 Visit_Flag（见 5.4）。新文件名两两不同，也不与 v1 的任何文件名重复。
 
 ### 5.1 居民（每帧 32×32pt，即 64×64 像素）
 
@@ -79,6 +82,9 @@
 | `resident_a_climbing.png` | 4 | 256×64 |
 | `resident_a_planting.png` | 6 | 384×64 |
 | `resident_a_celebrating.png` | 6 | 384×64 |
+| `resident_a_sitting.png` | 2 | 128×64 |
+| `resident_a_sleeping.png` | 4 | 256×64 |
+| `resident_a_running.png` | 6 | 384×64 |
 | `resident_b_idle.png` | 4 | 256×64 |
 | `resident_b_walking.png` | 6 | 384×64 |
 | `resident_b_carrying.png` | 6 | 384×64 |
@@ -88,6 +94,9 @@
 | `resident_b_climbing.png` | 4 | 256×64 |
 | `resident_b_planting.png` | 6 | 384×64 |
 | `resident_b_celebrating.png` | 6 | 384×64 |
+| `resident_b_sitting.png` | 2 | 128×64 |
+| `resident_b_sleeping.png` | 4 | 256×64 |
+| `resident_b_running.png` | 6 | 384×64 |
 
 `resident_a_*` 是都都，`resident_b_*` 是嘟嘟。`resident_*_idle.png` 的第 1 帧还会缩小到 10×10pt，作为许愿气泡里的头像，所以第 1 帧要是清楚的正面或四分之三侧面。
 
@@ -112,13 +121,30 @@
 | `bubble_wish.png` | 许愿气泡：白色圆形气泡，**左半边**画一个小花盆，**右半边留空**。应用会把 Receiver 的头像（10×10pt）叠加在气泡中心偏右、离底边约 13pt 的位置 |
 | `bubble_dots.png` | 等待气泡：三个点「...」 |
 | `bubble_question.png` | 被戳时的「?」气泡 |
-| `bubble_heart.png` | 心形气泡 |
+| `bubble_heart.png` | 心形气泡（v2 中居民一起看花、追逐被拦住时也用这一张） |
+| `bubble_chair.png` | 「椅子」气泡：椅子心愿（Chair_Wish），气泡内画一把小椅子 |
+| `bubble_lamp.png` | 「台灯」气泡：台灯心愿（Lamp_Wish），气泡内画一盏小台灯 |
+| `bubble_flag.png` | 「小旗」气泡：串门心愿（Visit_Wish），气泡内画一面小旗和一个**指向右方**的箭头；Visit_Flag 在左边时应用会水平镜像整个气泡 |
+| `bubble_flower.png` | 「花朵」气泡：居民停下赏花时显示，气泡内画一朵花 |
+| `bubble_zzz.png` | 「Zzz」气泡：居民睡觉时显示，三个由大到小的 Z 字形，**用线条画出，不要用字体** |
+| `bubble_footprints.png` | 「脚印」气泡：追逐心愿（Chase_Wish）的发起者显示，气泡内画两枚小脚印 |
 
-气泡里**不能出现任何文字字符**（Requirement 15.9）。「...」和「?」要画成图形，不要用字体排版。气泡底部可以有一个指向居民的小尾巴，尾巴尖贴住底边。
+气泡里**不能出现任何文字字符**（Requirement 15.9）。「...」「?」和「Zzz」要画成图形，不要用字体排版。气泡底部可以有一个指向居民的小尾巴，尾巴尖贴住底边。
+
+### 5.4 装饰物与串门小旗（v2）
+
+| 文件名 | 每帧尺寸（pt） | 帧数 | PNG 像素尺寸 | 说明 |
+|---|---|---|---|---|
+| `decor_chair.png` | 24×24 | 1 | 48×48 | 椅子（Chair）：椅背、椅面加四条腿，木色与木板、梯子一致；四条腿贴住底边。居民坐下时会被应用上移 10pt 画在椅面上 |
+| `decor_lamp_off.png` | 16×32 | 1 | 32×64 | 台灯（Lamp）不发光外观：灯罩加细杆加底座，灯罩为灰色或暗色；底座贴住底边。白天和黄昏使用 |
+| `decor_lamp_on.png` | 16×32 | 1 | 32×64 | 台灯发光外观：与 `decor_lamp_off.png` 同一盏灯、位置完全一致，灯罩为暖黄色，外圈有半透明光晕（光晕不超出每帧边界）。夜晚使用 |
+| `visit_flag.png` | 16×24 | 1 | 32×48 | 串门小旗（Visit_Flag）：竖杆加一面红色三角旗，杆底贴住底边。插在居民想去的窗口窗沿上 |
+
+两张台灯图要用同一盏灯、同一位置，只换灯罩颜色和光晕，这样天黑时灯不会跳动。
 
 ## 6. 用 gpt-image-2.5 生成时保持角色一致
 
-图像模型每次生成都会有差异，下面的做法能让 29 张图看起来属于同一套美术。
+图像模型每次生成都会有差异，下面的做法能让 45 张图看起来属于同一套美术。
 
 ### 6.1 先做角色设定图
 
@@ -176,6 +202,7 @@ Use the attached character sheet as the exact design reference.
 - [ ] 三张花的图用同一个花盆，位置一致。
 - [ ] `plank.png` 左右可无缝拼接，`ladder.png` 上下可无缝拼接。
 - [ ] `toolbox.png` 左半边是木板、右半边是梯子。
-- [ ] 气泡里没有文字字符；`bubble_wish.png` 右半边留给头像。
+- [ ] 气泡里没有文字字符；`bubble_wish.png` 右半边留给头像；`bubble_zzz.png` 的 Z 是线条图形；`bubble_flag.png` 的箭头指向右方。
+- [ ] `sitting` 不画椅子；两张台灯图位置一致。
 - [ ] 都都和嘟嘟的配色、比例与角色设定图一致。
 - [ ] 放入素材目录并重启应用后，在深色和浅色桌面背景下都检查过显示效果；仍显示占位图形的那一项，说明文件名或像素尺寸不符，按本清单重新检查。

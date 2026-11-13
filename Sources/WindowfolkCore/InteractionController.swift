@@ -27,6 +27,9 @@ public enum DragSubject: Hashable, Sendable {
     case ladder(LadderID)
     /// 被拖起的物件。拖动期间它在 `ItemStore` 中的 placement 为 `.dragged`。
     case item(ItemID)
+    /// 被拖动的 Decor（从 Decor_Slot 新建或从世界中拖起）。拖动期间它在 `DecorStore` 中的 placement 为
+    /// `.dragged`，位置为 `pointer - grabOffset`（v2 Requirement 3.1）。
+    case decor(DecorID)
 }
 
 /// 鼠标手势状态机。
@@ -87,8 +90,18 @@ public struct InteractionContext: Sendable {
     public var surfaces: [Surface]
     /// 当前帧的命中区域。默认取 `HitTesting.regions(for:)`；任务 6.10 起由 WorldView 一并输出木板等区域。
     public var hitRegions: [HitRegion]
+    /// Unlocked_Decor，决定 Toolbox 取物区布局（v2 Requirement 2.1、2.2）。须与 `hitRegions` 中 Toolbox 区域的布局一致。
+    public var unlockedDecor: Set<DecorType>
+    /// 点击时不跳跃、只显示「?」的居民（`InteractionController.poke` 的 `jumpAllowed` 为 false），
+    /// 由 WorldEngine 按状态和是否在追逐中给出（v2 Requirement 5.9、20.9、21.8）。
+    public var jumpBlocked: Set<ResidentID>
 
-    public init(screen: ScreenInfo, windows: WindowTable, surfaces: [Surface], hitRegions: [HitRegion]) {
+    public init(
+        screen: ScreenInfo, windows: WindowTable, surfaces: [Surface], hitRegions: [HitRegion],
+        unlockedDecor: Set<DecorType> = [], jumpBlocked: Set<ResidentID> = []
+    ) {
+        self.unlockedDecor = unlockedDecor
+        self.jumpBlocked = jumpBlocked
         self.screen = screen
         self.windows = windows
         self.surfaces = surfaces
@@ -114,21 +127,34 @@ public enum InteractionOutcome: Hashable, Sendable {
     case itemAttached(ItemID)
     /// 物件松手时正下方没有可接住的 Window_Ledge，开始下落（Requirement 11.5）。
     case itemDropped(ItemID)
+    /// Decor_Slot 拖动超过 Click_Drag_Threshold 时场上 Decor 已达 Max_Decor_Count：不新建，
+    /// 调用方让该 Decor_Slot 晃动一次（v2 Requirement 2.4）。
+    case decorLimitReached(DecorType)
+    /// Decor 松手后附着到 Window_Ledge 或已架设 Plank（对应 `decor_placed`，v2 Requirement 3.2、3.10）。
+    case decorPlaced(DecorID, DecorType, surface: SurfaceKindTag)
+    /// Decor 松手后开始玩家下落，落地时写 `decor_placed`（v2 Requirement 3.3、3.10）。
+    case decorDropped(DecorID)
+    /// 已放置过的 Decor 收回 Toolbox，已从世界中移除（对应 `decor_removed`，v2 Requirement 3.4）。
+    case decorRemoved(DecorID, DecorType)
+    /// 刚从 Decor_Slot 新建的 Decor 放回 Toolbox，已丢弃，不写事件（v2 Requirement 3.5）。
+    case decorDiscarded(DecorID)
 
     /// 本结果改变了已架设的通路（木板或梯子架设、松手下落），调用方应重算路面与通路图。
+    /// Decor 不影响路面和通路（v2 Requirement 3.11）。
     public var changesTopology: Bool {
         switch self {
         case .plankPlaced, .plankDropped, .ladderPlaced, .ladderDropped: return true
-        case .poked, .dragStarted, .itemAttached, .itemDropped: return false
+        case .poked, .dragStarted, .itemAttached, .itemDropped,
+             .decorLimitReached, .decorPlaced, .decorDropped, .decorRemoved, .decorDiscarded: return false
         }
     }
 }
 
 // MARK: - InteractionController
 
-/// 点击与拖动判定、木板与梯子拖放、物件拖放、戳居民（Requirement 7、8、9、10、11）。
+/// 点击与拖动判定、木板与梯子拖放、物件拖放、Decor 拖出与拖放（v2 Requirement 2、3）、戳居民（Requirement 7、8、9、10、11）。
 ///
-/// 纯函数：只修改传入的手势、木板、梯子、物件存储和居民。坐标都是 Core 坐标。
+/// 纯函数：只修改传入的手势、木板、梯子、物件、Decor 存储和居民。坐标都是 Core 坐标。
 public enum InteractionController {
     /// 红色松手时，下落起点比预览中较高一端高出的距离（pt）。
     /// `Physics` 不把起点所在的 Surface 当作落点；抬高一点，使与端点同高的窗沿能接住木板或梯子。
@@ -136,12 +162,12 @@ public enum InteractionController {
 
     // MARK: 命中
 
-    /// 在上下文的命中区域中查找点 `p` 命中的对象。Toolbox 中线上的点归 Ladder 区，
+    /// 在上下文的命中区域中查找点 `p` 命中的对象。Toolbox 两区之间边上的点归右侧区，
     /// 与 `HitTesting.hitTest(_:world:)` 一致。
     public static func hitTest(_ p: Point, context: InteractionContext) -> HitTarget? {
         let target = HitTesting.hitTest(p, regions: context.hitRegions)
         if case .toolbox = target {
-            return ToolboxLayout.zone(at: p, screen: context.screen).map(HitTarget.toolbox)
+            return ToolboxLayout.zone(at: p, screen: context.screen, unlocked: context.unlockedDecor).map(HitTarget.toolbox)
         }
         return target
     }
@@ -171,12 +197,24 @@ public enum InteractionController {
                       items: &items, residents: &residents, constants: constants)
     }
 
-    /// 处理一个指针事件。
+    /// 处理一个指针事件（不涉及 Decor 的调用方式；Decor 操作作用于一个临时存储后丢弃）。
     @discardableResult
     public static func handle(
         _ event: PointerEvent, gesture: inout Gesture, context: InteractionContext,
         planks: inout PlankStore, ladders: inout LadderStore, items: inout ItemStore,
         residents: inout [ResidentID: Resident], constants: Tunables
+    ) -> [InteractionOutcome] {
+        var decors = DecorStore()
+        return handle(event, gesture: &gesture, context: context, planks: &planks, ladders: &ladders,
+                      items: &items, decors: &decors, residents: &residents, constants: constants)
+    }
+
+    /// 处理一个指针事件。
+    @discardableResult
+    public static func handle(
+        _ event: PointerEvent, gesture: inout Gesture, context: InteractionContext,
+        planks: inout PlankStore, ladders: inout LadderStore, items: inout ItemStore,
+        decors: inout DecorStore, residents: inout [ResidentID: Resident], constants: Tunables
     ) -> [InteractionOutcome] {
         var outcomes: [InteractionOutcome] = []
         switch event {
@@ -184,7 +222,7 @@ public enum InteractionController {
             // 上一次手势没收到松开：先在最后位置结束它。
             if gesture != .none {
                 outcomes += finish(at: lastPointer(gesture) ?? p, gesture: &gesture, context: context,
-                                   planks: &planks, ladders: &ladders, items: &items,
+                                   planks: &planks, ladders: &ladders, items: &items, decors: &decors,
                                    residents: &residents, constants: constants)
             }
             if let target = hitTest(p, context: context) {
@@ -197,10 +235,9 @@ public enum InteractionController {
             switch gesture {
             case let .pressed(target, start):
                 if distance(p, start) > constants.clickDragThreshold {
-                    let begun = beginDrag(on: target, pressedAt: start, pointer: p, context: context,
-                                          planks: &planks, ladders: &ladders, items: &items)
-                    gesture = begun
-                    if case let .dragging(subject, _, _) = begun { outcomes.append(.dragStarted(subject)) }
+                    gesture = beginDrag(on: target, pressedAt: start, pointer: p, context: context,
+                                        planks: &planks, ladders: &ladders, items: &items, decors: &decors,
+                                        constants: constants, outcomes: &outcomes)
                 }
             case let .dragging(subject, grab, _):
                 gesture = .dragging(subject, grabOffset: grab, pointer: p)
@@ -211,16 +248,15 @@ public enum InteractionController {
         case let .up(p):
             // 松开点也可能超过阈值（没有中间的 moved 事件）。
             if case let .pressed(target, start) = gesture, distance(p, start) > constants.clickDragThreshold {
-                let begun = beginDrag(on: target, pressedAt: start, pointer: p, context: context,
-                                      planks: &planks, ladders: &ladders, items: &items)
-                gesture = begun
-                if case let .dragging(subject, _, _) = begun { outcomes.append(.dragStarted(subject)) }
+                gesture = beginDrag(on: target, pressedAt: start, pointer: p, context: context,
+                                    planks: &planks, ladders: &ladders, items: &items, decors: &decors,
+                                    constants: constants, outcomes: &outcomes)
             }
             if case let .dragging(subject, grab, _) = gesture {
                 gesture = .dragging(subject, grabOffset: grab, pointer: p)
             }
             outcomes += finish(at: p, gesture: &gesture, context: context,
-                               planks: &planks, ladders: &ladders, items: &items,
+                               planks: &planks, ladders: &ladders, items: &items, decors: &decors,
                                residents: &residents, constants: constants)
         }
         return outcomes
@@ -243,10 +279,22 @@ public enum InteractionController {
         case .newLadder, .ladder:
             return ladderPreview(subject: subject, pointer: pointer, grabOffset: grab,
                                  surfaces: context.surfaces, constants: constants)
-        case .item:
-            // 物件没有绿色 / 红色预览；拖动中的位置由 `draggedItemPosition` 给出，渲染为普通物件。
+        case .item, .decor:
+            // 物件和 Decor 没有绿色 / 红色预览；拖动中的位置由 `draggedItemPosition` / `draggedDecorPosition`
+            // 给出，渲染为普通物件或 Decor。
             return nil
         }
+    }
+
+    /// 拖动中 Decor 的底边中点：指针减去抓取偏移（v2 Requirement 3.1）。不在拖动该 Decor 时为 nil。
+    public static func draggedDecorPosition(_ id: DecorID, gesture: Gesture) -> Point? {
+        guard case let .dragging(.decor(dragged), grab, pointer) = gesture, dragged == id else { return nil }
+        return Point(x: pointer.x - grab.x, y: pointer.y - grab.y)
+    }
+
+    /// 从 Decor_Slot 新建 Decor 时的抓取偏移：光标位于 Decor 图形中心（v2 Requirement 2.3）。
+    public static func freshDecorGrabOffset(_ type: DecorType) -> Point {
+        Point(x: 0, y: -SpriteMetrics.decorSize(type).height / 2)
     }
 
     /// 拖动中物件的底边中点：指针减去按下时的抓取偏移（Requirement 11.2）。不在拖动该物件时为 nil。
@@ -323,7 +371,21 @@ public enum InteractionController {
     private static func beginDrag(
         on target: HitTarget, pressedAt start: Point, pointer: Point,
         context: InteractionContext, planks: inout PlankStore, ladders: inout LadderStore,
-        items: inout ItemStore
+        items: inout ItemStore, decors: inout DecorStore, constants: Tunables,
+        outcomes: inout [InteractionOutcome]
+    ) -> Gesture {
+        let g = beginDragGesture(on: target, pressedAt: start, pointer: pointer, context: context,
+                                 planks: &planks, ladders: &ladders, items: &items, decors: &decors,
+                                 constants: constants, outcomes: &outcomes)
+        if case let .dragging(subject, _, _) = g { outcomes.append(.dragStarted(subject)) }
+        return g
+    }
+
+    private static func beginDragGesture(
+        on target: HitTarget, pressedAt start: Point, pointer: Point,
+        context: InteractionContext, planks: inout PlankStore, ladders: inout LadderStore,
+        items: inout ItemStore, decors: inout DecorStore, constants: Tunables,
+        outcomes: inout [InteractionOutcome]
     ) -> Gesture {
         let zero = Point(x: 0, y: 0)
         switch target {
@@ -333,6 +395,26 @@ public enum InteractionController {
         case .toolbox(.ladder):
             // Requirement 8.6、8.9：数量不限，松手时才分配 ID。
             return .dragging(.newLadder, grabOffset: zero, pointer: pointer)
+        case let .toolbox(.decor(type)):
+            // v2 Requirement 2.3、2.4、2.6、2.7：先进存储再拖动，数量含拖动中的 Decor；已满时不新建、
+            // 不预览，吞掉本次手势，并报告让该 Decor_Slot 晃动。
+            let grab = freshDecorGrabOffset(type)
+            guard let id = decors.makeDecor(type, grabOffset: grab, max: constants.maxDecorCount) else {
+                outcomes.append(.decorLimitReached(type))
+                return .swallowed
+            }
+            return .dragging(.decor(id), grabOffset: grab, pointer: pointer)
+        case let .decor(id):
+            // v2 Requirement 3.6：放在窗沿、木板或 Ground 上的 Decor 都可以拖起；下落中的 Decor 不可拖。
+            guard var d = decors.decors[id], case let .attached(a) = d.placement,
+                  let pos = AttachmentResolver.screenPosition(
+                    a, windows: context.windows, planks: planks.lookup(windows: context.windows),
+                    ladders: ladders.lookup(windows: context.windows), screen: context.screen)
+            else { return .swallowed }
+            let grab = Point(x: start.x - pos.x, y: start.y - pos.y)
+            d.placement = .dragged(grabOffset: grab, fresh: false)
+            decors.decors[id] = d
+            return .dragging(.decor(id), grabOffset: grab, pointer: pointer)
         case let .plank(id):
             // 只有落下的木板可以拖起（Requirement 9.11、11.1）；已架设、下落中的木板不可拖。
             guard case let .loose(a)? = planks.planks[id],
@@ -372,14 +454,14 @@ public enum InteractionController {
     private static func finish(
         at p: Point, gesture: inout Gesture, context: InteractionContext,
         planks: inout PlankStore, ladders: inout LadderStore, items: inout ItemStore,
-        residents: inout [ResidentID: Resident], constants: Tunables
+        decors: inout DecorStore, residents: inout [ResidentID: Resident], constants: Tunables
     ) -> [InteractionOutcome] {
         defer { gesture = .none }
         switch gesture {
         case let .pressed(target, _):
             // 点击。只有居民响应点击；点击 Toolbox 不新建任何对象（Requirement 8.8）。
             if case let .resident(id) = target, residents[id] != nil {
-                poke(&residents[id]!, constants: constants)
+                poke(&residents[id]!, constants: constants, jumpAllowed: !context.jumpBlocked.contains(id))
                 return [.poked(id)]
             }
             return []
@@ -400,9 +482,42 @@ public enum InteractionController {
                 items[id] = item
                 if case .attached = item.placement { return [.itemAttached(id)] }
                 return [.itemDropped(id)]
+            case let .decor(id):
+                return dropDecor(id, pointer: p, context: context, decors: &decors, constants: constants)
+                    .map { [$0] } ?? []
             }
         case .none, .swallowed:
             return []
+        }
+    }
+
+    /// Decor 松手，按 `DecorRules.release` 处理（v2 Requirement 3.2 至 3.5、3.10）。
+    /// 拖动期间 Decor 被移除（例如重置世界）时不做任何事，返回 nil。
+    private static func dropDecor(
+        _ id: DecorID, pointer: Point, context: InteractionContext,
+        decors: inout DecorStore, constants: Tunables
+    ) -> InteractionOutcome? {
+        guard var d = decors.decors[id], case let .dragged(grab, fresh) = d.placement else { return nil }
+        let toolbox = ToolboxLayout.frame(screen: context.screen, unlocked: context.unlockedDecor)
+        let release = DecorRules.release(
+            at: pointer, grabOffset: grab, fresh: fresh, toolbox: toolbox, surfaces: context.surfaces,
+            windows: context.windows, screen: context.screen, constants: constants)
+        switch release {
+        case .discard:
+            decors.decors[id] = nil
+            return .decorDiscarded(id)
+        case .remove:
+            decors.decors[id] = nil
+            return .decorRemoved(id, d.type)
+        case let .attach(a, surface):
+            d.placement = .attached(a)
+            decors.decors[id] = d
+            decors.markPlaced(id)
+            return .decorPlaced(id, d.type, surface: surface)
+        case let .fall(f):
+            d.placement = .falling(f, byPlayer: true)
+            decors.decors[id] = d
+            return .decorDropped(id)
         }
     }
 
@@ -485,15 +600,17 @@ public enum InteractionController {
     /// 点击一位居民（Requirement 7.6 至 7.9）。
     ///
     /// - 跳跃或「?」气泡尚未结束：不开始新跳跃，只把气泡剩余时间重置（Requirement 7.9）。
-    /// - 否则 `jumpingStates` 中的状态开始一次跳跃并显示气泡；其他状态只显示气泡。
-    /// 不改变 Resident_State、Attachment、目标、持有物和 `hangElapsed`。
-    public static func poke(_ r: inout Resident, constants: Tunables) {
+    /// - 否则 `jumpAllowed` 为 true 且处于 `jumpingStates` 中的状态时开始一次跳跃并显示气泡；其他情况只显示气泡。
+    ///   `sleeping` 不在 `jumpingStates` 中，只显示「?」（v2 Requirement 5.9）；追逐中的居民由调用方传
+    ///   `jumpAllowed: false`（v2 Requirement 20.9、21.8）。
+    /// 不改变 Resident_State、Attachment、目标、持有物、`hangElapsed` 和 Walk_Distance。
+    public static func poke(_ r: inout Resident, constants: Tunables, jumpAllowed: Bool = true) {
         if var p = r.poke, p.jumpRemaining > 0 || p.bubbleRemaining > 0 {
             p.bubbleRemaining = constants.pokeBubbleDuration
             r.poke = p
             return
         }
-        let jump = jumpingStates.contains(r.state) ? constants.pokeJumpDuration : 0
+        let jump = jumpAllowed && jumpingStates.contains(r.state) ? constants.pokeJumpDuration : 0
         r.poke = PokeState(jumpRemaining: jump, bubbleRemaining: constants.pokeBubbleDuration)
     }
 

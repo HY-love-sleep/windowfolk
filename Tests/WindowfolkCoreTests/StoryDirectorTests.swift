@@ -320,7 +320,10 @@ struct StoryReachabilityTests {
             func step(_ label: String) -> Bool {
                 let prev = engine.state
                 now = now.addingTimeInterval(Self.dt)
-                engine.step(FrameInput(poll: source.poll(), screen: Self.screen, now: now))
+                // V2（design.md「v1 属性的调整」）：剧情不再自动开局和换轮。没有进行中的送花时触发送花，
+                // 让模拟仍能跑过多轮（角色互换）；其他 Wish 进行中时触发不生效。
+                let commands: [Command] = engine.state.story.stage == nil ? [.triggerWish(.flower, nil)] : []
+                engine.step(FrameInput(poll: source.poll(), screen: Self.screen, commands: commands, now: now))
                 if let v = Self.violation(prev: prev, now: engine.state) {
                     Issue.record("\(label): \(v)")
                     return false
@@ -427,9 +430,13 @@ struct PlantingInterruptTests {
                 constants: Self.constants, clockStart: now, screen: Self.screen,
                 rng: RandomSource(seed: UInt64(c.seed)), story: true)
 
+            var started = false
             func step() {
                 now = now.addingTimeInterval(Self.dt)
-                engine.step(FrameInput(poll: source.poll(), screen: Self.screen, now: now))
+                // V2：第一帧分配家后由「触发心愿」开始送花（design.md「v1 属性的调整」）。
+                let commands: [Command] = started ? [] : [.triggerWish(.flower, nil)]
+                started = true
+                engine.step(FrameInput(poll: source.poll(), screen: Self.screen, commands: commands, now: now))
                 let v = engine.invariantViolations()
                 #expect(v.isEmpty, "\(c): \(v)")
             }

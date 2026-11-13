@@ -3,8 +3,9 @@ import PropertyBased
 @testable import WindowfolkCore
 
 // 存档生成器（design.md「生成器」表中的 `Gen.saveFile`）。
-// 覆盖全部 Story_Stage 和未开局、任意轮次、有无 doneAt、居民有无持有物、四种 Ground_Object，
-// 花有无种下时间、任意已达阶段。时间先经过 `SaveTime.normalized`（整毫秒），与存档生成时的规则一致。
+// 覆盖全部 Story_Stage 和未开局、任意轮次、有无 doneAt、居民有无持有物、全部 Ground_Object 种类
+// （含 V2 的 chair、lamp），花有无种下时间、任意已达阶段。V2（格式版本 2）另含居民的 Walk_Distance
+// 和上一个 Wish 结束时间，以及 `wishBook`（Unlocked_Decor 含重复项、非 chase 的 active Wish）。时间先经过 `SaveTime.normalized`（整毫秒），与存档生成时的规则一致。
 // ID 只用 ASCII（UUID 字符串或数字字符串）。
 
 extension Gen where Value == Date {
@@ -50,6 +51,32 @@ extension Gen where Value == Double {
     }
 }
 
+extension Gen where Value == SavedWish {
+    /// 非 chase 的 active Wish；Visit_Wish 带一个应用名称（含非 ASCII 和空串）。
+    static var savedWish: Generator<SavedWish, some SendableSequenceType> {
+        zip(
+            Gen<WishType?>.element(of: [WishType.flower, .chair, .lamp, .visit]).map { $0! },
+            Gen<Bool>.bool,
+            Gen<Date>.saveDate,
+            Gen<String?>.element(of: ["Notes", "Safari", "备忘录", "Visual Studio Code", ""]).map { $0! }
+        ).map { type, isA, createdAt, app in
+            SavedWish(type: type, wisher: isA ? .a : .b, createdAt: createdAt,
+                      visitTargetApp: type == .visit ? app : nil)
+        }
+    }
+}
+
+extension Gen where Value == SavedWishBook {
+    static var savedWishBook: Generator<SavedWishBook, some SendableSequenceType> {
+        zip(
+            Gen<DecorType>.case.array(of: 0...3),
+            Gen<Int>.int(in: 0...1000),
+            Gen<Date>.saveDate.optional(),
+            Gen<SavedWish>.savedWish.array(of: 0...2)
+        ).map { SavedWishBook(unlockedDecor: $0, flowerCount: $1, lastFlowerDoneAt: $2, activeWishes: $3) }
+    }
+}
+
 extension Gen where Value == SaveFile {
     static var saveFile: Generator<SaveFile, some SendableSequenceType> {
         let heldItem = zip(
@@ -58,7 +85,9 @@ extension Gen where Value == SaveFile {
             Gen<SavedFlower>.savedFlower
         ).map { SavedHeldItem(id: $1, kind: $0, flower: $2) }
 
-        let resident = zip(Gen<Double>.saveX, heldItem.optional())
+        // Walk_Distance 一半为 0，一半为任意非负小数。
+        let walk = zip(Gen<Bool>.bool, Gen<Double>.double(in: 0...10_000)).map { zero, d in zero ? 0 : d }
+        let resident = zip(Gen<Double>.saveX, heldItem.optional(), walk, Gen<Date>.saveDate.optional())
 
         let object = zip(
             Gen<SavedObjectKind>.case,
@@ -78,16 +107,24 @@ extension Gen where Value == SaveFile {
             Gen<Date>.saveDate.optional(),
             Gen<Int>.int(in: 0...3),           // 居民组合：无、只有 a、只有 b、两位
             resident, resident,
-            object.array(of: 0...12)
-        ).map { savedAt, stage, round, doneAt, which, ra, rb, objects in
+            object.array(of: 0...12),
+            Gen<SavedWishBook>.savedWishBook
+        ).map { savedAt, stage, round, doneAt, which, ra, rb, objects, wishBook in
             var residents: [SavedResident] = []
-            if which & 1 != 0 { residents.append(SavedResident(id: .a, x: ra.0, heldItem: ra.1)) }
-            if which & 2 != 0 { residents.append(SavedResident(id: .b, x: rb.0, heldItem: rb.1)) }
+            if which & 1 != 0 {
+                residents.append(SavedResident(id: .a, x: ra.0, heldItem: ra.1,
+                                               walkDistance: ra.2, lastWishEndedAt: ra.3))
+            }
+            if which & 2 != 0 {
+                residents.append(SavedResident(id: .b, x: rb.0, heldItem: rb.1,
+                                               walkDistance: rb.2, lastWishEndedAt: rb.3))
+            }
             return SaveFile(
                 savedAt: savedAt,
                 story: SavedStory(stage: stage, round: round, doneAt: doneAt),
                 residents: residents,
-                groundObjects: objects)
+                groundObjects: objects,
+                wishBook: wishBook)
         }
     }
 }

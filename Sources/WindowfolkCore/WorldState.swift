@@ -28,7 +28,23 @@ public struct WorldState: Sendable {
     public var items: ItemStore
     /// 剧情状态（任务 13.5 加入）。只在 `WorldEngine.storyEnabled` 为 true 时由 `StoryDirector.update` 推进。
     public var story: StoryState
-
+    /// 全部 Decor 与 Unlocked_Decor（v2 任务 3.1 加入）。Decor 不进入 `SurfaceBuilder` 和 `NavGraph.build`
+    /// （v2 Requirement 3.11）；跟随、隐藏、下落规则与窗沿 Item 相同（v2 Requirement 3.9）。
+    public var decors: DecorStore = DecorStore()
+    /// Decor_Slot 达到上限时的晃动（v2 Requirement 2.4）；没有晃动时为 nil。每次 step 按 dt 减少剩余时间，
+    /// 减到 0 时清除。由任务 3.2 的 Decor_Slot 拖出设置。
+    public var toolboxShake: ToolboxShake?
+    /// 各居民的当前 Activity（v2 任务 5.6）。Busy_Resident 和处于 `falling`、`hanging` 的居民不在其中
+    /// （v2 Requirement 4.1）。只在 `WorldEngine.activitiesEnabled` 为 true 时由 `ActivityPlanner` 维护。
+    public var activities: [ResidentID: Activity] = [:]
+    /// Debug_Menu 昼夜覆盖（v2 Requirement 17.4）。不保存，启动时为 `.auto`。
+    public var dayNightOverride: DayNightOverride = .auto
+    /// 本帧的 Night 判定结果（v2 Requirement 5.1、5.2），每次 step 在居民移动之前更新。
+    public var isNight = false
+    /// 全部 Wish 的簿记（v2 任务 7.4）。只在 `WorldEngine.storyEnabled` 为 true 时由 `WishDirector` 推进。
+    public var wishes = WishBook()
+    /// Thought_Engine 状态（v2 任务 12.9）。不保存；每帧在全部事件产生之后推进。
+    public var thoughts = ThoughtEngine()
     public init(
         screen: ScreenInfo,
         windows: WindowTable = WindowTable(),
@@ -60,4 +76,18 @@ public struct WorldState: Sendable {
         frame: Rect(minX: 0, minY: 0, width: 0, height: 0),
         visibleFrame: Rect(minX: 0, minY: 0, width: 0, height: 0)
     )
+}
+
+/// Decor_Slot 达到上限时的晃动（design.md 中写作 `(zone: ToolboxZone, remaining: Double)?`，
+/// 为了让 `WorldView` 保持 `Hashable` 改为结构体）。渲染层按剩余时间画水平正弦偏移。
+public struct ToolboxShake: Hashable, Sendable {
+    /// 晃动的取物区。
+    public var zone: ToolboxZone
+    /// 剩余时长（秒），大于 0。
+    public var remaining: Double
+
+    public init(zone: ToolboxZone, remaining: Double) {
+        self.zone = zone
+        self.remaining = remaining
+    }
 }

@@ -84,7 +84,15 @@ struct WorldEventTests {
         ])
         var s = source
         now = now.addingTimeInterval(0.1)
-        let out = engine.step(FrameInput(poll: s.poll(), screen: H.screen, now: now))
+        // V2：送花由「触发心愿」启动（design.md「v1 属性的调整」）；wish_started 写在 round_started 之前。
+        let out = engine.step(FrameInput(poll: s.poll(), screen: H.screen,
+                                         commands: [.triggerWish(.flower, nil)], now: now))
+        let types = out.events.map(\.type)
+        let started = try #require(types.firstIndex(of: .wishStarted))
+        #expect(types.firstIndex(of: .roundStarted).map { $0 > started } == true)
+        let wish = out.events[started]
+        #expect(wish.actor == "resident_a" && wish.target == "resident_b")
+        #expect(wish.detail == ["wish_type": "flower", "wish_state": "active"])
         let round = out.events.filter { $0.type == .roundStarted }
         #expect(round.count == 1)
         #expect(round.first?.actor == nil)

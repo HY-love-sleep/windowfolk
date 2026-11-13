@@ -2,7 +2,8 @@ import Foundation
 
 // MARK: - 事件类型与记录
 
-/// Event_Log 记录的事件类型，恰好 14 种（Requirement 21.1）。列表之外的事件不写入。
+/// Event_Log 记录的事件类型，恰好 25 种（v1 Requirement 21.1 的 14 种 + V2 Requirement 18.1 的 11 种）。
+/// 列表之外的事件不写入。
 public enum EventType: String, Hashable, Sendable, Codable, CaseIterable {
     case crossedBridge = "crossed_bridge"
     case climbedLadder = "climbed_ladder"
@@ -18,6 +19,18 @@ public enum EventType: String, Hashable, Sendable, Codable, CaseIterable {
     case plankDropped = "plank_dropped"
     case ladderPlaced = "ladder_placed"
     case ladderDropped = "ladder_dropped"
+    // V2（Requirement 18.1）
+    case decorUnlocked = "decor_unlocked"
+    case decorPlaced = "decor_placed"
+    case decorRemoved = "decor_removed"
+    case wishStarted = "wish_started"
+    case wishFulfilled = "wish_fulfilled"
+    case wishDropped = "wish_dropped"
+    case visited
+    case sat
+    case slept
+    case woke
+    case thoughtShown = "thought_shown"
 }
 
 /// 一条事件记录。字段固定为 `time`、`type`、`actor`、`target`、`detail`（Requirement 21.3）。

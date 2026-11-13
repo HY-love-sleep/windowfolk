@@ -35,6 +35,36 @@ public enum BubbleIcon: String, Hashable, Sendable, CaseIterable {
     case question
     /// 心形气泡。
     case heart
+    /// 「椅子」图标气泡：Chair_Wish 的 Wish_Bubble（v2 Requirement 7.1）。
+    case chair
+    /// 「台灯」图标气泡：Lamp_Wish 的 Wish_Bubble（v2 Requirement 7.4）。
+    case lamp
+    /// 「小旗」图标气泡：Visit_Wish 的 Wish_Bubble，箭头方向由渲染层水平翻转（v2 Requirement 9.3）。
+    case flag
+    /// 「花朵」图标气泡：`admire_flower` 停留期间显示（v2 Requirement 4.10）。
+    case flower
+    /// 「Zzz」图标气泡：`sleeping` 时显示，Z 字形为线条图形（v2 Requirement 5.6）。
+    case zzz
+    /// 「脚印」图标气泡：Chase_Wish 的 Wisher 显示（v2 Requirement 20.3）。
+    case footprints
+}
+
+extension BubbleIcon {
+    /// 气泡种类到素材图标的映射。全部 `Bubble` 都有对应图标。
+    /// `wishIcon(.flag(arrow:))` 统一用 `flag`，箭头朝向由渲染层处理。
+    public init(_ bubble: Bubble) {
+        switch bubble {
+        case .wish: self = .wish
+        case .dots: self = .dots
+        case .heart: self = .heart
+        case .zzz: self = .zzz
+        case .flower: self = .flower
+        case .wishIcon(.chair): self = .chair
+        case .wishIcon(.lamp): self = .lamp
+        case .wishIcon(.flag): self = .flag
+        case .wishIcon(.footprints): self = .footprints
+        }
+    }
 }
 
 /// 花的生长阶段在素材键中的名称。`GrowthStage.assetStage` 映射到这里的取值，
@@ -83,6 +113,12 @@ public enum AssetCatalog {
     public static let ladderTileSize = AssetSize(width: 16, height: 16)
     public static let toolboxSize = AssetSize(width: 72, height: 40)
     public static let bubbleSize = AssetSize(width: 24, height: 24)
+    /// Chair 图形尺寸（v2 design.md「AssetCatalog 与 SpriteMetrics 扩充」）。素材清单项由素材任务加入。
+    public static let chairSize = AssetSize(width: 24, height: 24)
+    /// Lamp 图形尺寸（亮灯与灭灯相同）。
+    public static let lampSize = AssetSize(width: 16, height: 32)
+    /// Visit_Flag 图形尺寸。
+    public static let visitFlagSize = AssetSize(width: 16, height: 24)
 
     // MARK: 键
 
@@ -97,6 +133,18 @@ public enum AssetCatalog {
     public static let plankKey = "plank"
     public static let ladderKey = "ladder"
     public static let toolboxKey = "toolbox"
+    public static let chairKey = "decor_chair"
+    public static let lampOffKey = "decor_lamp_off"
+    public static let lampOnKey = "decor_lamp_on"
+    public static let visitFlagKey = "visit_flag"
+
+    /// Decor 的素材键。Lamp 在 Night 时用发光外观，否则用不发光外观（v2 Requirement 16.5）。
+    public static func decorKey(_ type: DecorType, isNight: Bool) -> String {
+        switch type {
+        case .chair: return chairKey
+        case .lamp: return isNight ? lampOnKey : lampOffKey
+        }
+    }
 
     /// 每个 Resident_State 的动画帧数（两位居民相同）。
     public static func frameCount(for state: ResidentState) -> Int {
@@ -110,12 +158,16 @@ public enum AssetCatalog {
         case .climbing: return 4
         case .planting: return 6
         case .celebrating: return 6
+        case .sitting: return 2
+        case .sleeping: return 4
+        case .running: return 6
         }
     }
 
     // MARK: 清单
 
-    /// 全部素材，按固定顺序排列：两位居民各 9 个状态、3 个生长阶段、果子、木板、梯子、工具箱、4 种气泡。
+    /// 全部素材，按固定顺序排列：两位居民各 12 个状态、3 个生长阶段、果子、木板、梯子、工具箱、
+    /// 10 种气泡，以及 v2 的 Chair、Lamp 两种外观、Visit_Flag。共 45 项。
     public static let all: [AssetSpec] = {
         var specs: [AssetSpec] = []
         for id in ResidentID.allCases {
@@ -134,6 +186,10 @@ public enum AssetCatalog {
         for icon in BubbleIcon.allCases {
             specs.append(AssetSpec(key: bubbleKey(icon), size: bubbleSize))
         }
+        specs.append(AssetSpec(key: chairKey, size: chairSize))
+        specs.append(AssetSpec(key: lampOffKey, size: lampSize))
+        specs.append(AssetSpec(key: lampOnKey, size: lampSize))
+        specs.append(AssetSpec(key: visitFlagKey, size: visitFlagSize))
         return specs
     }()
 

@@ -27,14 +27,123 @@ extension ResidentController {
     /// 往下跳动作的最短时长（秒）。
     public static let minDropDuration = 0.15
 
-    /// 沿路线移动时的状态：持有 Item 为 `carrying`，否则为 `walking`（Requirement 12.7、14.1）。
+    /// 沿路线移动时的状态：`speedFactor > 1` 为 `running`（Requirement 21.1），否则持有 Item 为 `carrying`，
+    /// 否则为 `walking`（Requirement 12.7、14.1）。
     static func movingState(_ r: Resident) -> ResidentState {
+        if r.speedFactor > 1 { return .running }
+        return r.heldItem == nil ? .walking : .carrying
+    }
+
+    /// 小跳、往下跳期间的状态：沿用 v1，不处于 `running`（Requirement 21.1）。
+    static func traversalState(_ r: Resident) -> ResidentState {
         r.heldItem == nil ? .walking : .carrying
     }
 
-    /// 水平移动速度：持有 Item 时为 walkSpeed × carrySpeedRatio（Requirement 14.2）。
+    /// 水平移动速度：`walkSpeed × speedFactor`；`speedFactor` 不大于 1 且持有 Item 时以 carrySpeed 为基准
+    /// （Requirement 14.2、21.1）。`speedFactor` 不是正有限数时按 1 处理。
     static func speed(_ r: Resident, _ c: Tunables) -> Double {
-        r.heldItem == nil ? c.walkSpeed : c.carrySpeed
+        let f = r.speedFactor.isFinite && r.speedFactor > 0 ? r.speedFactor : 1
+        let base = (f > 1 || r.heldItem == nil) ? c.walkSpeed : c.carrySpeed
+        return base * f
+    }
+
+    // MARK: V2 目标
+
+    /// `Goal.hold` 的一帧：停在原地、状态为 `idle`，清除路线；`face` 指向的居民可定位时朝向对方。
+    static func hold(_ r: inout Resident, face: FaceTarget?, world: WorldContext) {
+        if r.state == .waiting { leaveWaiting(&r) }
+        r.route = nil
+        r.state = .idle
+        guard let (_, pos) = currentSurface(of: r, world: world) else { return }
+        faceToward(&r, face: face, fromX: pos.x, world: world)
+    }
+
+    /// `face` 指向的居民可定位时，按对方 x 相对 `x` 更新朝向；x 相等或无法定位时保持原朝向。
+    static func faceToward(_ r: inout Resident, face: FaceTarget?, fromX x: Double, world: WorldContext) {
+        guard case let .resident(other)? = face, let t = world.residentLocations[other] else { return }
+        if t.x < x { r.facing = .left } else if t.x > x { r.facing = .right }
+    }
+
+    /// `Goal.wait` 的一帧：停在原地、状态为 `waiting`，清除路线和「...」气泡，不在 Ground 上来回走动；
+    /// `face` 指向的居民可定位时朝向对方（v2 Requirement 21.3）。
+    static func waitInPlace(_ r: inout Resident, face: FaceTarget?, world: WorldContext) {
+        r.route = nil
+        r.state = .waiting
+        if r.bubble == .dots { r.bubble = nil }
+        r.wander.groundCenter = nil
+        r.wander.groundPatrolling = false
+        guard let (_, pos) = currentSurface(of: r, world: world) else { return }
+        faceToward(&r, face: face, fromX: pos.x, world: world)
+    }
+
+    /// `Goal.reachPoint` 的一帧：与目标在同一 Surface 且 x 差不超过 `within` 时停下（`idle`），
+    /// 否则按 `seek` 的规则寻路、等待和重新规划。
+    static func seekPoint(
+        _ r: inout Resident, surface sid: SurfaceID, x: Double, within: Double, world: WorldContext, dt: Double
+    ) {
+        guard let (surface, pos) = currentSurface(of: r, world: world) else { return }
+        if surface.id == sid, abs(pos.x - x) <= max(within, 0) {
+            stop(&r)
+            return
+        }
+        // 目标 Surface 已不存在时当作暂时无法定位：沿现有有效路线继续，否则停下。
+        let target = world.surface(sid) == nil ? nil : ResidentLocation(surface: sid, x: x)
+        seek(&r, target: target, world: world, dt: dt)
+    }
+
+    /// `Goal.reachWindow` 的一帧：站在窗口 `w` 的任一段 Window_Ledge 上即到达并停下；
+    /// 否则沿现有有效路线继续，没有时对每段可见窗沿求路线，取代价最小者；都不可达时等待。
+    static func seekWindow(_ r: inout Resident, window w: WindowID, world: WorldContext, dt: Double) {
+        guard let (surface, pos) = currentSurface(of: r, world: world) else { return }
+        if surface.id.windowID == w {
+            stop(&r)
+            return
+        }
+        let ledges = world.surfaces.filter { $0.id.windowID == w }
+        let nav = world.nav
+        if let route = r.route, route.targetSurface.windowID == w, nav.isValid(route, from: surface.id) {
+            // 现有路线仍有效，继续。
+        } else {
+            var best: (cost: Double, route: Route)?
+            for ledge in ledges {
+                let tx = min(max(pos.x, ledge.start.x), ledge.end.x)
+                guard let route = nav.route(from: surface.id, at: pos.x, to: ledge.id, targetX: tx,
+                                            metric: r.routeMetric) else { continue }
+                let cost = routeCost(route, from: pos.x, metric: r.routeMetric)
+                if best == nil || cost < best!.cost { best = (cost, route) }
+            }
+            r.route = best?.route
+        }
+        guard let route = r.route else {
+            if let ledge = ledges.first {
+                let tx = min(max(pos.x, ledge.start.x), ledge.end.x)
+                wait(&r, on: surface, at: pos, targetX: tx, world: world, dt: dt)
+            } else if r.state == .walking || r.state == .carrying || r.state == .running {
+                r.state = .idle
+            }
+            return
+        }
+        if r.state == .waiting { leaveWaiting(&r) }
+        follow(&r, route: route, on: surface, at: pos, world: world, dt: dt)
+    }
+
+    /// 从 `x` 出发走完路线各条边、到达最后一条边入口点的代价（不含在目标 Surface 上继续行走的距离）。
+    static func routeCost(_ route: Route, from x: Double, metric: RouteMetric) -> Double {
+        var cur = x
+        var total = 0.0
+        for e in route.steps {
+            total += abs(e.exit.x - cur)
+            total += metric == .standard ? e.cost : abs(e.entry.x - e.exit.x)
+            cur = e.entry.x
+        }
+        return total
+    }
+
+    /// 到达目标：清除路线、离开等待，状态为 `idle`。
+    static func stop(_ r: inout Resident) {
+        if r.state == .waiting { leaveWaiting(&r) }
+        r.route = nil
+        r.state = .idle
     }
 
     /// `Goal.reach` 的一帧：更新路线目标，必要时重新寻路；有路线就沿路线走，否则等待。
@@ -50,7 +159,8 @@ extension ResidentController {
                 route.targetX = target.x
                 r.route = route
             } else {
-                r.route = nav.route(from: surface.id, at: pos.x, to: target.surface, targetX: target.x)
+                r.route = nav.route(from: surface.id, at: pos.x, to: target.surface, targetX: target.x,
+                                    metric: r.routeMetric)
             }
         } else if let route = r.route, !nav.isValid(route, from: surface.id) {
             r.route = nil
@@ -59,7 +169,7 @@ extension ResidentController {
         guard let route = r.route else {
             if let target {
                 wait(&r, on: surface, at: pos, targetX: target.x, world: world, dt: dt)
-            } else if r.state == .walking || r.state == .carrying {
+            } else if r.state == .walking || r.state == .carrying || r.state == .running {
                 r.state = .idle
             }
             return
@@ -123,13 +233,13 @@ extension ResidentController {
         case .smallJump:
             r.traversal = Traversal(kind: .smallJump, from: from, to: edge.entry,
                                     duration: smallJumpDuration, edge: edge)
-            r.state = movingState(r)
+            r.state = traversalState(r)
         case .drop:
             let h = max(edge.entry.y - from.y, 0)
             let g = c.fallGravity > 0 ? c.fallGravity : 2000
             r.traversal = Traversal(kind: .drop, from: from, to: edge.entry,
                                     duration: max(minDropDuration, (2 * h / g).squareRoot()), edge: edge)
-            r.state = movingState(r)
+            r.state = traversalState(r)
         case let .ladder(lid):
             r.state = .climbing
             let v = c.climbSpeed > 0 ? c.climbSpeed : 30

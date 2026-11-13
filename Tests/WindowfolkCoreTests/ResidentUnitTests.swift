@@ -36,8 +36,8 @@ struct ResidentUnitTests {
         }
     }
 
-    @Test func residentStateHasNineCases() {
-        #expect(ResidentState.allCases.count == 9)
+    @Test func residentStateHasTwelveCases() {
+        #expect(ResidentState.allCases.count == 12)
         #expect(ResidentID.a.rawValue == "resident_a")
         #expect(ResidentID.a.other == .b)
     }

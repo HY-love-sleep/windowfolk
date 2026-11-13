@@ -4,17 +4,19 @@ import Foundation
 public enum HitTarget: Hashable, Sendable {
     case resident(ResidentID)
     case item(ItemID)
+    case decor(DecorID)
     case plank(PlankID)
     case ladder(LadderID)
     case toolbox(ToolboxZone)
 
-    /// 命中优先级，数值越小越优先：Resident > Item > Plank / Ladder > Toolbox（design.md）。
+    /// 命中优先级，数值越小越优先：Resident > Item > Decor > Plank / Ladder > Toolbox（v2 design.md）。
     public var priority: Int {
         switch self {
         case .resident: return 0
         case .item: return 1
-        case .plank, .ladder: return 2
-        case .toolbox: return 3
+        case .decor: return 2
+        case .plank, .ladder: return 3
+        case .toolbox: return 4
         }
     }
 }
@@ -51,20 +53,24 @@ public enum HitTesting {
         var regions: [HitRegion] = []
         for r in world.residents {
             guard !r.isHidden, let p = r.position else { continue }
-            regions.append(HitRegion(target: .resident(r.id), rect: SpriteMetrics.residentRect(bottomCenter: p)))
+            regions.append(HitRegion(
+                target: .resident(r.id),
+                rect: SpriteMetrics.residentRect(bottomCenter: p, lift: SpriteMetrics.residentSeatLift(r.state))))
         }
-        for zone in ToolboxZone.allCases {
-            regions.append(HitRegion(target: .toolbox(zone), rect: ToolboxLayout.zoneFrame(zone, screen: world.screen)))
+        let unlocked = world.unlockedDecor
+        for zone in ToolboxLayout.zones(unlocked: unlocked) {
+            guard let rect = ToolboxLayout.zoneFrame(zone, screen: world.screen, unlocked: unlocked) else { continue }
+            regions.append(HitRegion(target: .toolbox(zone), rect: rect))
         }
         return regions
     }
 
     /// `hitTest(_:regions:)` 作用于 `regions(for:)`。
-    /// Toolbox 中线上的点按 `ToolboxLayout.zone(at:)` 归 Ladder 区。
+    /// Toolbox 两区之间边上的点按 `ToolboxLayout.zone(at:)` 归右侧区。
     public static func hitTest(_ p: Point, world: WorldView) -> HitTarget? {
         let target = hitTest(p, regions: regions(for: world))
         if case .toolbox = target {
-            return ToolboxLayout.zone(at: p, screen: world.screen).map(HitTarget.toolbox)
+            return ToolboxLayout.zone(at: p, screen: world.screen, unlocked: world.unlockedDecor).map(HitTarget.toolbox)
         }
         return target
     }

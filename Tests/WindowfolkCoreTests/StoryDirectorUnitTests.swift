@@ -42,13 +42,14 @@ struct StoryDirectorUnitTests {
 
     /// 推进若干帧：先剧情，再居民。`until` 为真时提前结束。
     @discardableResult
-    func run(_ s: inout StoryState, _ w: inout WorldState, now: inout Date, frames: Int,
+    func run(_ s: inout StoryState, _ w: inout WorldState, now: inout Date, frames: Int, wishDriven: Bool = false,
              until: (StoryState, WorldState) -> Bool = { _, _ in false }) -> [StoryEvent] {
         var rng = RandomSource(seed: 7)
         var events: [StoryEvent] = []
         for _ in 0 ..< frames {
             now = now.addingTimeInterval(dt)
-            events += StoryDirector.update(&s, world: &w, constants: constants, now: now, dt: dt)
+            events += StoryDirector.update(&s, world: &w, constants: constants, now: now, dt: dt,
+                                           wishDriven: wishDriven)
             var ctx = StoryDirector.context(w, constants)
             for id in ResidentID.allCases {
                 ctx.residentLocations[id] = StoryDirector.location(id, world: w, ctx: ctx)
@@ -302,6 +303,116 @@ struct StoryDirectorUnitTests {
         StoryDirector.restart(&s3, world: &w3, constants: constants, now: now)
         #expect(s3.stage == nil && s3.round == 1)
         #expect(w3.residents.count == 2)
+    }
+
+    // MARK: V2 任务 7.2：开局与轮次调度拆分
+
+    @Test func assignHomesPlacesWithoutStartingRound() {
+        var w = world(twoWindows)
+        var s = StoryState()
+        #expect(StoryDirector.assignHomes(&s, world: &w, constants: constants, placeResidents: true))
+        #expect(s.homes == [.a: 1, .b: 2])
+        #expect(s.stage == nil && s.round == 1)
+        #expect(w.residents[.a]?.attachment == .window(1, offset: 100))
+        #expect(w.residents[.b]?.attachment == .window(2, offset: 100))
+        #expect(w.items.items.isEmpty)
+        #expect(w.residents[.a]?.heldItem == nil)
+    }
+
+    @Test func assignHomesWithoutPlacingKeepsResidents() {
+        var w = world(twoWindows)
+        w.residents[.a] = Resident(id: .a, attachment: .ground(x: 50))
+        w.residents[.b] = Resident(id: .b, attachment: .window(1, offset: 20))
+        let residents = w.residents
+        var s = StoryState()
+        #expect(StoryDirector.assignHomes(&s, world: &w, constants: constants, placeResidents: false))
+        #expect(s.homes == [.a: 1, .b: 2])
+        #expect(w.residents == residents)
+    }
+
+    @Test func assignHomesFailsWithOneWindowAndPlacesOnGroundOnce() {
+        var w = world([win(1, z: 0, x: 100, y: 400)])
+        var s = StoryState()
+        #expect(!StoryDirector.assignHomes(&s, world: &w, constants: constants, placeResidents: true))
+        #expect(s.homes.isEmpty && s.groundPlaced)
+        for r in w.residents.values {
+            if case .ground = r.attachment {} else { Issue.record("expected ground: \(r.attachment)") }
+        }
+        // 第二次失败不再重放。
+        w.residents[.a]?.attachment = .ground(x: 10)
+        #expect(!StoryDirector.assignHomes(&s, world: &w, constants: constants, placeResidents: true))
+        #expect(w.residents[.a]?.attachment == .ground(x: 10))
+
+        // 不落位时失败不创建居民。
+        var w2 = world([win(1, z: 0, x: 100, y: 400)])
+        var s2 = StoryState()
+        #expect(!StoryDirector.assignHomes(&s2, world: &w2, constants: constants, placeResidents: false))
+        #expect(w2.residents.isEmpty && !s2.groundPlaced)
+    }
+
+    @Test func wishDrivenUpdateWithoutStageDoesNothing() {
+        var w = world(twoWindows, bridged: true)
+        var s = StoryState()
+        StoryDirector.assignHomes(&s, world: &w, constants: constants, placeResidents: true)
+        w.residents[.a]?.goal = .reachWindow(2)
+        w.residents[.b]?.goal = .hold(face: nil)
+        var now = t0
+        let events = run(&s, &w, now: &now, frames: 30, wishDriven: true)
+        #expect(events.isEmpty)
+        #expect(s.stage == nil && s.round == 1)
+        #expect(w.items.items.isEmpty)
+        // Goal 归 Activity_Planner，剧情不覆盖。
+        #expect(w.residents[.a]?.goal == .reachWindow(2))
+        #expect(w.residents[.b]?.goal == .hold(face: nil))
+    }
+
+    @Test func beginFlowerWishUsesRoundForRoles() {
+        var w = world(twoWindows, bridged: true)
+        var s = StoryState()
+        StoryDirector.assignHomes(&s, world: &w, constants: constants, placeResidents: true)
+        let events = StoryDirector.beginFlowerWish(&s, round: 2, world: &w, constants: constants, now: t0)
+        #expect(s.round == 2)
+        #expect(s.giver == .b && s.receiver == .a)
+        #expect(events.prefix(2) == [.stageChanged(from: nil, to: .wish),
+                                     .roundStarted(round: 2, giver: .b, receiver: .a)])
+        #expect(s.stage == .travel)
+        #expect(w.residents[.b]?.heldItem == s.currentFlower)
+        #expect(w.items[s.currentFlower!]?.kind == .flower(storyRound: 2))
+        #expect(w.residents[.b]?.goal == .reach(.a))
+        #expect(w.residents[.a]?.goal == .confined)
+    }
+
+    @Test func wishDrivenDoneRecordsDoneAtAndDoesNotStartNextRound() throws {
+        var w = world(twoWindows, bridged: true)
+        var s = StoryState()
+        StoryDirector.assignHomes(&s, world: &w, constants: constants, placeResidents: true)
+        var now = t0
+        StoryDirector.beginFlowerWish(&s, round: 1, world: &w, constants: constants, now: now)
+        run(&s, &w, now: &now, frames: 30 * 40, wishDriven: true) { s, _ in s.stage == .growing }
+        #expect(s.stage == .growing)
+        now = now.addingTimeInterval(constants.bloomDuration)
+        StoryDirector.update(&s, world: &w, constants: constants, now: now, dt: dt, wishDriven: true)
+        #expect(s.stage == .returnGift)
+        run(&s, &w, now: &now, frames: 30 * 40, wishDriven: true) { s, _ in s.stage == .done }
+        #expect(s.stage == .done)
+        let doneAt = try #require(s.doneAt)
+        #expect(doneAt <= now)
+
+        // 庆祝照常结束；满 Round_Interval 后仍停在 Done，不开新一轮。
+        run(&s, &w, now: &now, frames: Int(StoryDirector.celebrateDuration * 30) + 2, wishDriven: true)
+        #expect(w.residents[.a]?.state != .celebrating && w.residents[.b]?.state != .celebrating)
+        now = now.addingTimeInterval(constants.roundInterval * 2)
+        let events = StoryDirector.update(&s, world: &w, constants: constants, now: now, dt: dt, wishDriven: true)
+        #expect(s.stage == .done && s.round == 1 && s.doneAt == doneAt)
+        #expect(!events.contains { if case .roundStarted = $0 { true } else { false } })
+
+        // WishDirector 清 stage 后剧情不再写 Goal。
+        s.stage = nil
+        w.residents[.a]?.goal = .none
+        w.residents[.b]?.goal = .reachWindow(1)
+        StoryDirector.update(&s, world: &w, constants: constants, now: now, dt: dt, wishDriven: true)
+        #expect(s.stage == nil)
+        #expect(w.residents[.a]?.goal == Goal.none && w.residents[.b]?.goal == .reachWindow(1))
     }
 
     @Test func evictsOldestStoryFlower() {

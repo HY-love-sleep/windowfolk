@@ -65,6 +65,17 @@ final class SceneRenderer {
     /// 梯子拖动预览（绿色或红色）。
     private let ladderPreviewNode = LadderNode()
 
+    /// 以 `DecorID` 为键复用的 Decor 节点，以及每个节点当前显示的素材键。
+    private var decorNodes: [DecorID: SKSpriteNode] = [:]
+    private var decorKeys: [DecorID: String] = [:]
+    /// Visit_Flag 节点，按 `WorldView.visitFlags` 的下标复用。
+    private var visitFlagNodes: [SKSpriteNode] = []
+    /// Toolbox 右侧的 Decor_Slot 节点，以及上次布局所用的 Unlocked_Decor。
+    private var decorSlotNodes: [DecorType: DecorSlotNode] = [:]
+    private var drawnUnlocked: Set<DecorType>?
+    /// 以居民为键复用的 Thought 文字气泡节点。
+    private var thoughtNodes: [ResidentID: ThoughtBubbleNode] = [:]
+
     init(scene: SKScene, geometry: ScreenGeometry, overlayFrame: CGRect,
          assets: AssetProvider = AssetProvider(), constants: Tunables = Tunables()) {
         self.geometry = geometry
@@ -94,6 +105,7 @@ final class SceneRenderer {
         overlayOrigin = frame.origin
         drawnSurfaces = nil
         drawnToolbox = nil
+        drawnUnlocked = nil
         lastView = nil
     }
 
@@ -111,13 +123,15 @@ final class SceneRenderer {
             return advanceResidentAnimations(view.residents, story: view.story, time: time)
         }
         lastView = view
-        renderToolbox(view.toolbox)
+        renderToolbox(view)
         renderPlanks(view.planks)
         renderLadders(view.ladders)
         renderPreview(view)
         renderSurfaces(view.showSurfaces ? view.surfaces : nil)
         renderResidents(view.residents, story: view.story, time: time)
         renderItems(view.items)
+        renderDecors(view.decors, isNight: view.isNight)
+        renderVisitFlags(view.visitFlags)
         return true
     }
 
@@ -198,11 +212,85 @@ final class SceneRenderer {
         }
     }
 
+    // MARK: - Decor 与 Visit_Flag
+
+    /// 放置或下落中的 Decor：在木板之上、物件和居民之后（坐着的居民画在 Chair 前面）。
+    static let decorZ: CGFloat = 25
+    /// Visit_Flag：与放置的 Decor 同层。
+    static let visitFlagZ: CGFloat = 25
+
+    /// 以 `DecorID` 为键复用 Decor 节点；只在素材键变化时换纹理。
+    /// Lamp 在 Night 时用发光外观 `decor_lamp_on`，否则 `decor_lamp_off`（v2 Requirement 5.10、16.5）；
+    /// Night 变化后下一次快照更新时换图。`view.decors` 已排除隐藏窗口上的 Decor。
+    private func renderDecors(_ decors: [DecorView], isNight: Bool) {
+        var seen = Set<DecorID>()
+        for decor in decors {
+            seen.insert(decor.id)
+            let node = decorNodes[decor.id] ?? {
+                let n = SKSpriteNode(color: .clear, size: .zero)
+                n.anchorPoint = CGPoint(x: 0.5, y: 0)   // 底边中点对齐 position
+                n.name = "decor_\(decor.id)"
+                scene.addChild(n)
+                decorNodes[decor.id] = n
+                return n
+            }()
+            let key = AssetCatalog.decorKey(decor.type, isNight: isNight)
+            if decorKeys[decor.id] != key, let texture = assets.texture(for: key) {
+                node.texture = texture
+                node.size = AssetProvider.displaySize(SpriteMetrics.decorSize(decor.type))
+                decorKeys[decor.id] = key
+            }
+            node.position = scenePoint(decor.position)
+            node.zPosition = decor.isDragged ? Self.draggedItemZ : Self.decorZ
+        }
+        for (id, node) in decorNodes where !seen.contains(id) {
+            node.removeFromParent()
+            decorNodes[id] = nil
+            decorKeys[id] = nil
+        }
+    }
+
+    /// Visit_Flag 底边中点放在 `WorldView.visitFlags` 给出的窗沿中点上（v2 Requirement 9.2、9.7）。
+    private func renderVisitFlags(_ flags: [Point]) {
+        while visitFlagNodes.count < flags.count {
+            let n = SKSpriteNode(texture: assets.texture(for: AssetCatalog.visitFlagKey),
+                                 size: AssetProvider.displaySize(SpriteMetrics.visitFlag))
+            n.anchorPoint = CGPoint(x: 0.5, y: 0)
+            n.zPosition = Self.visitFlagZ
+            n.name = "visit_flag_\(visitFlagNodes.count)"
+            scene.addChild(n)
+            visitFlagNodes.append(n)
+        }
+        while visitFlagNodes.count > flags.count {
+            visitFlagNodes.removeLast().removeFromParent()
+        }
+        for (node, p) in zip(visitFlagNodes, flags) {
+            node.position = scenePoint(p)
+        }
+    }
+
     // MARK: - Toolbox
 
-    private func renderToolbox(_ frame: Rect) {
-        guard frame != drawnToolbox else { return }
-        drawnToolbox = frame
+    /// 晃动的最大水平偏移（pt）。
+    static let toolboxShakeAmplitude: CGFloat = 3
+
+    /// 外框左侧 72pt 画 v1 `toolbox` 图（Plank、Ladder 两区），右侧每个 Decor_Slot 画一个同色木箱底和
+    /// 该 Decor 的缩小图标（v2 Requirement 2.1、2.2、2.8）。布局只在外框或 Unlocked_Decor 变化时更新；
+    /// 晃动（v2 Requirement 2.4）只改对应 Decor_Slot 的水平偏移。
+    private func renderToolbox(_ view: WorldView) {
+        let frame = view.toolbox
+        if frame != drawnToolbox || view.unlockedDecor != drawnUnlocked {
+            drawnToolbox = frame
+            drawnUnlocked = view.unlockedDecor
+            layoutToolbox(frame, screen: view.screen, unlocked: view.unlockedDecor)
+        }
+        for (type, node) in decorSlotNodes {
+            node.shakeOffset = Self.shakeOffset(view.toolboxShake, zone: .decor(type),
+                                                duration: constants.toolboxShakeDuration)
+        }
+    }
+
+    private func layoutToolbox(_ frame: Rect, screen: ScreenInfo, unlocked: Set<DecorType>) {
         if toolboxNode.parent == nil {
             toolboxNode.texture = assets.texture(for: AssetCatalog.toolboxKey)
             toolboxNode.anchorPoint = .zero
@@ -210,9 +298,36 @@ final class SceneRenderer {
             toolboxNode.zPosition = 10
             scene.addChild(toolboxNode)
         }
-        let r = sceneRect(frame)
+        let base = Rect(minX: frame.minX, minY: frame.minY,
+                        width: min(frame.width, ToolboxLayout.zoneWidth * 2), height: frame.height)
+        let r = sceneRect(base)
         toolboxNode.size = r.size
         toolboxNode.position = r.origin
+
+        for type in DecorType.allCases {
+            guard unlocked.contains(type),
+                  let zone = ToolboxLayout.zoneFrame(.decor(type), screen: screen, unlocked: unlocked) else {
+                decorSlotNodes[type]?.removeFromParent()
+                decorSlotNodes[type] = nil
+                continue
+            }
+            let node = decorSlotNodes[type] ?? {
+                let n = DecorSlotNode(type: type, assets: assets)
+                n.zPosition = 10
+                n.name = "decor_slot_\(type.rawValue)"
+                scene.addChild(n)
+                decorSlotNodes[type] = n
+                return n
+            }()
+            node.layout(in: sceneRect(zone))
+        }
+    }
+
+    /// 晃动偏移：在晃动时长内走一个完整正弦周期（先右后左再回中），结束或不是该取物区时为 0。
+    static func shakeOffset(_ shake: ToolboxShake?, zone: ToolboxZone, duration: Double) -> CGFloat {
+        guard let shake, shake.zone == zone, duration > 0 else { return 0 }
+        let progress = min(1, max(0, 1 - shake.remaining / duration))
+        return toolboxShakeAmplitude * CGFloat(sin(2 * Double.pi * progress))
     }
 
     // MARK: - 木板
@@ -376,6 +491,7 @@ final class SceneRenderer {
             // 隐藏窗口上的居民不绘制（Requirement 5.2）。
             guard !resident.isHidden, let position = resident.position else {
                 node.isHidden = true
+                thoughtNodes[resident.id]?.isHidden = true
                 continue
             }
             node.isHidden = false
@@ -385,14 +501,17 @@ final class SceneRenderer {
             }
             _ = updateResidentTexture(resident, node: node, story: story, time: time)
 
-            // 底边中点对齐 position；朝左时水平镜像。戳居民的跳跃只是向上的显示偏移。
+            // 底边中点对齐 position；朝左时水平镜像。戳居民的跳跃和坐在 Chair 上的上移
+            // （v2 `seatLift`）都只是向上的显示偏移，与 `SpriteMetrics.residentRect` 的命中矩形一致。
             var point = scenePoint(position)
-            point.y += CGFloat(resident.jumpLift)
+            point.y += CGFloat(resident.jumpLift + resident.seatLift)
             node.position = point
             node.xScale = resident.facing == .left ? -1 : 1
 
-            renderBubbles(for: resident, residentTop: point.y + CGFloat(SpriteMetrics.resident.height),
-                          x: point.x)
+            let iconCount = renderBubbles(for: resident,
+                                          residentTop: point.y + CGFloat(SpriteMetrics.resident.height),
+                                          x: point.x)
+            renderThought(for: resident, iconBubblesBelow: iconCount)
         }
 
         for (id, node) in residentNodes where !seen.contains(id) {
@@ -405,33 +524,64 @@ final class SceneRenderer {
             node.removeFromParent()
             bubbleNodes[key] = nil
         }
+        for (id, node) in thoughtNodes where !seen.contains(id) {
+            node.removeFromParent()
+            thoughtNodes[id] = nil
+        }
     }
 
     // MARK: - 气泡
 
-    /// 每位居民头顶的两个气泡槽：剧情气泡（「...」、许愿、心形）贴着头顶，
+    /// 每位居民头顶的两个气泡槽：剧情气泡（「...」、许愿、心形，以及 v2 的 Wish_Bubble、Zzz、花朵）贴着头顶，
     /// 戳居民的「?」气泡在它上方；没有剧情气泡时「?」直接贴着头顶。
     /// 两者互不覆盖，因此 `waiting` 期间「...」持续显示（Requirement 12.10），戳一下也不会把它挡掉。
+    /// 例外：「?」显示期间隐藏 Wish_Bubble（`.wishIcon` 与送花的 `.wish(receiver:)`），「?」结束后的下一帧恢复
+    /// （v2 Requirement 10.6）。
     private enum BubbleSlot: Hashable { case story, poke }
     private struct BubbleKey: Hashable { var resident: ResidentID; var slot: BubbleSlot }
 
-    private func renderBubbles(for resident: ResidentView, residentTop: CGFloat, x: CGFloat) {
+    /// 返回本帧显示的图标气泡个数（0 至 2），Thought 气泡画在它们上方。
+    private func renderBubbles(for resident: ResidentView, residentTop: CGFloat, x: CGFloat) -> Int {
         var y = residentTop + Self.bubbleGap
-        let story = resident.bubble.map(Self.icon(for:))
-        if showBubble(story, receiver: Self.wishReceiver(resident.bubble),
-                      key: BubbleKey(resident: resident.id, slot: .story), at: CGPoint(x: x, y: y)) {
-            y += CGFloat(SpriteMetrics.bubble.height) + Self.bubbleGap
-        }
+        var count = 0
         // 戳居民的「?」气泡（Requirement 7.6、7.8）。
         let poking = (resident.poke?.bubbleRemaining ?? 0) > 0
-        showBubble(poking ? .question : nil, receiver: nil,
-                   key: BubbleKey(resident: resident.id, slot: .poke), at: CGPoint(x: x, y: y))
+        let storyBubble = Self.storyBubble(resident.bubble, poking: poking)
+        let story = storyBubble.map(BubbleIcon.init)
+        if showBubble(story, receiver: Self.wishReceiver(storyBubble), mirrored: Self.isMirrored(storyBubble),
+                      key: BubbleKey(resident: resident.id, slot: .story), at: CGPoint(x: x, y: y)) {
+            y += CGFloat(SpriteMetrics.bubble.height) + Self.bubbleGap
+            count += 1
+        }
+        if showBubble(poking ? .question : nil, receiver: nil, mirrored: false,
+                      key: BubbleKey(resident: resident.id, slot: .poke), at: CGPoint(x: x, y: y)) {
+            count += 1
+        }
+        return count
+    }
+
+    /// 剧情槽本帧显示的气泡：「?」显示期间 Wish_Bubble 让位，其余气泡（「...」、心形、Zzz、花朵）照常；
+    /// 「?」结束后的下一帧 `poking` 为 false，原气泡恢复（v2 Requirement 10.6）。
+    /// Wish_Bubble 包括 v2 的 `.wishIcon` 和送花心愿沿用的 v1 许愿气泡 `.wish(receiver:)`。
+    static func storyBubble(_ bubble: Bubble?, poking: Bool) -> Bubble? {
+        guard poking else { return bubble }
+        switch bubble {
+        case .wishIcon, .wish: return nil
+        default: return bubble
+        }
+    }
+
+    /// 「小旗」气泡的箭头朝左时整个气泡水平镜像（占位图的箭头朝右，v2 Requirement 9.3）。
+    static func isMirrored(_ bubble: Bubble?) -> Bool {
+        if case .wishIcon(.flag(arrow: .left)) = bubble { return true }
+        return false
     }
 
     /// 在 `point`（底边中点）显示一个图标气泡；`icon` 为 nil 时隐藏该槽。返回是否显示。
-    /// 气泡全部是图形，不含文字（Requirement 15.9）。
+    /// 图标气泡全部是图形，不含文字（Requirement 15.9、v2 Requirement 14.6）。
     @discardableResult
-    private func showBubble(_ icon: BubbleIcon?, receiver: ResidentID?, key: BubbleKey, at point: CGPoint) -> Bool {
+    private func showBubble(_ icon: BubbleIcon?, receiver: ResidentID?, mirrored: Bool,
+                            key: BubbleKey, at point: CGPoint) -> Bool {
         guard let icon else {
             bubbleNodes[key]?.isHidden = true
             return false
@@ -445,17 +595,36 @@ final class SceneRenderer {
             return n
         }()
         node.show(icon, receiver: receiver, assets: assets)
+        node.xScale = mirrored ? -1 : 1
         node.isHidden = false
         node.position = point
         return true
     }
 
-    private static func icon(for bubble: Bubble) -> BubbleIcon {
-        switch bubble {
-        case .wish: return .wish
-        case .dots: return .dots
-        case .heart: return .heart
+    /// Thought 单行文字气泡（v2 Requirement 14.4、16.6、16.7）。位置和宽度取自 `ThoughtLayout`：
+    /// 有图标气泡时画在最上面一个图标气泡之上并留间隔，否则贴着头顶。
+    private func renderThought(for resident: ResidentView, iconBubblesBelow: Int) {
+        guard let text = resident.thought, !text.isEmpty, var head = ThoughtLayout.headTop(of: resident) else {
+            thoughtNodes[resident.id]?.isHidden = true
+            return
         }
+        let node = thoughtNodes[resident.id] ?? {
+            let n = ThoughtBubbleNode()
+            n.zPosition = 70
+            n.name = "thought_\(resident.id.rawValue)"
+            scene.addChild(n)
+            thoughtNodes[resident.id] = n
+            return n
+        }()
+        node.setText(text, baseTexture: assets.bubbleBaseTexture)
+        // `ThoughtLayout` 只考虑一个图标气泡；「?」与剧情气泡同时显示时，把头顶再上移一个气泡位。
+        if iconBubblesBelow > 1 {
+            head.y -= Double(iconBubblesBelow - 1) * (ThoughtLayout.iconBubble.height + ThoughtLayout.gap)
+        }
+        let rect = ThoughtLayout.thoughtRect(textWidth: Double(node.textWidth), headTop: head,
+                                             hasWishBubble: iconBubblesBelow > 0)
+        node.layout(in: sceneRect(rect))
+        node.isHidden = false
     }
 
     private static func wishReceiver(_ bubble: Bubble?) -> ResidentID? {
@@ -649,5 +818,132 @@ final class BubbleNode: SKSpriteNode {
             }
         }
         avatar.isHidden = icon != .wish || receiver == nil
+    }
+}
+
+/// Toolbox 右侧的一个 Decor_Slot：与 v1 `toolbox` 占位图同色的木箱底，加该 Decor 的缩小图标（v2 Requirement 2.1）。
+/// 节点原点在取物区左下角（场景坐标）；晃动只移动内容子节点，不改布局。只有尺寸变化时才重建图形。
+@MainActor
+final class DecorSlotNode: SKNode {
+    static let boxFill = NSColor(srgbRed: 0.66, green: 0.44, blue: 0.24, alpha: 1)
+    static let boxStroke = NSColor(srgbRed: 0.40, green: 0.25, blue: 0.12, alpha: 1)
+    static let grain = NSColor(srgbRed: 0.52, green: 0.33, blue: 0.17, alpha: 1)
+    /// 图标最大显示尺寸（pt）和最大缩放比例。
+    static let iconMax = CGSize(width: 28, height: 26)
+    static let iconMaxScale: CGFloat = 0.85
+
+    let type: DecorType
+    private let content = SKNode()
+    private let icon: SKSpriteNode
+    private var builtSize: CGSize?
+
+    init(type: DecorType, assets: AssetProvider) {
+        self.type = type
+        // 工具箱里始终显示 Lamp 的不发光外观。
+        let size = AssetProvider.displaySize(SpriteMetrics.decorSize(type))
+        let scale = min(Self.iconMaxScale, Self.iconMax.width / size.width, Self.iconMax.height / size.height)
+        icon = SKSpriteNode(texture: assets.texture(for: AssetCatalog.decorKey(type, isNight: false)),
+                            size: CGSize(width: size.width * scale, height: size.height * scale))
+        icon.anchorPoint = CGPoint(x: 0.5, y: 0)
+        icon.zPosition = 1
+        super.init()
+        addChild(content)
+        content.addChild(icon)
+    }
+
+    @available(*, unavailable)
+    required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
+
+    /// 水平晃动偏移（pt）。
+    var shakeOffset: CGFloat {
+        get { content.position.x }
+        set { content.position.x = newValue }
+    }
+
+    func layout(in rect: CGRect) {
+        position = rect.origin
+        guard rect.size != builtSize else { return }
+        builtSize = rect.size
+        content.children.filter { $0 !== icon }.forEach { $0.removeFromParent() }
+
+        // 与 `toolbox` 占位图的箱身相同：底部留 1pt，顶部留 7pt 给露出箱口的物件。
+        let box = CGRect(x: 1, y: 1, width: rect.width - 2, height: max(1, rect.height - 8))
+        let shape = SKShapeNode(rect: box, cornerRadius: 3)
+        shape.fillColor = Self.boxFill
+        shape.strokeColor = Self.boxStroke
+        shape.lineWidth = 1.5
+        shape.isAntialiased = true
+        content.addChild(shape)
+
+        let grainPath = CGMutablePath()
+        grainPath.move(to: CGPoint(x: 4, y: box.midY - 4))
+        grainPath.addLine(to: CGPoint(x: rect.width - 4, y: box.midY - 4))
+        let grain = SKShapeNode(path: grainPath)
+        grain.strokeColor = Self.grain
+        grain.lineWidth = 0.8
+        content.addChild(grain)
+
+        icon.position = CGPoint(x: rect.width / 2, y: box.minY + 5)
+    }
+}
+
+/// Thought 单行文字气泡（v2 Requirement 14.4、16.6、16.7）：图标气泡的底框横向九宫格拉伸到 `ThoughtLayout` 给出的宽度，
+/// 上面放一个单行 `SKLabelNode`。不设最大宽度和行数限制，因此文字不换行、不省略、不被裁切。
+/// 只有文字变化时才重新排版；节点原点在气泡左下角（场景坐标）。
+@MainActor
+final class ThoughtBubbleNode: SKNode {
+    static let font = NSFont.systemFont(ofSize: 11)
+    static let textColor = NSColor(srgbRed: 0.16, green: 0.14, blue: 0.14, alpha: 1)
+    /// 底框圆心在气泡高度中的比例（占位底框圆形为 y 3...23，共 24pt）。
+    static let textCenterRatio: CGFloat = 13.0 / 24.0
+
+    private let base = SKSpriteNode(color: .clear, size: .zero)
+    private let label = SKLabelNode()
+    private var shownText: String?
+    private var builtWidth: CGFloat?
+    /// 当前文字的单行宽度（pt）。
+    private(set) var textWidth: CGFloat = 0
+
+    override init() {
+        super.init()
+        base.anchorPoint = .zero
+        // 只拉伸中间一小段竖条，两侧的圆角和左下角的小尾巴保持原样。
+        base.centerRect = CGRect(x: 0.46, y: 0, width: 0.08, height: 1)
+        addChild(base)
+        label.numberOfLines = 1
+        label.horizontalAlignmentMode = .center
+        label.verticalAlignmentMode = .center
+        label.zPosition = 1
+        addChild(label)
+    }
+
+    @available(*, unavailable)
+    required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) is not supported") }
+
+    func setText(_ text: String, baseTexture: SKTexture?) {
+        if base.texture == nil, let baseTexture {
+            base.texture = baseTexture
+            base.size = baseTexture.size()
+            builtWidth = nil
+        }
+        guard text != shownText else { return }
+        shownText = text
+        let attributed = NSAttributedString(string: text, attributes: [
+            .font: Self.font, .foregroundColor: Self.textColor,
+        ])
+        label.attributedText = attributed
+        textWidth = ceil(attributed.size().width)
+    }
+
+    /// `rect` 为场景坐标中的气泡外接矩形。
+    func layout(in rect: CGRect) {
+        position = rect.origin
+        if rect.width != builtWidth, base.size.width > 0 {
+            builtWidth = rect.width
+            // 九宫格拉伸只对 xScale/yScale 生效；文字是兄弟节点，不受缩放影响。
+            base.xScale = rect.width / base.size.width
+            base.yScale = rect.height / base.size.height
+        }
+        label.position = CGPoint(x: rect.width / 2, y: rect.height * Self.textCenterRatio)
     }
 }

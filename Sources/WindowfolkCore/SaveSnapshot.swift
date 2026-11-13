@@ -21,27 +21,43 @@ import Foundation
 // - 每朵花按种下时间和当前时间重算 Growth_Stage（应用未运行期间照常生长，Requirement 22.10）；
 //   `Done` 的下一轮开始时刻由保存的 `doneAt` 和 Round_Interval 决定，已过时下一次剧情更新就开始下一轮
 //   （Requirement 19.7）。
+//
+// V2（任务 10.4，V2 design.md「Core：Persistence v2」）：
+// - snapshot：每个 Decor 记为 Ground_Object（`decor:<n>`，kind 为 chair / lamp），x 规则与 Item 相同：附着时取
+//   当前屏幕 x（Hidden_Window 上取最后可见快照），下落中取下落 x，拖动中取指针减抓取偏移（Requirement 15.1）；
+//   居民另存 Walk_Distance 和上一个 Wish 结束时间（`WishBook.lastEnded`，追逐不改它，因此追逐中保存的是追逐
+//   开始前的值）；`wishBook` 存 Unlocked_Decor、Flower_Wish 次数、上一个 Flower_Wish 进入 Done 的时间和非 chase
+//   的 active Wish（Requirement 15.1、15.11）。
+// - restore：Decor 与 v1 Ground_Object 相同，从屏幕上方落到 Ground 上夹紧后的保存 x 处，被动下落
+//   （`byPlayer = false`），落地不写 `decor_placed`（Requirement 15.2、18.4）；Unlocked_Decor 原样恢复，不写
+//   `decor_unlocked`（Requirement 1.8）；居民为下落状态（不会是 sitting、sleeping、running），恢复 Walk_Distance
+//   （Requirement 15.10）；`lastEnded`、`flowerCount`、`lastFlowerDoneAt` 原样恢复（Requirement 15.9、15.11）。
+//   active Wish 由 `restoreWishes` 在 Home_Window 重新分配之后恢复（Requirement 15.3、15.4、15.8）。
 
 /// 恢复时下落对象的落点限制。WorldEngine 在这些对象落地之前只让它们落在指定的 Surface 上。
 public struct RestoreLanding: Hashable, Sendable {
     /// 居民的目标窗口；nil 表示落到 Ground 上。
     public var residents: [ResidentID: WindowID?]
-    /// 只落在 Ground 上的物件、木板和梯子。
+    /// 只落在 Ground 上的物件、木板、梯子和 Decor。
     public var items: Set<ItemID>
     public var planks: Set<PlankID>
     public var ladders: Set<LadderID>
+    public var decors: Set<DecorID>
 
     public init(
         residents: [ResidentID: WindowID?] = [:], items: Set<ItemID> = [],
-        planks: Set<PlankID> = [], ladders: Set<LadderID> = []
+        planks: Set<PlankID> = [], ladders: Set<LadderID> = [], decors: Set<DecorID> = []
     ) {
         self.residents = residents
         self.items = items
         self.planks = planks
         self.ladders = ladders
+        self.decors = decors
     }
 
-    public var isEmpty: Bool { residents.isEmpty && items.isEmpty && planks.isEmpty && ladders.isEmpty }
+    public var isEmpty: Bool {
+        residents.isEmpty && items.isEmpty && planks.isEmpty && ladders.isEmpty && decors.isEmpty
+    }
 
     /// 只保留 `surface` 允许作为居民 `id` 落点的 Surface。
     public func landingSurfaces(for id: ResidentID, in surfaces: [Surface]) -> [Surface]? {
@@ -74,7 +90,9 @@ public enum SaveSnapshot {
                 let fid = story.currentFruit.flatMap { world.items[$0] == nil ? $0 : nil } ?? ItemID()
                 held = SavedHeldItem(id: fid.rawValue.uuidString, kind: .fruit)
             }
-            residents.append(SavedResident(id: id, x: residentX(r, world: world), heldItem: held))
+            residents.append(SavedResident(
+                id: id, x: residentX(r, world: world), heldItem: held, walkDistance: r.walkDistance,
+                lastWishEndedAt: world.wishes.lastEnded[id].map(SaveTime.normalized)))
         }
 
         var objects: [SavedObject] = []
@@ -95,11 +113,54 @@ public enum SaveSnapshot {
             guard let l = world.ladders.ladders[lid], let x = ladderX(l, id: lid, world: world) else { continue }
             objects.append(SavedObject(id: "ladder-\(lid.rawValue)", kind: .ladder, x: x))
         }
+        for did in world.decors.sortedIDs {
+            guard let d = world.decors.decors[did] else { continue }
+            objects.append(SavedObject(id: EventRef.decor(did), kind: savedKind(d.type), x: decorX(d, world: world)))
+        }
 
         return SaveFile(
             savedAt: SaveTime.normalized(now),
             story: SavedStory(stage: stage, round: story.round, doneAt: story.doneAt.map(SaveTime.normalized)),
-            residents: residents, groundObjects: objects)
+            residents: residents, groundObjects: objects, wishBook: savedWishBook(world))
+    }
+
+    /// `wishBook`：Unlocked_Decor、Flower_Wish 次数、上一个 Flower_Wish 进入 Done 的时间、非 chase 的 active Wish
+    /// （Requirement 15.1、15.11）。缺少 Visit_Target 的 Visit_Wish（不应发生）不写入，避免存档无法解码。
+    static func savedWishBook(_ world: WorldState) -> SavedWishBook {
+        let book = world.wishes
+        let wishes = book.active.compactMap { w -> SavedWish? in
+            switch w.type {
+            case .chase: return nil
+            case .visit:
+                guard let t = w.visitTarget else { return nil }
+                return SavedWish(type: .visit, wisher: w.wisher, createdAt: SaveTime.normalized(w.createdAt),
+                                 visitTargetApp: t.ownerName)
+            case .flower, .chair, .lamp:
+                return SavedWish(type: w.type, wisher: w.wisher, createdAt: SaveTime.normalized(w.createdAt))
+            }
+        }
+        return SavedWishBook(
+            unlockedDecor: Array(world.decors.unlocked), flowerCount: book.flowerCount,
+            lastFlowerDoneAt: book.lastFlowerDoneAt.map(SaveTime.normalized), activeWishes: wishes)
+    }
+
+    static func savedKind(_ t: DecorType) -> SavedObjectKind {
+        switch t {
+        case .chair: return .chair
+        case .lamp: return .lamp
+        }
+    }
+
+    /// Decor 的 x：附着时取当前（或 Hidden_Window 最后可见时的）屏幕 x，下落中取下落 x，拖动中取指针减抓取偏移。
+    static func decorX(_ d: Decor, world: WorldState) -> Double {
+        switch d.placement {
+        case let .attached(a):
+            return lastKnownPoint(a, world: world)?.x ?? fallbackX(world)
+        case let .falling(f, _):
+            return f.position.x
+        case .dragged:
+            return InteractionController.draggedDecorPosition(d.id, gesture: world.gesture)?.x ?? fallbackX(world)
+        }
     }
 
     private static func savedFlower(_ item: Item) -> SavedFlower? {
@@ -215,6 +276,8 @@ public enum SaveSnapshot {
     ) -> RestoreLanding {
         var landing = RestoreLanding()
         let screen = world.screen
+        var decors = world.decors.decors
+        var nextDecorID = world.decors.nextID
 
         // Ground_Object：从屏幕上方落到 Ground 上（x 夹紧到屏幕范围）。
         for obj in save.groundObjects {
@@ -237,8 +300,21 @@ public enum SaveSnapshot {
                 world.ladders.ladders[id] = .falling(Physics.startFall(
                     at: Point(x: obj.x, y: startY(world, height: SpriteMetrics.ladderWidth)), screen: screen))
                 landing.ladders.insert(id)
+            case .chair, .lamp:
+                // Decor：被动下落（落地不写 `decor_placed`），只落在 Ground 上（Requirement 15.2、18.4）。
+                let type: DecorType = obj.kind == .chair ? .chair : .lamp
+                let id = DecorID(nextDecorID)
+                nextDecorID += 1
+                let h = SpriteMetrics.decorSize(type).height
+                decors[id] = Decor(id: id, type: type, placement: .falling(Physics.startFall(
+                    at: Point(x: obj.x, y: startY(world, height: h)), screen: screen), byPlayer: false))
+                landing.decors.insert(id)
             }
         }
+        // Unlocked_Decor 原样恢复（解码时已去掉未知值和重复值），不写 `decor_unlocked`（Requirement 1.8、1.9）。
+        world.decors = DecorStore(
+            decors: decors, unlocked: world.decors.unlocked.union(save.wishBook.unlockedDecor),
+            nextID: nextDecorID, nextSeq: world.decors.nextSeq)
 
         // 居民：落到离保存 x 最近的窗沿上；没有窗沿时落到 Ground 上保存 x 处。
         // 只考虑下落能到达的窗沿部分：x 在下落起点的夹紧范围（`Physics.clampX`）内，y 在 Ground 上方。
@@ -261,6 +337,8 @@ public enum SaveSnapshot {
             var r = Resident(id: id, attachment: .ground(x: x), facing: id == .a ? .right : .left)
             ResidentController.startFalling(
                 &r, from: Point(x: x, y: startY(world, height: SpriteMetrics.resident.height)), screen: screen)
+            // 下落状态，不会是 sitting、sleeping、running；Walk_Distance 原样恢复（Requirement 15.10）。
+            r.walkDistance = s.walkDistance
             if let h = s.heldItem {
                 var item = makeItem(id: h.id, kind: h.kind == .flower ? .flower : .fruit,
                                     flower: h.flower, placement: .held(id))
@@ -277,7 +355,71 @@ public enum SaveSnapshot {
             doneAt: save.story.doneAt, groundPlaced: true)
         restoreStoryItems(&story, world: &world)
         world.story = story
+
+        // WishBook 的非 active 部分：冷却起点、Flower_Wish 次数、上次 Done 时间（Requirement 15.9、15.11）。
+        world.wishes = WishBook(
+            lastEnded: Dictionary(
+                save.residents.compactMap { s in s.lastWishEndedAt.map { (s.id, $0) } },
+                uniquingKeysWith: { a, _ in a }),
+            flowerCount: max(save.wishBook.flowerCount, 0),
+            lastFlowerDoneAt: save.wishBook.lastFlowerDoneAt)
         return landing
+    }
+
+    /// 恢复 active Wish（Requirement 15.3、15.4、15.8、15.11）。在 `restore` 之后、Home_Window 重新分配之后调用
+    /// （Visit_Target 要排除 Home_Window），`world.windows` 应已是当前帧的结果。返回恢复时被放弃的 Wish
+    /// （按存档顺序），由调用方写 `wish_dropped`。
+    ///
+    /// - Flower_Wish 不受 Wish_Timeout 约束：Story_Stage 进行中时恢复，Wisher 为本轮 Giver，`flowerCount` 至少为
+    ///   Story_Round。Story_Stage 进行中但存档里没有 Flower_Wish（v1 风格的存档）时同样补一个。存档里有
+    ///   Flower_Wish 但没有进行中的 Story_Stage（不一致的存档）时无法推进，丢弃且不写记录。
+    /// - 其他类型在 `now - createdAt < Wish_Timeout` 时恢复，创建时间不变；Visit_Wish 另需在当前可见窗口中找到
+    ///   所属应用名称完全相同、不是 Home_Window 的窗口，取 zIndex 最小者（同层级按窗口 ID）。超时或找不到窗口时
+    ///   放弃，Wisher 的 `lastEnded = now`。
+    /// - Chase_Wish 不恢复（解码时已跳过）。每位居民最多参与 1 个 active Wish：Wisher 已被占用的 Wish 丢弃。
+    /// - Wisher 不动（仍在恢复下落中），Goal 由之后的 `WishDirector.plan` 和 `StoryDirector.assignGoals` 写入。
+    @discardableResult
+    public static func restoreWishes(
+        _ save: SaveFile, into world: inout WorldState, now: Date, constants c: Tunables
+    ) -> [SavedWish] {
+        var book = world.wishes
+        var dropped: [SavedWish] = []
+        // 存档中的 `done` 阶段（只有 v1 风格的存档会有：V2 进入 Done 的同一帧即完成 Flower_Wish 并清空阶段）
+        // 视为该 Flower_Wish 已完成：清空阶段，`doneAt` 作为上一个 Flower_Wish 进入 Done 的时间。
+        if world.story.stage == .done {
+            world.story.stage = nil
+            book.flowerCount = max(book.flowerCount, world.story.round)
+            if book.lastFlowerDoneAt == nil { book.lastFlowerDoneAt = world.story.doneAt }
+        }
+        let storyActive = world.story.stage != nil
+        if storyActive, book.wish(of: .a) == nil, book.wish(of: .b) == nil {
+            book.flowerCount = max(book.flowerCount, world.story.round)
+            book.active.append(Wish(
+                id: book.makeID(), type: .flower, wisher: world.story.giver,
+                createdAt: save.wishBook.activeWishes.first { $0.type == .flower }?.createdAt ?? now))
+        }
+        let homes = Set(world.story.homes.values)
+        for s in save.wishBook.activeWishes where s.type != .flower && s.type != .chase {
+            guard world.residents[s.wisher] != nil, book.wish(of: s.wisher) == nil else { continue }
+            var visit: VisitTarget?
+            if s.type == .visit {
+                visit = world.windows.visibleSnapshots
+                    .filter { $0.ownerName == s.visitTargetApp && !homes.contains($0.id) }
+                    .min { a, b in a.zIndex != b.zIndex ? a.zIndex < b.zIndex : a.id < b.id }
+                    .map { VisitTarget(window: $0.id, ownerName: $0.ownerName) }
+            }
+            let timedOut = now.timeIntervalSince(s.createdAt) >= c.wishTimeout
+            if timedOut || (s.type == .visit && visit == nil) {
+                book.lastEnded[s.wisher] = now
+                dropped.append(s)
+                continue
+            }
+            book.active.append(Wish(
+                id: book.makeID(), type: s.type, wisher: s.wisher, createdAt: s.createdAt, visitTarget: visit))
+        }
+        book.active.sort { $0.id < $1.id }
+        world.wishes = book
+        return dropped
     }
 
     /// 窗沿与下落 x 范围（`Physics.clampX` 的范围）的交集；没有交集时为 nil。窗沿是水平线段。

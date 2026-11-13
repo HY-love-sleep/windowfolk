@@ -30,4 +30,16 @@ final class EventLogWriter {
             for line in lines { sink.append(line) }
         }
     }
+
+    /// 读取 `events.jsonl` 全部内容（V2 日记用，design.md「线程模型」）。
+    ///
+    /// 读取排在同一个串行队列上，因此不会与正在追加的行交错；文件不存在或无法读取时为 nil。
+    /// 可在任意线程调用，不占主线程。
+    nonisolated func readAll() async -> Data? {
+        let url = sink.fileURL
+        let queue = self.queue
+        return await withCheckedContinuation { cont in
+            queue.async { cont.resume(returning: try? Data(contentsOf: url)) }
+        }
+    }
 }

@@ -29,18 +29,24 @@ public enum Growth {
     }
 
     /// 让花立即进入恰好下一个阶段（Requirement 17.5）：
-    /// 当前为 pot 时把 `plantedAt` 设为 `now - 0.5B`，为 sprout 时设为 `now - B`，然后调用 `advance`。
+    /// 当前为 pot 时把 `plantedAt` 设为 `now - 0.5B` 并进入 sprout，为 sprout 时设为 `now - B` 并进入 bloom。
     /// 已经是 bloom 或还没种下时不变。
     ///
-    /// 「当前阶段」取 `reached` 与按当前时间算出的阶段中较大者，保证快进后已生长时长恰好等于新阶段的起点。
+    /// 「当前阶段」取 `reached` 与按当前时间算出的阶段中较大者，快进后已生长时长等于新阶段的起点。
+    /// `reached` 直接设为下一阶段，而不是用 `now - plantedAt` 重新判定：Date 加减有浮点舍入，
+    /// 重新算出的时长可能比阶段起点小一个 ulp，导致判回原阶段。之后的 `advance` 取 max，不会倒退。
     public static func fastForward(_ g: inout FlowerGrowth, now: Date, bloomDuration: Double) {
         guard let planted = g.plantedAt else { return }
         let current = max(g.reached, stage(elapsed: now.timeIntervalSince(planted), bloomDuration: bloomDuration))
         switch current {
-        case .pot: g.plantedAt = now.addingTimeInterval(-bloomDuration * 0.5)
-        case .sprout: g.plantedAt = now.addingTimeInterval(-bloomDuration)
-        case .bloom: return
+        case .pot:
+            g.plantedAt = now.addingTimeInterval(-bloomDuration * 0.5)
+            g.reached = .sprout
+        case .sprout:
+            g.plantedAt = now.addingTimeInterval(-bloomDuration)
+            g.reached = .bloom
+        case .bloom:
+            return
         }
-        advance(&g, now: now, bloomDuration: bloomDuration)
     }
 }

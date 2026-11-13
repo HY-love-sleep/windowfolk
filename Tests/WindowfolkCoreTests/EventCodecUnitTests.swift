@@ -9,12 +9,14 @@ struct EventCodecUnitTests {
         try #require(JSONSerialization.jsonObject(with: line) as? [String: Any])
     }
 
-    @Test func exactlyFourteenEventTypes() {
-        #expect(EventType.allCases.count == 14)
+    @Test func exactlyTwentyFiveEventTypes() {
+        #expect(EventType.allCases.count == 25)
         #expect(Set(EventType.allCases.map(\.rawValue)) == [
             "crossed_bridge", "climbed_ladder", "fell", "landed", "waiting_started",
             "round_started", "planted", "sprouted", "bloomed", "gift_delivered",
             "plank_placed", "plank_dropped", "ladder_placed", "ladder_dropped",
+            "decor_unlocked", "decor_placed", "decor_removed", "wish_started", "wish_fulfilled",
+            "wish_dropped", "visited", "sat", "slept", "woke", "thought_shown",
         ])
     }
 

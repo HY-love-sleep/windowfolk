@@ -13,6 +13,10 @@ import Foundation
 // 时间精度：存档中的时间写为自 1970 年起的秒数（Double），并取整到毫秒。`Date` 内部以 2001 年为基准存储，
 // 换算到 1970 基准再换回时可能差最后几位，取整到毫秒后同一个时间点总能得到同一个 `Date`。
 // 生成存档时用 `SaveTime.normalized(_:)` 处理时间，`decode(encode(s)) == s` 就对所有存档成立（Requirement 22.13）。
+//
+// V2（格式版本 2，V2 design.md「world.json（格式版本 2）」，任务 10.1）：居民新增 Walk_Distance 和上一个 Wish
+// 结束时间；Ground_Object 新增 chair、lamp；新增 `wishBook`（Unlocked_Decor、Flower_Wish 次数、上一个
+// Flower_Wish 进入 Done 的时间、非 chase 的 active Wish）。版本号不是 2 的存档一律 `.versionMismatch`，不做迁移。
 
 // MARK: - 时间
 
@@ -124,14 +128,23 @@ public struct SavedResident: Hashable, Sendable, Codable {
     public var x: Double
     /// 持有的物件；没有时为 nil。
     public var heldItem: SavedHeldItem?
+    /// Walk_Distance（V2 Requirement 15.1、15.10）。
+    public var walkDistance: Double
+    /// 上一个 Wish 变为 `fulfilled` 或 `dropped` 的时间；从未结束过 Wish 时为 nil（V2 Requirement 15.1、15.9）。
+    public var lastWishEndedAt: Date?
 
-    public init(id: ResidentID, x: Double, heldItem: SavedHeldItem? = nil) {
+    public init(
+        id: ResidentID, x: Double, heldItem: SavedHeldItem? = nil,
+        walkDistance: Double = 0, lastWishEndedAt: Date? = nil
+    ) {
         self.id = id
         self.x = x
         self.heldItem = heldItem
+        self.walkDistance = walkDistance
+        self.lastWishEndedAt = lastWishEndedAt
     }
 
-    enum CodingKeys: String, CodingKey { case id, x, heldItem }
+    enum CodingKeys: String, CodingKey { case id, x, heldItem, walkDistance, lastWishEndedAt }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -139,6 +152,8 @@ public struct SavedResident: Hashable, Sendable, Codable {
         x = try c.decode(Double.self, forKey: .x)
         // 未知种类的持有物跳过（design.md「存档中引用未知的 Item 类型」）。
         heldItem = try c.decodeIfPresent(Lossy<SavedHeldItem>.self, forKey: .heldItem)?.value
+        walkDistance = try c.decode(Double.self, forKey: .walkDistance)
+        lastWishEndedAt = try c.decodeIfPresent(Date.self, forKey: .lastWishEndedAt)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -146,12 +161,123 @@ public struct SavedResident: Hashable, Sendable, Codable {
         try c.encode(id, forKey: .id)
         try c.encode(x, forKey: .x)
         if let heldItem { try c.encode(heldItem, forKey: .heldItem) } else { try c.encodeNil(forKey: .heldItem) }
+        try c.encode(walkDistance, forKey: .walkDistance)
+        if let lastWishEndedAt {
+            try c.encode(lastWishEndedAt, forKey: .lastWishEndedAt)
+        } else {
+            try c.encodeNil(forKey: .lastWishEndedAt)
+        }
     }
 }
 
-/// Ground_Object 的种类。
+/// Ground_Object 的种类。V2 新增 chair、lamp（Decor 按 Ground_Object 记录，Requirement 15.1）。
 public enum SavedObjectKind: String, Hashable, Sendable, Codable, CaseIterable {
-    case flower, fruit, plank, ladder
+    case flower, fruit, plank, ladder, chair, lamp
+}
+
+/// 存档中的一个 active Wish（V2 Requirement 15.1）。
+///
+/// Chase_Wish 不写入存档（Requirement 15.11）：解码时 `chase` 和未知类型都跳过（见 `SavedWishBook`），
+/// `SavedWishBook.init` 也会丢弃 chase。
+public struct SavedWish: Hashable, Sendable, Codable {
+    public var type: WishType
+    public var wisher: ResidentID
+    /// Story_Clock 创建时间。
+    public var createdAt: Date
+    /// Visit_Target 所属应用名称；仅 `visit` 有，其他类型总为 nil。
+    public var visitTargetApp: String?
+
+    public init(type: WishType, wisher: ResidentID, createdAt: Date, visitTargetApp: String? = nil) {
+        self.type = type
+        self.wisher = wisher
+        self.createdAt = createdAt
+        self.visitTargetApp = type == .visit ? visitTargetApp : nil
+    }
+
+    enum CodingKeys: String, CodingKey { case type, wisher, createdAt, visitTargetApp }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try c.decode(WishType.self, forKey: .type)
+        guard type != .chase else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .type, in: c, debugDescription: "chase wishes are not persisted")
+        }
+        let app = try c.decodeIfPresent(String.self, forKey: .visitTargetApp)
+        if type == .visit, app == nil {
+            throw DecodingError.dataCorruptedError(
+                forKey: .visitTargetApp, in: c, debugDescription: "visit wish without visitTargetApp")
+        }
+        self.init(type: type, wisher: try c.decode(ResidentID.self, forKey: .wisher),
+                  createdAt: try c.decode(Date.self, forKey: .createdAt), visitTargetApp: app)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(type, forKey: .type)
+        try c.encode(wisher, forKey: .wisher)
+        try c.encode(createdAt, forKey: .createdAt)
+        if let visitTargetApp {
+            try c.encode(visitTargetApp, forKey: .visitTargetApp)
+        } else {
+            try c.encodeNil(forKey: .visitTargetApp)
+        }
+    }
+
+    /// 存档中的排序：按 (createdAt, wisher)。
+    static func ordered(_ a: SavedWish, _ b: SavedWish) -> Bool {
+        a.createdAt != b.createdAt ? a.createdAt < b.createdAt : a.wisher < b.wisher
+    }
+}
+
+/// 存档中的 WishBook（V2 Requirement 15.1）。
+public struct SavedWishBook: Hashable, Sendable, Codable {
+    /// Unlocked_Decor，去重并按 `DecorType` 顺序排序。
+    public var unlockedDecor: [DecorType]
+    /// 已开始过的 Flower_Wish 次数（含当前 active 的那次）。
+    public var flowerCount: Int
+    /// 上一个 Flower_Wish 进入 `Done` 的时间；从未进入时为 nil。
+    public var lastFlowerDoneAt: Date?
+    /// 非 chase 的 active Wish，按 (createdAt, wisher) 排序。
+    public var activeWishes: [SavedWish]
+
+    /// 创建时去重排序 `unlockedDecor`、丢弃 chase、排序 `activeWishes`，保证同一状态总得到同一份存档。
+    public init(
+        unlockedDecor: [DecorType] = [], flowerCount: Int = 0,
+        lastFlowerDoneAt: Date? = nil, activeWishes: [SavedWish] = []
+    ) {
+        self.unlockedDecor = Set(unlockedDecor).sorted()
+        self.flowerCount = flowerCount
+        self.lastFlowerDoneAt = lastFlowerDoneAt
+        self.activeWishes = activeWishes.filter { $0.type != .chase }.sorted(by: SavedWish.ordered)
+    }
+
+    enum CodingKeys: String, CodingKey { case unlockedDecor, flowerCount, lastFlowerDoneAt, activeWishes }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        // 未知值丢弃、重复值去重（Requirement 1.9）。
+        let decor = try c.decode([String].self, forKey: .unlockedDecor).compactMap(DecorType.init(rawValue:))
+        // 未知类型和 chase 跳过（Requirement 15.1、15.11；design.md「Error Handling」）。
+        let wishes = try c.decode([Lossy<SavedWish>].self, forKey: .activeWishes).compactMap(\.value)
+        self.init(
+            unlockedDecor: decor,
+            flowerCount: try c.decode(Int.self, forKey: .flowerCount),
+            lastFlowerDoneAt: try c.decodeIfPresent(Date.self, forKey: .lastFlowerDoneAt),
+            activeWishes: wishes)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(unlockedDecor, forKey: .unlockedDecor)
+        try c.encode(flowerCount, forKey: .flowerCount)
+        if let lastFlowerDoneAt {
+            try c.encode(lastFlowerDoneAt, forKey: .lastFlowerDoneAt)
+        } else {
+            try c.encodeNil(forKey: .lastFlowerDoneAt)
+        }
+        try c.encode(activeWishes, forKey: .activeWishes)
+    }
 }
 
 /// 存档中的一个 Ground_Object。保存时窗沿和 Plank 上的物件、全部 Plank 和 Ladder 都归一为 Ground_Object
@@ -182,6 +308,8 @@ public struct SaveFile: Hashable, Sendable, Codable {
     public var residents: [SavedResident]
     /// 按 id 排序。
     public var groundObjects: [SavedObject]
+    /// V2：Unlocked_Decor、Flower_Wish 次数与 active Wish（Requirement 15.1）。
+    public var wishBook: SavedWishBook
 
     /// 创建存档；居民和 Ground_Object 按 ID 排序，保证同一世界总得到同一份存档。
     public init(
@@ -189,16 +317,18 @@ public struct SaveFile: Hashable, Sendable, Codable {
         savedAt: Date,
         story: SavedStory,
         residents: [SavedResident],
-        groundObjects: [SavedObject]
+        groundObjects: [SavedObject],
+        wishBook: SavedWishBook = SavedWishBook()
     ) {
         self.version = version
         self.savedAt = savedAt
         self.story = story
         self.residents = residents.sorted { $0.id < $1.id }
         self.groundObjects = groundObjects.sorted { $0.id < $1.id }
+        self.wishBook = wishBook
     }
 
-    enum CodingKeys: String, CodingKey { case version, savedAt, story, residents, groundObjects }
+    enum CodingKeys: String, CodingKey { case version, savedAt, story, residents, groundObjects, wishBook }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -208,6 +338,7 @@ public struct SaveFile: Hashable, Sendable, Codable {
         residents = try c.decode([SavedResident].self, forKey: .residents)
         // 未知种类的 Ground_Object 跳过，其余照常恢复（design.md「Error Handling」）。
         groundObjects = try c.decode([Lossy<SavedObject>].self, forKey: .groundObjects).compactMap(\.value)
+        wishBook = try c.decode(SavedWishBook.self, forKey: .wishBook)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -217,6 +348,7 @@ public struct SaveFile: Hashable, Sendable, Codable {
         try c.encode(story, forKey: .story)
         try c.encode(residents, forKey: .residents)
         try c.encode(groundObjects, forKey: .groundObjects)
+        try c.encode(wishBook, forKey: .wishBook)
     }
 }
 
@@ -232,8 +364,8 @@ public enum SaveCodecError: Error, Hashable, Sendable {
 
 /// world.json 的编解码。
 public enum SaveCodec {
-    /// 当前格式版本。
-    public static let currentVersion = 1
+    /// 当前格式版本。V2 为 2；v1 存档解码时抛 `.versionMismatch`（V2 Requirement 15.5）。
+    public static let currentVersion = 2
 
     /// 编码为 JSON（键排序、缩进，便于比对）。
     public static func encode(_ s: SaveFile) throws -> Data {
@@ -278,15 +410,20 @@ public enum SaveCodec {
 private struct Lossy<T: Decodable>: Decodable {
     var value: T?
 
-    private enum KindKey: String, CodingKey { case kind }
+    private enum KindKey: String, CodingKey { case kind, type }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: KindKey.self)
-        let kind = try c.decode(String.self, forKey: .kind)
         let known: Bool
         switch T.self {
-        case is SavedObject.Type: known = SavedObjectKind(rawValue: kind) != nil
-        case is SavedHeldItem.Type: known = SavedItemKind(rawValue: kind) != nil
+        case is SavedObject.Type:
+            known = SavedObjectKind(rawValue: try c.decode(String.self, forKey: .kind)) != nil
+        case is SavedHeldItem.Type:
+            known = SavedItemKind(rawValue: try c.decode(String.self, forKey: .kind)) != nil
+        case is SavedWish.Type:
+            // Chase_Wish 不恢复，与未知类型一样跳过（Requirement 15.11）。
+            let type = WishType(rawValue: try c.decode(String.self, forKey: .type))
+            known = type != nil && type != .chase
         default: known = true
         }
         value = known ? try T(from: decoder) : nil

@@ -6,6 +6,9 @@ import Testing
 ///
 /// 用 FakeWindowSource、手动时钟和合成的鼠标事件驱动 `WorldEngine(story: true)`，命令只用「快进」。
 ///
+/// V2（任务 7.4，design.md「v1 属性的调整」）：开局只分配家，送花由第一帧的 `triggerWish(.flower, nil)` 启动；
+/// 进入 Done 的同一次更新中 Flower_Wish 完成、Story_Stage 清为 nil，两人庆祝后恢复自主活动。
+///
 /// 布局：屏幕 1440×900，Ground y = 825。两个窗口 300×150，上沿 y = 650（离 Ground 175pt，
 /// 大于 Drop_Max_Height 所以不能直接跳下，小于 Ladder_Length 所以梯子够长）。
 /// - 窗口 1（都都的家）x 100…400；窗口 2（嘟嘟的家）开始在 x 1000…1300，相距太远。
@@ -150,8 +153,8 @@ struct DemoScenarioTests {
 
     /// 跑完 Requirement 28.6 的全部流程。
     static func runDemo(_ d: Demo) {
-        // 1. 两个窗口相距很远：都都住左边，嘟嘟住右边；都都抱着花盆许愿，无通路而等待。
-        d.step()
+        // 1. 两个窗口相距很远：都都住左边，嘟嘟住右边；触发送花后都都抱着花盆许愿，无通路而等待。
+        d.step(commands: [.triggerWish(.flower, nil)])
         #expect(d.story.homes == [.a: 1, .b: 2])
         #expect(d.story.round == 1)
         let flower = d.story.currentFlower
@@ -222,8 +225,9 @@ struct DemoScenarioTests {
         var celebrated = false
         #expect(d.run(until: {
             if d.resident(.a).state == .celebrating, d.resident(.b).state == .celebrating { celebrated = true }
-            return d.story.stage == .done
+            return d.events.contains { $0.type == .wishFulfilled }
         }))
+        #expect(d.story.stage == nil && d.engine.state.wishes.active.isEmpty)
         if d.resident(.a).state == .celebrating, d.resident(.b).state == .celebrating { celebrated = true }
         #expect(celebrated)
         // 果子留在都都所在的 Surface 上。
@@ -235,11 +239,15 @@ struct DemoScenarioTests {
         } else {
             Issue.record("果子应还在场上")
         }
-        #expect(d.run(until: { d.resident(.a).state == .idle && d.resident(.b).state == .idle }, limit: 300))
+        // 庆祝结束后两人恢复自主活动（可能同一帧就开始走动，因此只检查已离开 celebrating）。
+        #expect(d.run(until: {
+            d.resident(.a).state != .celebrating && d.resident(.b).state != .celebrating
+        }, limit: 300))
 
         // 事件记录按顺序包含演示中的关键事件。
-        let expected: [EventType] = [.roundStarted, .plankPlaced, .fell, .landed, .ladderPlaced,
-                                     .climbedLadder, .planted, .sprouted, .bloomed, .giftDelivered]
+        let expected: [EventType] = [.wishStarted, .roundStarted, .plankPlaced, .fell, .landed, .ladderPlaced,
+                                     .climbedLadder, .planted, .sprouted, .bloomed, .giftDelivered,
+                                     .wishFulfilled]
         #expect(isSubsequence(expected, of: d.events.map(\.type)), "\(d.events.map(\.type.rawValue))")
     }
 

@@ -3,6 +3,9 @@ import Testing
 @testable import WindowfolkCore
 
 /// 任务 13.5：WorldEngine 接入剧情与调试菜单命令。
+///
+/// V2（任务 7.4，design.md「v1 属性的调整」）：剧情不再自动开局和换轮。开局只分配 Home_Window 并放置居民，
+/// 送花由 `triggerWish(.flower, nil)` 启动；「重新开始剧情」改为「重置世界」。
 struct StoryEngineTests {
     static let screen = ScreenInfo(
         frame: Rect(minX: 0, minY: 0, width: 1440, height: 900),
@@ -36,6 +39,12 @@ struct StoryEngineTests {
             return out
         }
 
+        /// 触发送花（V2）：Home_Window 在同一帧先分配，随后开始第 `flowerCount + 1` 轮。
+        @discardableResult
+        func startFlower(sourceLocation: SourceLocation = #_sourceLocation) -> StepOutput {
+            step([.triggerWish(.flower, nil)], sourceLocation: sourceLocation)
+        }
+
         var story: StoryState { engine.state.story }
         func resident(_ id: ResidentID) -> Resident { engine.state.residents[id]! }
     }
@@ -47,10 +56,23 @@ struct StoryEngineTests {
 
     // MARK: - 开局与视图
 
-    @Test func defaultEngineStartsStoryAndExposesView() {
+    @Test func defaultEngineAssignsHomesWithoutStartingStory() {
         let h = Harness(Self.apart)
         let out = h.step()
         #expect(h.engine.storyEnabled)
+        #expect(h.engine.activitiesEnabled)
+        #expect(h.story.stage == nil)
+        #expect(h.story.homes == [.a: 1, .b: 2])
+        #expect(!out.storyEvents.contains { if case .roundStarted = $0 { true } else { false } })
+        // Wish 调度从分配完成起满 1 个 Wish_Check_Interval 时第一次检查（v2 Requirement 6.1）。
+        #expect(h.engine.state.wishes.nextCheckAt == h.now.addingTimeInterval(Tunables().wishCheckInterval))
+        #expect(h.engine.state.wishes.active.isEmpty)
+    }
+
+    @Test func flowerWishStartsStoryAndExposesView() {
+        let h = Harness(Self.apart)
+        let out = h.startFlower()
+        #expect(h.engine.state.wishes.active.map(\.type) == [.flower])
         #expect(h.story.stage == .waiting)
         #expect(h.story.round == 1)
         #expect(h.story.homes == [.a: 1, .b: 2])
@@ -77,7 +99,8 @@ struct StoryEngineTests {
 
     @Test func giverShowsWishBubbleWhileWaitingOnLedge() {
         let h = Harness(Self.apart)
-        for _ in 0 ..< 10 { h.step() }
+        h.startFlower()
+        for _ in 0 ..< 9 { h.step() }
         #expect(h.story.stage == .waiting)
         #expect(h.resident(.a).state == .waiting)
         #expect(h.resident(.a).bubble == .wish(receiver: .b))
@@ -87,7 +110,8 @@ struct StoryEngineTests {
 
     @Test func wishBubbleClearsWhenRouteAppears() {
         let h = Harness(Self.apart)
-        for _ in 0 ..< 5 { h.step() }
+        h.startFlower()
+        for _ in 0 ..< 4 { h.step() }
         #expect(h.resident(.a).bubble == .wish(receiver: .b))
         // 把窗口 2 拉到与窗口 1 首尾相接：路线出现，进入 Travel。
         h.source.move(2, to: Point(x: 300, y: 400))
@@ -100,6 +124,7 @@ struct StoryEngineTests {
 
     @Test func storyRunsToDoneWithFastForward() {
         let h = Harness(Self.touching)
+        h.startFlower()
         var frames = 0
         while h.story.stage != .growing, frames < 900 { h.step(); frames += 1 }
         #expect(h.story.stage == .growing)
@@ -112,38 +137,61 @@ struct StoryEngineTests {
         #expect(h.story.stage == .returnGift)
         #expect(h.resident(.b).heldItem == h.story.currentFruit)
 
+        // 进入 Done 的同一次更新中 Flower_Wish 完成，Story_Stage 清为 nil（v2 Requirement 8.4）。
         frames = 0
-        while h.story.stage != .done, frames < 900 { h.step(); frames += 1 }
-        #expect(h.story.stage == .done)
+        var fulfilled = false
+        while !fulfilled, frames < 900 {
+            out = h.step()
+            frames += 1
+            fulfilled = out.events.contains { $0.type == .wishFulfilled }
+        }
+        #expect(fulfilled)
+        #expect(h.story.stage == nil)
+        #expect(h.engine.state.wishes.active.isEmpty)
+        #expect(h.engine.state.wishes.lastFlowerDoneAt == h.story.doneAt)
 
-        // Done 中快进：立即开始第 2 轮，嘟嘟送花。
+        // 快进只结束 Round_Interval 等待，不直接开始下一轮（v2 Requirement 8.9）。
         out = h.step([.fastForward])
+        #expect(h.story.round == 1)
+        #expect(!out.storyEvents.contains { if case .roundStarted = $0 { true } else { false } })
+        let done = h.engine.state.wishes.lastFlowerDoneAt!
+        #expect(h.now.timeIntervalSince(done) >= Tunables().roundInterval)
+
+        // 再触发送花：第 2 轮，嘟嘟送花。
+        out = h.startFlower()
         #expect(h.story.round == 2)
         #expect(out.storyEvents.contains(.roundStarted(round: 2, giver: .b, receiver: .a)))
     }
 
     @Test func fastForwardOutsideGrowingOrDoneChangesNothing() {
         let h = Harness(Self.apart)
-        h.step()
+        h.startFlower()
         let before = h.story
         h.step([.fastForward])
         #expect(h.story.stage == before.stage && h.story.round == before.round)
     }
 
-    // MARK: - 重新开始剧情
+    // MARK: - 重置世界（取代 v1「重新开始剧情」）
 
-    @Test func restartStoryClearsItemsKeepsPlanks() {
+    @Test func resetWorldClearsItemsKeepsPlanks() {
         let h = Harness(Self.apart)
-        h.step()
+        h.startFlower()
         let pid = h.engine.insertPlank(.loose(.ground(x: 700)))
         h.step()
-        h.step([.restartStory])
+        #expect(h.story.stage != nil)
+        h.step([.resetWorld])
         #expect(h.story.round == 1)
         #expect(h.engine.state.planks.planks[pid] != nil)
-        // 只剩重新开局时新给的那一朵花。
-        #expect(h.engine.state.items.items.count == 1)
-        #expect(h.resident(.a).heldItem == h.story.currentFlower)
-        #expect(h.story.stage == .waiting)
+        // 全部 Flower 和 Fruit 被删除，不再自动开局；Home_Window 同一帧重新分配。
+        #expect(h.engine.state.items.items.isEmpty)
+        #expect(h.resident(.a).heldItem == nil)
+        #expect(h.story.stage == nil)
+        #expect(h.story.homes == [.a: 1, .b: 2])
+        #expect(h.engine.state.wishes.active.isEmpty)
+        #expect(h.engine.state.wishes.flowerCount == 0)
+        // 之后送花从第 1 轮重新开始。
+        h.startFlower()
+        #expect(h.story.round == 1 && h.story.giver == .a)
     }
 
     // MARK: - 调试寻找覆盖
@@ -151,6 +199,7 @@ struct StoryEngineTests {
     @Test func debugSeekOverridesStoryGoalUntilArrival() {
         // 第 1 轮进行中（Growing）时都都是 confined；「让都都去找嘟嘟」临时改为 reach(嘟嘟)。
         let h = Harness(Self.touching)
+        h.startFlower()
         var frames = 0
         while h.story.stage != .growing, frames < 900 { h.step(); frames += 1 }
         #expect(h.story.stage == .growing)

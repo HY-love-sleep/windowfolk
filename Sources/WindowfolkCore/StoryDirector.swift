@@ -10,6 +10,10 @@ import Foundation
 // 寻路、等待、搬运、掉落都由 ResidentController 按 Goal 执行；StoryDirector 只读取居民位置和通路图判定阶段。
 // 居民下落、悬挂、窗口隐藏期间无法定位，此时阶段保持不变（Requirement 20.1、20.3）。
 // 快进与重新开始剧情（任务 13.4）见 `fastForward`、`restart`，分别复用 `startRound`、`tryBegin`。
+//
+// V2（任务 7.2）：开局与轮次调度拆为 `assignHomes`（只分配家并落位）和 `beginFlowerWish`（由 WishDirector 在
+// Flower_Wish 开始时调用）；`update(wishDriven: true)` 不再自动开局和开新一轮。v1 路径（`wishDriven: false`，默认）
+// 保留到 WorldEngine 切换（任务 7.4）。
 
 public enum StoryDirector {
     /// `celebrating` 动画完整播放一次的时长（秒），之后转为 `idle`（Requirement 18.8）。
@@ -85,9 +89,16 @@ public enum StoryDirector {
     // MARK: - 每帧更新
 
     /// 推进一帧剧情。`world.nav` 应为本帧居民移动之前重建好的通路图。返回本帧的剧情事件（按发生顺序）。
+    ///
+    /// `wishDriven` 选择轮次调度方式（V2 design.md「StoryDirector 改动」，任务 7.2）：
+    /// - `false`（v1）：未开局时调用 `tryBegin` 开局，`Done` 满 Round_Interval 后自动开始下一轮；
+    /// - `true`（V2，由 WishDirector 驱动）：只在 `stage != nil` 时推进阶段，不再开局；`Done` 只记录 `doneAt`
+    ///   并播放庆祝，不开新一轮；Goal 只在 `stage != nil` 时写入。Home_Window 由 `assignHomes` 分配，
+    ///   新一轮由 `beginFlowerWish` 开始。两种方式下已种下的花都照常生长、心形气泡照常倒计时。
     @discardableResult
     public static func update(
-        _ s: inout StoryState, world: inout WorldState, constants c: Tunables, now: Date, dt: Double
+        _ s: inout StoryState, world: inout WorldState, constants c: Tunables, now: Date, dt: Double,
+        wishDriven: Bool = false
     ) -> [StoryEvent] {
         let dt = dt.isFinite ? max(dt, 0) : 0
         var events = advanceGrowth(world: &world, now: now, bloomDuration: c.bloomDuration)
@@ -95,7 +106,7 @@ public enum StoryDirector {
 
         switch s.stage {
         case nil:
-            events += tryBegin(&s, world: &world, constants: c, now: now)
+            if !wishDriven { events += tryBegin(&s, world: &world, constants: c, now: now) }
         case .wish?, .waiting?, .travel?:
             events += syncReachability(&s, world: &world, constants: c)
             if s.stage == .travel { events += checkFlowerDelivery(&s, world: &world, constants: c) }
@@ -111,10 +122,10 @@ public enum StoryDirector {
         case .returnGift?:
             events += checkFruitDelivery(&s, world: &world, constants: c, now: now)
         case .done?:
-            events += updateDone(&s, world: &world, constants: c, now: now, dt: dt)
+            events += updateDone(&s, world: &world, constants: c, now: now, dt: dt, autoNextRound: !wishDriven)
         }
 
-        assignGoals(s, world: &world)
+        assignGoals(s, world: &world, wishDriven: wishDriven)
         return events
     }
 
@@ -145,24 +156,51 @@ public enum StoryDirector {
     public static func tryBegin(
         _ s: inout StoryState, world: inout WorldState, constants c: Tunables, now: Date
     ) -> [StoryEvent] {
+        guard assignHomes(&s, world: &world, constants: c, placeResidents: true) else { return [] }
+        return startRound(&s, round: s.round, world: &world, constants: c)
+    }
+
+    /// 只分配 Home_Window，不开始送花（V2 Requirement 6.1；v1 R15.1 至 15.4、15.7）。返回是否分配成功。
+    ///
+    /// - 成功：写入 `s.homes`；`placeResidents` 为 true 时把两人放到各自家的最长窗沿中点（v1 R15.4），
+    ///   并清除 `groundPlaced`；为 false 时（恢复存档后）不移动居民。
+    /// - 失败：`s.homes` 不变；`placeResidents` 为 true 时把两人放在 Ground 上闲逛，只放一次（v1 R15.6）。
+    ///
+    /// 不改变 `stage`、`round` 和任何物件。
+    @discardableResult
+    public static func assignHomes(
+        _ s: inout StoryState, world: inout WorldState, constants c: Tunables, placeResidents: Bool
+    ) -> Bool {
         if let homes = selectHomes(
             windows: world.windows.visibleSnapshots, ledges: world.surfaces, minSize: c.minWindowSize),
            let aAt = homeAttachment(window: homes.a, world: world),
            let bAt = homeAttachment(window: homes.b, world: world) {
             s.homes = [.a: homes.a, .b: homes.b]
-            s.groundPlaced = false
-            place(.a, at: aAt, world: &world)
-            place(.b, at: bAt, world: &world)
-            return startRound(&s, round: s.round, world: &world, constants: c)
+            if placeResidents {
+                s.groundPlaced = false
+                place(.a, at: aAt, world: &world)
+                place(.b, at: bAt, world: &world)
+            }
+            return true
         }
-        if !s.groundPlaced {
+        if placeResidents, !s.groundPlaced {
             let ground = world.surfaces.first { $0.id == .ground } ?? SurfaceBuilder.ground(screen: world.screen)
             let w = ground.end.x - ground.start.x
             place(.a, at: .ground(x: ground.start.x + w / 3), world: &world)
             place(.b, at: .ground(x: ground.start.x + w * 2 / 3), world: &world)
             s.groundPlaced = true
         }
-        return []
+        return false
+    }
+
+    /// Flower_Wish 变为 active 时调用（V2 Requirement 8.2、8.6）：以 `round`（= 已开始过的 Flower_Wish 次数，
+    /// 含本次）为 Story_Round 开始送花，阶段进入 `Wish`，Giver 按 `giver(round:)`（奇数 A、偶数 B），
+    /// 同一次调用按可达性进入 `Travel` 或 `Waiting`。之前各轮的花和果子不受影响。
+    @discardableResult
+    public static func beginFlowerWish(
+        _ s: inout StoryState, round: Int, world: inout WorldState, constants c: Tunables, now: Date
+    ) -> [StoryEvent] {
+        startRound(&s, round: round, world: &world, constants: c)
     }
 
     /// 开始第 `round` 轮：Giver 持有一个 `pot` 阶段的新 Story_Flower，阶段设为 `Wish` 并显示许愿气泡，
@@ -400,10 +438,12 @@ public enum StoryDirector {
         return [.giftDelivered(fruit: fruitID, from: r, to: g), .stageChanged(from: .returnGift, to: .done)]
     }
 
-    /// `Done`：`celebrating` 播放一次后转 `idle`；进入 `Done` 满 Round_Interval 后开始下一轮并互换角色
-    /// （Requirement 18.8、19.1、19.2）。`doneAt` 缺失时以当前时间补上。
+    /// `Done`：`celebrating` 播放一次后转 `idle`；`autoNextRound`（v1）时进入 `Done` 满 Round_Interval 后
+    /// 开始下一轮并互换角色（Requirement 18.8、19.1、19.2），否则（V2）不开新一轮，由 WishDirector 调度。
+    /// `doneAt` 缺失时以当前时间补上。
     static func updateDone(
-        _ s: inout StoryState, world: inout WorldState, constants c: Tunables, now: Date, dt: Double
+        _ s: inout StoryState, world: inout WorldState, constants c: Tunables, now: Date, dt: Double,
+        autoNextRound: Bool = true
     ) -> [StoryEvent] {
         s.celebrateElapsed += dt
         if s.celebrateElapsed >= celebrateDuration {
@@ -416,7 +456,7 @@ public enum StoryDirector {
             s.doneAt = now
             return []
         }
-        guard now.timeIntervalSince(doneAt) >= c.roundInterval else { return [] }
+        guard autoNextRound, now.timeIntervalSince(doneAt) >= c.roundInterval else { return [] }
         return startRound(&s, round: s.round + 1, world: &world, constants: c)
     }
 
@@ -462,6 +502,16 @@ public enum StoryDirector {
     public static func restart(
         _ s: inout StoryState, world: inout WorldState, constants c: Tunables, now: Date
     ) -> [StoryEvent] {
+        clear(&s, world: &world)
+        let events = tryBegin(&s, world: &world, constants: c, now: now)
+        assignGoals(s, world: &world)
+        return events
+    }
+
+    /// `restart` 的清理部分（V2「重置世界」复用，任务 7.4）：删除场上全部 Flower 和 Fruit（窗沿上、Ground 上、
+    /// 下落中、拖动中和居民持有的），保留全部 Plank 和 Ladder；`planting`、`celebrating` 的居民转 `idle`，
+    /// 清除全部气泡；剧情状态整体重置为未开局、第 1 轮、无家。不开局、不分配家。
+    public static func clear(_ s: inout StoryState, world: inout WorldState) {
         let removed = Set(world.items.items.keys)
         world.items.items.removeAll()
         for id in world.residents.keys.sorted() {
@@ -480,21 +530,19 @@ public enum StoryDirector {
         default:
             break
         }
-
         s = StoryState()
-        let events = tryBegin(&s, world: &world, constants: c, now: now)
-        assignGoals(s, world: &world)
-        return events
     }
 
     // MARK: - Goal 分配
 
     /// 按阶段分配 Goal（design.md「目标分配」）。只在 Goal 变化时写入，避免打断现有路线。
-    public static func assignGoals(_ s: StoryState, world: inout WorldState) {
+    /// `wishDriven`（V2）时 `stage == nil` 不写任何 Goal：没有 Flower_Wish 时居民的 Goal 归 Activity_Planner。
+    public static func assignGoals(_ s: StoryState, world: inout WorldState, wishDriven: Bool = false) {
         let g = s.giver, r = s.receiver
         let goals: [ResidentID: Goal]
         switch s.stage {
         case nil:
+            if wishDriven { return }
             goals = [.a: .none, .b: .none]
         case .wish?, .waiting?, .travel?, .planting?:
             goals = [g: .reach(r), r: .confined]

@@ -61,7 +61,7 @@ public enum ResidentController {
             advanceFall(&r, world: world, dt: dt)
         case .hanging:
             advanceHang(&r, world: world, dt: dt)
-        case .idle, .walking, .carrying, .waiting, .climbing:
+        case .idle, .walking, .carrying, .running, .waiting, .climbing:
             if r.traversal != nil {
                 // 已开始的小跳、往下跳或爬梯先完成，不依赖图中的边（design.md「路线失效」）。
                 advanceTraversal(&r, world: world, dt: dt)
@@ -73,7 +73,18 @@ public enum ResidentController {
                 wander(&r, world: world, dt: dt, rng: &rng)
             case let .reach(other):
                 seek(&r, target: world.residentLocations[other], world: world, dt: dt)
+            case let .hold(face):
+                hold(&r, face: face, world: world)
+            case let .wait(face):
+                waitInPlace(&r, face: face, world: world)
+            case let .reachPoint(sid, x, within):
+                seekPoint(&r, surface: sid, x: x, within: within, world: world, dt: dt)
+            case let .reachWindow(w):
+                seekWindow(&r, window: w, world: world, dt: dt)
             }
+        case .sitting, .sleeping:
+            // 坐着和睡着的居民不移动；戳气泡由 WorldEngine 推进。
+            break
         default:
             break
         }
@@ -85,7 +96,7 @@ public enum ResidentController {
         r.route = nil
         switch r.state {
         case .waiting, .climbing: r.state = .idle
-        case .carrying, .walking: r.state = movingState(r)
+        case .carrying, .walking, .running: r.state = movingState(r)
         default: break
         }
     }
@@ -268,5 +279,12 @@ public enum ResidentController {
         r.state = .idle
         r.wander.pauseRemaining = wanderPauseRange.lowerBound
         r.wander.walkRemaining = 0
+        // V2：落地帧即按 `Goal.hold(face:)`/`Goal.wait(face:)` 面朝对方（v2 Requirement 20.8）。
+        switch r.goal {
+        case let .hold(face), let .wait(face):
+            faceToward(&r, face: face, fromX: position.x, world: world)
+        default:
+            break
+        }
     }
 }

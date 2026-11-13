@@ -32,10 +32,17 @@ struct PersistenceUnitTests {
 
         @discardableResult
         func step(_ n: Int = 1) -> StepOutput? {
+            step([], n)
+        }
+
+        /// 第一帧带上 `commands`。
+        @discardableResult
+        func step(_ commands: [Command], _ n: Int = 1) -> StepOutput? {
             var out: StepOutput?
-            for _ in 0..<n {
+            for i in 0..<n {
                 now = now.addingTimeInterval(PersistenceUnitTests.dt)
-                out = engine.step(FrameInput(poll: source.poll(), screen: PersistenceUnitTests.screen, now: now))
+                out = engine.step(FrameInput(poll: source.poll(), screen: PersistenceUnitTests.screen,
+                                             commands: i == 0 ? commands : [], now: now))
                 #expect(engine.invariantViolations().isEmpty, "\(engine.invariantViolations())")
             }
             return out
@@ -194,7 +201,11 @@ struct PersistenceUnitTests {
         let st = h.engine.state.story
         #expect(st.round == 2)
         #expect(st.giver == .b && st.receiver == .a)
-        #expect(st.homes.isEmpty)
+        // V2：恢复后重新分配 Home_Window（不移动居民），进行中的送花恢复为 active Flower_Wish
+        // （design.md「已确认决策 2」，v2 Requirement 15.3）。
+        #expect(st.homes == [.a: 1, .b: 2])
+        #expect(h.engine.state.wishes.active.map(\.type) == [.flower])
+        #expect(h.engine.state.wishes.flowerCount == 2)
         #expect(st.currentFlower == ItemID(flowerID))
         #expect(h.engine.state.items[ItemID(flowerID)]?.growth?.reached == .bloom)
         // 已开花：同一次剧情更新进入 ReturnGift，Receiver（都都）带着 Fruit。
@@ -218,9 +229,11 @@ struct PersistenceUnitTests {
         h.step()
         #expect(h.engine.state.story.currentFlower == ItemID(flowerID))
         #expect(h.engine.state.residents[.a]?.heldItem == ItemID(flowerID))
-        #expect(h.engine.state.story.homes.isEmpty)
+        #expect(h.engine.state.story.homes == [.a: 1, .b: 2])
     }
 
+    /// V2：恢复的 Done 立即完成 Flower_Wish；下一次送花（嘟嘟为 Giver）是否满足条件取决于 Round_Interval
+    /// 是否已满（v1 Requirement 19.7 按 v2 Requirement 8.1、8.4 调整）。
     @Test func restoreDoneStartsNextRoundWhenIntervalPassed() {
         let c = Tunables()
         func save(doneAgo: Double) -> SaveFile {
@@ -230,14 +243,25 @@ struct PersistenceUnitTests {
                      groundObjects: [])
         }
         let wins = [Self.win(1, x: 100, y: 400), Self.win(2, x: 400, y: 400)]
+        func flowerEligible(_ h: Harness) -> Bool {
+            var book = h.engine.state.wishes
+            book.active = []
+            let ctx = WishContext(world: h.engine.state, now: h.engine.lastNow)
+            return WishDirector.eligibleTypes(.b, book: book, world: h.engine.state, ctx: ctx).contains(.flower)
+        }
         let past = Harness(wins, story: true, restored: save(doneAgo: c.roundInterval + 10))
         past.step()
+        #expect(past.engine.state.story.stage == nil)
+        #expect(past.engine.state.wishes.flowerCount == 1)
+        #expect(flowerEligible(past))
+        past.step([.triggerWish(.flower, nil)])
         #expect(past.engine.state.story.round == 2)
         #expect(past.engine.state.story.giver == .b)
 
         let pending = Harness(wins, story: true, restored: save(doneAgo: 10))
         pending.step()
-        #expect(pending.engine.state.story.stage == .done)
+        #expect(pending.engine.state.story.stage == nil)
         #expect(pending.engine.state.story.round == 1)
+        #expect(!flowerEligible(pending))
     }
 }

@@ -167,6 +167,9 @@ struct RestoreLandingTests {
                             "item saved x \(obj.x): \(String(describing: state.items[iid]?.placement))")
                 case .plank: expectedPlanks.append(x)
                 case .ladder: expectedLadders.append(x)
+                case .chair, .lamp:
+                    // Decor 的启动落位属于 V2 Property 47（任务 10.4 实现、10.8 测试），此处只检查 v1 对象。
+                    continue
                 }
             }
             let planks = state.planks.planks.values.compactMap { p -> Double? in
@@ -221,10 +224,13 @@ struct RestoreLandingTests {
 
             func check(_ a: CoreAttachment?, was: CoreAttachment?, width: Double, label: String) {
                 guard case let .ground(x0)? = was else { return }
-                let expected = Self.refFullyInside(x0, width: width, new)
+                // 生成的新旧屏幕可能相同：屏幕没有变化时引擎不夹紧（只在 `FrameInput.screen` 变化时夹紧），
+                // Ground_Object 保持原 x（物件起点可能有一半在旧 Ground 外）。
+                let changed = old != new
+                let expected = changed ? Self.refFullyInside(x0, width: width, new) : x0
                 #expect(a == .ground(x: expected), "\(label) x \(x0) → \(String(describing: a)), expected \(expected)")
                 let (nlo, nhi) = Self.groundSpan(new)
-                if nhi - nlo >= width {
+                if changed, nhi - nlo >= width {
                     #expect(expected - width / 2 >= nlo - 1e-9 && expected + width / 2 <= nhi + 1e-9)
                 }
             }

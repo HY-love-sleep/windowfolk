@@ -36,6 +36,14 @@ final class AssetProvider {
     /// 从指定目录加载 PNG；`directory` 为 nil 时全部使用占位图形（Requirement 25.6）。
     init(directory: String?) {
         assetDirectory = directory
+        #if DEBUG
+        let issues = Self.placeholderSelfCheckIssues()
+        if issues.isEmpty {
+            AssetLog.logger.debug("占位图形自检通过")
+        } else {
+            AssetLog.logger.fault("占位图形自检发现问题：\(issues.joined(separator: "；"), privacy: .public)")
+        }
+        #endif
         guard let directory else {
             AssetLog.logger.info("未找到素材目录，全部使用占位图形")
             return
@@ -77,6 +85,15 @@ final class AssetProvider {
     func residentTexture(_ id: ResidentID, _ state: ResidentState, frame: Int) -> SKTexture? {
         texture(for: AssetCatalog.residentKey(id, state), frame: frame)
     }
+
+    /// 只有气泡底框、不含图标的纹理（尺寸同图标气泡），供 Thought 文字气泡横向拉伸（v2 Requirement 16.6）。
+    /// 与占位图标气泡用同一个底框绘制函数；不属于素材清单，不从 PNG 加载。
+    private(set) lazy var bubbleBaseTexture: SKTexture? = {
+        guard let image = PlaceholderArt.bubbleBaseSheet() else { return nil }
+        let texture = SKTexture(cgImage: image)
+        texture.filteringMode = .linear
+        return texture
+    }()
 
     /// 显示尺寸（pt）。
     static func displaySize(_ size: AssetSize) -> CGSize {
@@ -137,6 +154,20 @@ private enum PNGAssetLoader {
 /// 程序生成的占位图形。坐标单位为 pt，原点在每帧左下角，y 向上（CoreGraphics 默认）。
 private enum PlaceholderArt {
     static func sheet(for spec: AssetSpec) -> CGImage? {
+        render(spec) { index, size, ctx in
+            draw(spec.key, frame: index, frames: spec.frames, size: size, in: ctx)
+        }
+    }
+
+    /// 只画气泡底框（图标气泡尺寸）。
+    static func bubbleBaseSheet() -> CGImage? {
+        render(AssetSpec(key: "bubble_base", size: AssetCatalog.bubbleSize)) { _, size, ctx in
+            drawBubbleBase(size: size, in: ctx)
+        }
+    }
+
+    /// 按规格的尺寸和帧数生成一张 @2x sprite sheet，逐帧调用 `drawFrame`（坐标为该帧的 pt）。
+    private static func render(_ spec: AssetSpec, _ drawFrame: (Int, CGSize, CGContext) -> Void) -> CGImage? {
         let scale = AssetCatalog.pixelScale
         let frameW = spec.size.width
         let frameH = spec.size.height
@@ -159,7 +190,7 @@ private enum PlaceholderArt {
             ctx.saveGState()
             ctx.translateBy(x: Double(index) * frameW, y: 0)
             ctx.clip(to: CGRect(x: 0, y: 0, width: frameW, height: frameH))
-            draw(spec.key, frame: index, frames: spec.frames, size: CGSize(width: frameW, height: frameH), in: ctx)
+            drawFrame(index, CGSize(width: frameW, height: frameH), ctx)
             ctx.restoreGState()
         }
         return ctx.makeImage()
@@ -185,6 +216,10 @@ private enum PlaceholderArt {
         case AssetCatalog.plankKey: drawPlankTile(size: size, in: ctx)
         case AssetCatalog.ladderKey: drawLadderTile(size: size, in: ctx)
         case AssetCatalog.toolboxKey: drawToolbox(size: size, in: ctx)
+        case AssetCatalog.chairKey: drawChair(size: size, in: ctx)
+        case AssetCatalog.lampOffKey: drawLamp(lit: false, size: size, in: ctx)
+        case AssetCatalog.lampOnKey: drawLamp(lit: true, size: size, in: ctx)
+        case AssetCatalog.visitFlagKey: drawVisitFlag(size: size, in: ctx)
         default: break
         }
     }
@@ -230,6 +265,18 @@ private enum PlaceholderArt {
         var climbArm: Int? = nil      // 爬梯时交替举起的手（0 左、1 右）
         var armsForward = false       // 抱着东西
         var sparkle = false           // 庆祝时的小星星
+        // v2 新状态用到的参数
+        var closedEyes = false        // 「︶ ︶」闭眼（睡觉）
+        var headShift: Double = 0     // 头部（耳朵、五官、条纹）相对身体中心的水平偏移
+        var earSpread: Double? = nil  // 耳朵分布宽度；nil 时取身体宽度
+        var earsBack: Double = 0      // 耳朵向后（朝左）倒的距离
+        var showFeet = true
+        var legsForward = false       // 坐着时双腿向前伸
+        var pawsOnLap = false         // 坐着时双手搭在腿上
+        var leftFootDX: Double = 0    // 跑步时的步幅
+        var rightFootDX: Double = 0
+        var lean: Double = 0          // 身体前倾角度（弧度，正值向右前方倾）
+        var speedLines = false        // 跑步时身后的速度线
     }
 
     private static func pose(_ state: ResidentState, frame: Int) -> Pose {
@@ -238,6 +285,38 @@ private enum PlaceholderArt {
         case .idle:
             // 呼吸：身体轻微起伏。
             p.bodyHeight = (frame % 2 == 0) ? 21 : 20
+        case .sitting:
+            // 坐在椅面上：身体压扁、双腿向前伸、双手搭在腿上，轻微呼吸。不画椅子。
+            p.bodyY = 3
+            p.bodyHeight = (frame % 2 == 0) ? 17 : 16.5
+            p.bodyWidth = 25
+            p.legsForward = true
+            p.pawsOnLap = true
+        case .sleeping:
+            // 横躺、闭眼：身体扁长，头在右侧，随呼吸起伏。
+            let breath: [Double] = [13, 13.5, 14, 13.5]
+            p.bodyY = 1
+            p.bodyHeight = breath[frame % breath.count]
+            p.bodyWidth = 28
+            p.headShift = 3
+            p.earSpread = 22
+            p.eyeLift = 1.5
+            p.closedEyes = true
+            p.showFeet = false
+        case .running:
+            // 前倾奔跑、耳朵向后，步幅比 walking 大，身后有速度线。
+            let stride: [Double] = [-3, -1.5, 0, 3, 1.5, 0]
+            let lift: [Double] = [3, 4.5, 3, 3, 4.5, 3]
+            let phase = frame % 6
+            p.bodyY = lift[phase]
+            p.bodyHeight = 20
+            p.leftFootDX = stride[phase]
+            p.rightFootDX = -stride[phase]
+            p.leftFootLift = phase < 3 ? 2.5 : 0
+            p.rightFootLift = phase >= 3 ? 2.5 : 0
+            p.lean = 0.16
+            p.earsBack = 2.5
+            p.speedLines = true
         case .walking, .carrying:
             let phase = frame % 3
             p.leftFootLift = phase == 0 ? 2 : 0
@@ -288,23 +367,51 @@ private enum PlaceholderArt {
         let cx = 16.0
         let body = CGRect(x: cx - p.bodyWidth / 2, y: p.bodyY, width: p.bodyWidth, height: p.bodyHeight)
         let top = body.maxY
+        let hx = cx + p.headShift
+        let spread = p.earSpread ?? p.bodyWidth
+
+        // 速度线不随身体前倾，画在身后（默认朝右，所以在左侧）。
+        if p.speedLines {
+            ctx.setStrokeColor(pal.stroke.copy(alpha: 0.55) ?? pal.stroke)
+            ctx.setLineWidth(1)
+            for (y, length) in [(9.0, 4.0), (14.0, 5.0), (19.0, 3.5)] {
+                ctx.move(to: CGPoint(x: 1, y: y)); ctx.addLine(to: CGPoint(x: 1 + length, y: y))
+            }
+            ctx.strokePath()
+        }
+
+        ctx.saveGState()
+        defer { ctx.restoreGState() }
+        if p.lean != 0 {
+            // 以脚底中心为轴旋转；CoreGraphics 中负角度为顺时针，即向右前方倾。
+            ctx.translateBy(x: cx, y: 0)
+            ctx.rotate(by: -p.lean)
+            ctx.translateBy(x: -cx, y: 0)
+        }
 
         ctx.setLineWidth(1.2)
         ctx.setStrokeColor(pal.stroke)
 
         // 脚
         ctx.setFillColor(pal.stroke)
-        let footY = max(0, p.bodyY - 2)
-        ctx.fillEllipse(in: CGRect(x: cx - 8, y: footY + p.leftFootLift, width: 5, height: 3))
-        ctx.fillEllipse(in: CGRect(x: cx + 3, y: footY + p.rightFootLift, width: 5, height: 3))
+        if p.legsForward {
+            // 坐姿：两只脚伸在身体前方（右侧），一前一后。
+            ctx.fillEllipse(in: CGRect(x: cx + 5, y: body.minY - 1.5, width: 7, height: 3))
+            ctx.fillEllipse(in: CGRect(x: cx + 8, y: body.minY + 0.5, width: 7, height: 3))
+        } else if p.showFeet {
+            let footY = max(0, p.bodyY - 2)
+            ctx.fillEllipse(in: CGRect(x: cx - 8 + p.leftFootDX, y: footY + p.leftFootLift, width: 5, height: 3))
+            ctx.fillEllipse(in: CGRect(x: cx + 3 + p.rightFootDX, y: footY + p.rightFootLift, width: 5, height: 3))
+        }
 
         // 耳朵（画在身体后面）
         switch id {
         case .a: // 三角猫耳
             for side in [-1.0, 1.0] {
-                let baseInner = cx + side * 3
-                let baseOuter = cx + side * (p.bodyWidth / 2 - 1)
-                let tip = CGPoint(x: cx + side * (p.bodyWidth / 2 - 2.5), y: min(31.5, top + 6))
+                let baseInner = hx + side * 3
+                let baseOuter = hx + side * (spread / 2 - 1)
+                let tip = CGPoint(x: hx + side * (spread / 2 - 2.5) - p.earsBack,
+                                  y: min(31.5, top + 6 - p.earsBack * 0.6))
                 let ear = CGMutablePath()
                 ear.move(to: CGPoint(x: baseInner, y: top - 2))
                 ear.addLine(to: tip)
@@ -322,7 +429,8 @@ private enum PlaceholderArt {
             }
         case .b: // 圆耳
             for side in [-1.0, 1.0] {
-                let center = CGPoint(x: cx + side * (p.bodyWidth / 2 - 4.5), y: min(28.5, top + 1))
+                let center = CGPoint(x: hx + side * (spread / 2 - 4.5) - p.earsBack * 0.6,
+                                     y: min(28.5, top + 1 - p.earsBack * 0.4))
                 let r = 3.6
                 ctx.setFillColor(pal.fill)
                 ctx.addEllipse(in: CGRect(x: center.x - r, y: center.y - r, width: 2 * r, height: 2 * r))
@@ -361,8 +469,8 @@ private enum PlaceholderArt {
             ctx.setStrokeColor(pal.stroke.copy(alpha: 0.6) ?? pal.stroke)
             ctx.setLineWidth(1)
             for dx in [-3.0, 0, 3] {
-                ctx.move(to: CGPoint(x: cx + dx, y: top - 1))
-                ctx.addLine(to: CGPoint(x: cx + dx, y: top - 4))
+                ctx.move(to: CGPoint(x: hx + dx, y: top - 1))
+                ctx.addLine(to: CGPoint(x: hx + dx, y: top - 4))
             }
             ctx.strokePath()
         } else {
@@ -372,11 +480,19 @@ private enum PlaceholderArt {
         }
 
         // 脸：默认朝右，五官稍偏右
-        let faceX = cx + 1.5
+        let faceX = hx + 1.5
         let eyeY = top - 8.5 + p.eyeLift
         ctx.setFillColor(ink)
         ctx.setStrokeColor(ink)
-        if p.happyEyes {
+        if p.closedEyes {
+            // 闭眼：向下弯的短弧线
+            ctx.setLineWidth(1.1)
+            for ex in [faceX - 4.5, faceX + 4.5] {
+                ctx.move(to: CGPoint(x: ex - 1.8, y: eyeY + 0.6))
+                ctx.addQuadCurve(to: CGPoint(x: ex + 1.8, y: eyeY + 0.6), control: CGPoint(x: ex, y: eyeY - 1.4))
+            }
+            ctx.strokePath()
+        } else if p.happyEyes {
             ctx.setLineWidth(1.2)
             for ex in [faceX - 4.5, faceX + 4.5] {
                 ctx.move(to: CGPoint(x: ex - 1.8, y: eyeY - 0.8))
@@ -408,6 +524,17 @@ private enum PlaceholderArt {
             ctx.setStrokeColor(pal.stroke)
             ctx.setLineWidth(1)
             ctx.addEllipse(in: CGRect(x: cx + p.bodyWidth / 2 - 5, y: body.minY + 6, width: 6, height: 4))
+            ctx.drawPath(using: .fillStroke)
+        }
+
+        // 坐着时双手搭在腿上（身体前面、靠近底边）
+        if p.pawsOnLap {
+            ctx.setFillColor(pal.fill)
+            ctx.setStrokeColor(pal.stroke)
+            ctx.setLineWidth(1)
+            for x in [cx - 6.5, cx + 2.5] {
+                ctx.addEllipse(in: CGRect(x: x, y: body.minY + 1, width: 5, height: 3.5))
+            }
             ctx.drawPath(using: .fillStroke)
         }
 
@@ -546,8 +673,9 @@ private enum PlaceholderArt {
 
     // MARK: 气泡
 
-    private static func drawBubble(_ icon: BubbleIcon, size: CGSize, in ctx: CGContext) {
-        // 白色圆形气泡，左下角一个小尾巴
+    /// 白色圆形气泡底框，左下角一个小尾巴。返回圆心。
+    @discardableResult
+    private static func drawBubbleBase(size: CGSize, in ctx: CGContext) -> CGPoint {
         ctx.setFillColor(rgb(1, 1, 1, 0.96))
         ctx.setStrokeColor(rgb(0.55, 0.55, 0.58))
         ctx.setLineWidth(1)
@@ -555,8 +683,11 @@ private enum PlaceholderArt {
         ctx.addEllipse(in: circle)
         ctx.drawPath(using: .fillStroke)
         ctx.fillEllipse(in: CGRect(x: 3, y: 0.5, width: 3.5, height: 3.5))
+        return CGPoint(x: circle.midX, y: circle.midY)
+    }
 
-        let c = CGPoint(x: circle.midX, y: circle.midY)
+    private static func drawBubble(_ icon: BubbleIcon, size: CGSize, in ctx: CGContext) {
+        let c = drawBubbleBase(size: size, in: ctx)
         switch icon {
         case .wish:
             // 花盆画在左侧，右侧留给渲染层叠加 Receiver 头像
@@ -591,6 +722,340 @@ private enum PlaceholderArt {
             tri.closeSubpath()
             ctx.addPath(tri)
             ctx.fillPath()
+        case .chair:
+            drawChairIcon(center: c, in: ctx)
+        case .lamp:
+            drawLampIcon(center: c, in: ctx)
+        case .flag:
+            drawFlagIcon(center: c, in: ctx)
+        case .flower:
+            drawFlowerIcon(center: c, in: ctx)
+        case .zzz:
+            drawZzzIcon(center: c, in: ctx)
+        case .footprints:
+            drawFootprintsIcon(center: c, in: ctx)
         }
     }
+
+    // MARK: v2 气泡图标（坐标相对气泡圆心，可用半径约 7pt）
+
+    private static let wood = rgb(0.86, 0.68, 0.45)
+    private static let woodDark = rgb(0.58, 0.40, 0.22)
+    private static let warmYellow = rgb(1.0, 0.84, 0.32)
+
+    /// 侧面的小椅子：左侧椅背、椅面、两条腿。
+    private static func drawChairIcon(center c: CGPoint, in ctx: CGContext) {
+        ctx.setStrokeColor(woodDark)
+        ctx.setLineWidth(1.6)
+        ctx.move(to: CGPoint(x: c.x - 3.5, y: c.y + 6)); ctx.addLine(to: CGPoint(x: c.x - 3.5, y: c.y - 5.5))
+        ctx.move(to: CGPoint(x: c.x + 4, y: c.y - 0.5)); ctx.addLine(to: CGPoint(x: c.x + 4, y: c.y - 5.5))
+        ctx.strokePath()
+        ctx.setFillColor(wood)
+        ctx.setLineWidth(1)
+        ctx.addRect(CGRect(x: c.x - 4, y: c.y - 1.5, width: 9, height: 2))
+        ctx.drawPath(using: .fillStroke)
+    }
+
+    /// 小台灯：暖黄灯罩、细杆、底座。
+    private static func drawLampIcon(center c: CGPoint, in ctx: CGContext) {
+        ctx.setStrokeColor(woodDark)
+        ctx.setLineWidth(1.2)
+        ctx.move(to: CGPoint(x: c.x, y: c.y + 1)); ctx.addLine(to: CGPoint(x: c.x, y: c.y - 4.5))
+        ctx.strokePath()
+        ctx.setFillColor(woodDark)
+        ctx.fill(CGRect(x: c.x - 3.5, y: c.y - 6, width: 7, height: 1.6))
+        let shade = CGMutablePath()
+        shade.move(to: CGPoint(x: c.x - 5, y: c.y + 1))
+        shade.addLine(to: CGPoint(x: c.x + 5, y: c.y + 1))
+        shade.addLine(to: CGPoint(x: c.x + 2.5, y: c.y + 6))
+        shade.addLine(to: CGPoint(x: c.x - 2.5, y: c.y + 6))
+        shade.closeSubpath()
+        ctx.setFillColor(warmYellow)
+        ctx.setStrokeColor(rgb(0.75, 0.55, 0.12))
+        ctx.setLineWidth(1)
+        ctx.addPath(shade)
+        ctx.drawPath(using: .fillStroke)
+    }
+
+    /// 小旗加一个指向右方的箭头；Visit_Flag 在左边时由渲染层水平镜像整个气泡。
+    private static func drawFlagIcon(center c: CGPoint, in ctx: CGContext) {
+        let poleX = c.x - 4.5
+        ctx.setStrokeColor(woodDark)
+        ctx.setLineWidth(1.2)
+        ctx.move(to: CGPoint(x: poleX, y: c.y - 6)); ctx.addLine(to: CGPoint(x: poleX, y: c.y + 6.5))
+        ctx.strokePath()
+        let flag = CGMutablePath()
+        flag.move(to: CGPoint(x: poleX + 0.5, y: c.y + 6.5))
+        flag.addLine(to: CGPoint(x: poleX + 0.5, y: c.y + 1.5))
+        flag.addLine(to: CGPoint(x: poleX + 6.5, y: c.y + 4))
+        flag.closeSubpath()
+        ctx.setFillColor(rgb(0.90, 0.25, 0.25))
+        ctx.addPath(flag)
+        ctx.fillPath()
+        // 箭头 →
+        ctx.setStrokeColor(ink)
+        ctx.setLineWidth(1.4)
+        let ay = c.y - 3
+        ctx.move(to: CGPoint(x: c.x - 2, y: ay)); ctx.addLine(to: CGPoint(x: c.x + 6, y: ay))
+        ctx.move(to: CGPoint(x: c.x + 3.5, y: ay + 2.5)); ctx.addLine(to: CGPoint(x: c.x + 6, y: ay))
+        ctx.addLine(to: CGPoint(x: c.x + 3.5, y: ay - 2.5))
+        ctx.strokePath()
+    }
+
+    /// 一朵花：五瓣花冠、花心、茎和一片叶子。
+    private static func drawFlowerIcon(center c: CGPoint, in ctx: CGContext) {
+        let green = rgb(0.30, 0.68, 0.30)
+        ctx.setStrokeColor(green)
+        ctx.setLineWidth(1.3)
+        ctx.move(to: CGPoint(x: c.x, y: c.y + 1)); ctx.addLine(to: CGPoint(x: c.x, y: c.y - 6.5))
+        ctx.strokePath()
+        ctx.setFillColor(green)
+        ctx.fillEllipse(in: CGRect(x: c.x, y: c.y - 4.5, width: 4.5, height: 2.4))
+        let head = CGPoint(x: c.x, y: c.y + 2.5)
+        ctx.setFillColor(rgb(0.95, 0.45, 0.62))
+        for i in 0..<5 {
+            let angle = Double.pi / 2 + Double(i) * 2 * Double.pi / 5
+            let px = head.x + cos(angle) * 2.6
+            let py = head.y + sin(angle) * 2.6
+            ctx.fillEllipse(in: CGRect(x: px - 2, y: py - 2, width: 4, height: 4))
+        }
+        ctx.setFillColor(rgb(1.0, 0.85, 0.3))
+        ctx.fillEllipse(in: CGRect(x: head.x - 1.5, y: head.y - 1.5, width: 3, height: 3))
+    }
+
+    /// 三个由大到小的 Z 字形，用线条画出（v2 Requirement 5.6）。
+    private static func drawZzzIcon(center c: CGPoint, in ctx: CGContext) {
+        ctx.setStrokeColor(ink)
+        ctx.setLineWidth(1.2)
+        let zs: [(x: Double, y: Double, size: Double)] = [
+            (c.x - 7, c.y - 6, 5), (c.x - 1, c.y, 4), (c.x + 3.5, c.y + 4, 2.6),
+        ]
+        for z in zs {
+            ctx.move(to: CGPoint(x: z.x, y: z.y + z.size))
+            ctx.addLine(to: CGPoint(x: z.x + z.size, y: z.y + z.size))
+            ctx.addLine(to: CGPoint(x: z.x, y: z.y))
+            ctx.addLine(to: CGPoint(x: z.x + z.size, y: z.y))
+        }
+        ctx.strokePath()
+    }
+
+    /// 两枚小脚印，一前一后斜着排列。
+    private static func drawFootprintsIcon(center c: CGPoint, in ctx: CGContext) {
+        ctx.setFillColor(rgb(0.50, 0.36, 0.26))
+        for origin in [CGPoint(x: c.x - 4, y: c.y - 5), CGPoint(x: c.x + 2.5, y: c.y - 0.5)] {
+            ctx.fillEllipse(in: CGRect(x: origin.x - 1.8, y: origin.y, width: 3.6, height: 4.6))
+            for (dx, dy) in [(-1.6, 5.4), (0.0, 6.1), (1.6, 5.4)] {
+                ctx.fillEllipse(in: CGRect(x: origin.x + dx - 0.8, y: origin.y + dy - 0.8, width: 1.6, height: 1.6))
+            }
+        }
+    }
+
+    // MARK: v2 装饰物与串门小旗
+
+    /// Chair：椅背、椅面加四条腿，木色与木板、梯子一致，四条腿贴住底边。
+    /// 椅面顶边约在 13pt，居民坐下时被渲染层上移 10pt 画在椅面上。
+    private static func drawChair(size: CGSize, in ctx: CGContext) {
+        let w = size.width
+        // 后腿（细、颜色稍深，表示在后方）
+        ctx.setStrokeColor(woodDark)
+        ctx.setLineWidth(1.4)
+        for x in [7.0, w - 7] {
+            ctx.move(to: CGPoint(x: x, y: 0.7)); ctx.addLine(to: CGPoint(x: x, y: 10))
+        }
+        ctx.strokePath()
+        // 椅背：两根立柱加两道横档
+        ctx.setLineWidth(2)
+        for x in [4.0, w - 4] {
+            ctx.move(to: CGPoint(x: x, y: 11)); ctx.addLine(to: CGPoint(x: x, y: size.height - 1))
+        }
+        ctx.strokePath()
+        ctx.setFillColor(wood)
+        ctx.setLineWidth(0.8)
+        for y in [16.5, 20.5] {
+            ctx.addRect(CGRect(x: 4, y: y, width: w - 8, height: 2.2))
+        }
+        ctx.drawPath(using: .fillStroke)
+        // 椅面
+        ctx.setLineWidth(1)
+        ctx.addRect(CGRect(x: 2.5, y: 10, width: w - 5, height: 3))
+        ctx.drawPath(using: .fillStroke)
+        // 前腿（粗）
+        ctx.setStrokeColor(woodDark)
+        ctx.setLineWidth(2)
+        for x in [4.0, w - 4] {
+            ctx.move(to: CGPoint(x: x, y: 1)); ctx.addLine(to: CGPoint(x: x, y: 10))
+        }
+        ctx.strokePath()
+    }
+
+    /// Lamp：灯罩、细杆、底座。两种外观的几何完全一致，只有颜色和光晕不同。
+    private static func drawLamp(lit: Bool, size: CGSize, in ctx: CGContext) {
+        let cx = size.width / 2
+        let shadeBottom = 19.0
+        let shadeTop = 27.0
+        if lit {
+            // 半透明暖色光晕，半径不超过半个帧宽，保证不超出帧边界。
+            let glowCenter = CGPoint(x: cx, y: 22)
+            let colors = [rgb(1.0, 0.86, 0.40, 0.85), rgb(1.0, 0.86, 0.40, 0)] as CFArray
+            if let gradient = CGGradient(colorsSpace: CGColorSpace(name: CGColorSpace.sRGB), colors: colors, locations: [0, 1]) {
+                ctx.drawRadialGradient(gradient, startCenter: glowCenter, startRadius: 0,
+                                       endCenter: glowCenter, endRadius: size.width / 2, options: [])
+            }
+        }
+        // 底座与细杆
+        ctx.setFillColor(rgb(0.40, 0.36, 0.34))
+        ctx.fillEllipse(in: CGRect(x: cx - 5, y: 0, width: 10, height: 3))
+        ctx.setStrokeColor(rgb(0.40, 0.36, 0.34))
+        ctx.setLineWidth(1.4)
+        ctx.move(to: CGPoint(x: cx, y: 2)); ctx.addLine(to: CGPoint(x: cx, y: shadeBottom))
+        ctx.strokePath()
+        // 灯泡（只在发光时可见）
+        if lit {
+            ctx.setFillColor(rgb(1.0, 0.97, 0.80))
+            ctx.fillEllipse(in: CGRect(x: cx - 2, y: shadeBottom - 2.5, width: 4, height: 4))
+        }
+        // 灯罩
+        let shade = CGMutablePath()
+        shade.move(to: CGPoint(x: cx - 6.5, y: shadeBottom))
+        shade.addLine(to: CGPoint(x: cx + 6.5, y: shadeBottom))
+        shade.addLine(to: CGPoint(x: cx + 3.5, y: shadeTop))
+        shade.addLine(to: CGPoint(x: cx - 3.5, y: shadeTop))
+        shade.closeSubpath()
+        ctx.setFillColor(lit ? warmYellow : rgb(0.55, 0.55, 0.58))
+        ctx.setStrokeColor(lit ? rgb(0.80, 0.58, 0.12) : rgb(0.35, 0.35, 0.38))
+        ctx.setLineWidth(1)
+        ctx.addPath(shade)
+        ctx.drawPath(using: .fillStroke)
+    }
+
+    /// Visit_Flag：竖杆加一面红色三角旗，杆底贴住底边。
+    private static func drawVisitFlag(size: CGSize, in ctx: CGContext) {
+        let poleX = 4.0
+        ctx.setStrokeColor(rgb(0.45, 0.30, 0.16))
+        ctx.setLineWidth(1.6)
+        ctx.move(to: CGPoint(x: poleX, y: 0)); ctx.addLine(to: CGPoint(x: poleX, y: size.height - 2))
+        ctx.strokePath()
+        ctx.setFillColor(rgb(0.95, 0.80, 0.30))
+        ctx.fillEllipse(in: CGRect(x: poleX - 1.5, y: size.height - 3, width: 3, height: 3))
+        let flag = CGMutablePath()
+        flag.move(to: CGPoint(x: poleX + 0.8, y: size.height - 3))
+        flag.addLine(to: CGPoint(x: poleX + 0.8, y: size.height - 12))
+        flag.addLine(to: CGPoint(x: size.width - 1.5, y: size.height - 7.5))
+        flag.closeSubpath()
+        ctx.setFillColor(rgb(0.90, 0.25, 0.25))
+        ctx.setStrokeColor(rgb(0.65, 0.15, 0.15))
+        ctx.setLineWidth(0.8)
+        ctx.addPath(flag)
+        ctx.drawPath(using: .fillStroke)
+    }
 }
+
+// MARK: - 占位图形自检（仅 Debug 构建）
+
+#if DEBUG
+extension PlaceholderArt {
+    /// v2 新增的 16 项素材键（v2 Requirement 16.1）。
+    static var v2Keys: [String] {
+        var keys: [String] = []
+        for id in ResidentID.allCases {
+            for state in [ResidentState.sitting, .sleeping, .running] {
+                keys.append(AssetCatalog.residentKey(id, state))
+            }
+        }
+        keys += [AssetCatalog.chairKey, AssetCatalog.lampOffKey, AssetCatalog.lampOnKey, AssetCatalog.visitFlagKey]
+        keys += [BubbleIcon.chair, .lamp, .flag, .flower, .zzz, .footprints].map(AssetCatalog.bubbleKey)
+        return keys
+    }
+
+    /// 检查占位图形是否满足 v2 Requirement 16.1、16.2 的可区分要求，返回发现的问题（空数组表示通过）：
+    /// - 16 项新图形每一帧都有可见像素，新气泡与空白底框不同；
+    /// - 同一居民 `sitting`、`sleeping`、`running` 的任一帧与该居民其他任一状态的任一帧都不同；
+    /// - Lamp 发光与不发光外观不同；
+    /// - 全部图标气泡两两不同。
+    /// Core 测试不能依赖应用层，所以这项检查在 Debug 构建创建 AssetProvider 时运行并写日志。
+    static func selfCheckIssues() -> [String] {
+        var issues: [String] = []
+        var cache: [String: [Data]] = [:]
+        func frames(_ key: String) -> [Data] {
+            if let cached = cache[key] { return cached }
+            guard let spec = AssetCatalog.spec(key), let image = sheet(for: spec) else { return [] }
+            let result = frameBytes(image, frames: spec.frames)
+            cache[key] = result
+            return result
+        }
+
+        let emptyBubble = render(AssetSpec(key: "_empty_bubble", size: AssetCatalog.bubbleSize)) { _, size, ctx in
+            drawBubbleBase(size: size, in: ctx)
+        }.map { frameBytes($0, frames: 1) } ?? []
+
+        for key in v2Keys {
+            let all = frames(key)
+            if all.count != AssetCatalog.spec(key)?.frames { issues.append("\(key)：帧数不对") }
+            for (i, frame) in all.enumerated() {
+                if !hasVisiblePixel(frame) { issues.append("\(key) 第 \(i) 帧是空白") }
+                if key.hasPrefix("bubble_"), emptyBubble.contains(frame) { issues.append("\(key) 第 \(i) 帧只有空白气泡底框") }
+            }
+        }
+
+        for id in ResidentID.allCases {
+            for newState in [ResidentState.sitting, .sleeping, .running] {
+                let newKey = AssetCatalog.residentKey(id, newState)
+                let newFrames = frames(newKey)
+                for other in ResidentState.allCases where other != newState {
+                    let otherKey = AssetCatalog.residentKey(id, other)
+                    let otherFrames = Set(frames(otherKey))
+                    if newFrames.contains(where: otherFrames.contains) {
+                        issues.append("\(newKey) 与 \(otherKey) 有相同的帧")
+                    }
+                }
+            }
+        }
+
+        if frames(AssetCatalog.lampOffKey) == frames(AssetCatalog.lampOnKey) {
+            issues.append("Lamp 发光与不发光外观相同")
+        }
+
+        let bubbleKeys = BubbleIcon.allCases.map(AssetCatalog.bubbleKey)
+        for (i, a) in bubbleKeys.enumerated() {
+            for b in bubbleKeys[(i + 1)...] where frames(a) == frames(b) {
+                issues.append("\(a) 与 \(b) 相同")
+            }
+        }
+        return issues
+    }
+
+    /// 把 sheet 重绘到已知内存布局（RGBA、每像素 4 字节）的位图中，再按帧切成像素数据。
+    private static func frameBytes(_ image: CGImage, frames: Int) -> [Data] {
+        let width = image.width, height = image.height
+        let bytesPerRow = width * 4
+        var buffer = [UInt8](repeating: 0, count: bytesPerRow * height)
+        let drawn = buffer.withUnsafeMutableBytes { raw -> Bool in
+            guard let ctx = CGContext(data: raw.baseAddress, width: width, height: height,
+                                      bitsPerComponent: 8, bytesPerRow: bytesPerRow,
+                                      space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+            ctx.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard drawn, frames > 0 else { return [] }
+        let frameRowBytes = bytesPerRow / frames
+        return (0..<frames).map { index in
+            var data = Data(capacity: frameRowBytes * height)
+            for row in 0..<height {
+                let start = row * bytesPerRow + index * frameRowBytes
+                data.append(contentsOf: buffer[start..<(start + frameRowBytes)])
+            }
+            return data
+        }
+    }
+
+    private static func hasVisiblePixel(_ frame: Data) -> Bool {
+        stride(from: 3, to: frame.count, by: 4).contains { frame[$0] > 0 }
+    }
+}
+
+extension AssetProvider {
+    /// 占位图形可区分性自检的结果；空数组表示通过。见 `PlaceholderArt.selfCheckIssues()`。
+    static func placeholderSelfCheckIssues() -> [String] { PlaceholderArt.selfCheckIssues() }
+}
+#endif

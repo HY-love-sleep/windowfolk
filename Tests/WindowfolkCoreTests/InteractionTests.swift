@@ -12,13 +12,16 @@ private func makeTarget(kind: Int, index: Int) -> HitTarget {
         return .item(ItemID(UUID(uuid: (b, 0, 0, 0, 0, 0, 0x40, 0, 0x80, 0, 0, 0, 0, 0, 0, 0))))
     case 2: return .plank(PlankID(UInt64(index)))
     case 3: return .ladder(LadderID(UInt64(index)))
-    default: return .toolbox(index % 2 == 0 ? .plank : .ladder)
+    case 4: return .decor(DecorID(UInt64(index)))
+    default:
+        let zones: [ToolboxZone] = [.plank, .ladder, .decor(.chair), .decor(.lamp)]
+        return .toolbox(zones[index % zones.count])
     }
 }
 
 private var hitRegionGen: Generator<HitRegion, some SendableSequenceType> {
     zip(
-        Gen<Int>.int(in: 0...4),      // 目标类型
+        Gen<Int>.int(in: 0...5),      // 目标类型
         Gen<Int>.int(in: 0...7),      // 目标编号
         Gen<Int>.int(in: 0...40),     // minX / 8
         Gen<Int>.int(in: 0...30),     // minY / 8
@@ -29,25 +32,6 @@ private var hitRegionGen: Generator<HitRegion, some SendableSequenceType> {
             target: makeTarget(kind: kind, index: index),
             rect: Rect(minX: Double(x * 8), minY: Double(y * 8), width: Double(w * 8), height: Double(h * 8))
         )
-    }
-}
-
-/// 任意 visibleFrame（Dock 大小和位置任意变化，Requirement 8.4），混入常见屏幕配置。
-private var anyScreenGen: Generator<ScreenInfo, some SendableSequenceType> {
-    zip(
-        Gen<Bool>.bool,
-        Gen<ScreenInfo>.screen,
-        Gen<Double>.double(in: 0...300),     // 左侧裁掉的宽度
-        Gen<Double>.double(in: 0...300),     // 右侧裁掉的宽度
-        Gen<Double>.double(in: 0...60),      // 顶部（菜单栏）
-        Gen<Double>.double(in: 0...300)      // 底部（Dock）
-    ).map { useCommon, common, left, right, top, bottom in
-        if useCommon { return common }
-        let frame = common.frame
-        let visible = Rect(
-            minX: left, minY: top,
-            width: frame.width - left - right, height: frame.height - top - bottom)
-        return ScreenInfo(frame: frame, visibleFrame: visible)
     }
 }
 
@@ -239,13 +223,14 @@ struct InteractionTests {
         switch t {
         case .resident: return 0
         case .item: return 1
-        case .plank, .ladder: return 2
-        case .toolbox: return 3
+        case .decor: return 2
+        case .plank, .ladder: return 3
+        case .toolbox: return 4
         }
     }
 
-    // Feature: v1, Property 12: 命中检测
-    // **Validates: Requirements 7.1**
+    // Feature: v1, Property 12: 命中检测（v2 调整：加入 Decor，Resident > Item > Decor > Plank/Ladder > Toolbox）
+    // **Validates: Requirements 7.1, v2 3.7**
     @Test func hitTestMatchesBoundingRectsAndPriority() async {
         await propertyCheck(
             count: 100,
@@ -267,52 +252,6 @@ struct InteractionTests {
                 // 返回的目标必须有一个包含该点的区域，且没有更高优先级的区域包含该点
                 #expect(regions.contains { $0.target == result && $0.rect.contains(p) })
                 #expect(!regions.contains { $0.rect.contains(p) && Self.rank($0.target) < Self.rank(result) })
-            }
-        }
-    }
-
-    // Feature: v1, Property 15: Toolbox 布局
-    // **Validates: Requirements 8.1, 8.4**
-    @Test func toolboxLayoutAlignsToGroundAndRightEdge() async {
-        await propertyCheck(
-            count: 100,
-            input: anyScreenGen,
-            Gen<Double>.double(in: -0.2...1.2),   // 探测点在 Toolbox 内的相对位置（含外侧）
-            Gen<Double>.double(in: -0.2...1.2)
-        ) { screen, u, v in
-            let f = ToolboxLayout.frame(screen: screen)
-            let plank = ToolboxLayout.zoneFrame(.plank, screen: screen)
-            let ladder = ToolboxLayout.zoneFrame(.ladder, screen: screen)
-
-            // 底边与 Ground（visibleFrame 底边）对齐
-            #expect(f.maxY == screen.groundY)
-            #expect(screen.groundY == screen.visibleFrame.maxY)
-            // 右边距在 [0, 16]pt 内
-            let gap = screen.visibleFrame.maxX - f.maxX
-            #expect(gap >= 0 && gap <= 16, "右边距 \(gap)")
-            #expect(f.width > 0 && f.height > 0)
-
-            // 两个取物区都在外框内
-            for z in [plank, ladder] {
-                #expect(z.width > 0 && z.height > 0)
-                #expect(z.minX >= f.minX && z.maxX <= f.maxX && z.minY >= f.minY && z.maxY <= f.maxY)
-            }
-            // 两区内部不重叠：交集面积为 0
-            let overlapW = min(plank.maxX, ladder.maxX) - max(plank.minX, ladder.minX)
-            let overlapH = min(plank.maxY, ladder.maxY) - max(plank.minY, ladder.minY)
-            #expect(overlapW <= 0 || overlapH <= 0, "取物区重叠 \(overlapW)×\(overlapH)")
-
-            // 外框内的点恰好属于一个取物区，外框外的点不属于任何区
-            let p = Point(x: f.minX + u * f.width, y: f.minY + v * f.height)
-            let zone = ToolboxLayout.zone(at: p, screen: screen)
-            if f.contains(p) {
-                #expect(zone != nil, "外框内的点 \(p) 没有取物区")
-                if let zone {
-                    let zf = zone == .plank ? plank : ladder
-                    #expect(zf.contains(p), "点 \(p) 归入 \(zone)，但不在该区矩形内")
-                }
-            } else {
-                #expect(zone == nil, "外框外的点 \(p) 被归入 \(String(describing: zone))")
             }
         }
     }

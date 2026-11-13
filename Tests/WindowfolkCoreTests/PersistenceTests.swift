@@ -4,6 +4,8 @@ import Testing
 @testable import WindowfolkCore
 
 // 保存与恢复的属性测试（design.md Property 37 至 40）。
+// V2 调整（V2 design.md「v1 属性的调整」）：版本号为 2，生成器加入 v2 字段（居民的 Walk_Distance、
+// 上一个 Wish 结束时间，`wishBook`，chair、lamp 两种 Ground_Object）。
 
 struct PersistenceTests {
     static let screen = ScreenInfo(
@@ -33,8 +35,20 @@ struct PersistenceTests {
         }
         if s.story.doneAt == nil { #expect(story["doneAt"] is NSNull) }
         for r in (obj["residents"] as? [[String: Any]]) ?? [] {
-            #expect(Set(r.keys) == ["id", "x", "heldItem"])
+            #expect(Set(r.keys) == ["id", "x", "heldItem", "walkDistance", "lastWishEndedAt"])
         }
+        // V2：wishBook（V2 Requirement 15.1）。
+        guard let book = obj["wishBook"] as? [String: Any] else {
+            Issue.record("missing wishBook")
+            return
+        }
+        #expect(Set(book.keys) == ["unlockedDecor", "flowerCount", "lastFlowerDoneAt", "activeWishes"])
+        #expect(book["unlockedDecor"] as? [String] == s.wishBook.unlockedDecor.map(\.rawValue))
+        #expect(book["flowerCount"] as? Int == s.wishBook.flowerCount)
+        if s.wishBook.lastFlowerDoneAt == nil { #expect(book["lastFlowerDoneAt"] is NSNull) }
+        let wishes = (book["activeWishes"] as? [[String: Any]]) ?? []
+        #expect(wishes.count == s.wishBook.activeWishes.count)
+        #expect(!wishes.contains { $0["type"] as? String == WishType.chase.rawValue })
     }
 
     // Feature: v1, Property 37: 存档往返
@@ -255,10 +269,10 @@ struct PersistenceTests {
             default:
                 let shapes = [
                     "null", "[]", "[1,2,3]", "\"world\"", "42", "{}",
-                    #"{"version":1}"#,
-                    #"{"version":"1","savedAt":0,"story":{"stage":null,"round":1,"doneAt":null},"residents":[],"groundObjects":[]}"#,
-                    #"{"version":1,"savedAt":0,"story":5,"residents":[],"groundObjects":[]}"#,
-                    #"{"version":1,"savedAt":"yesterday","story":{"stage":"bogus","round":1,"doneAt":null},"residents":{},"groundObjects":[]}"#,
+                    #"{"version":2}"#,
+                    #"{"version":"2","savedAt":0,"story":{"stage":null,"round":1,"doneAt":null},"residents":[],"groundObjects":[],"wishBook":{"unlockedDecor":[],"flowerCount":0,"lastFlowerDoneAt":null,"activeWishes":[]}}"#,
+                    #"{"version":2,"savedAt":0,"story":5,"residents":[],"groundObjects":[],"wishBook":{"unlockedDecor":[],"flowerCount":0,"lastFlowerDoneAt":null,"activeWishes":[]}}"#,
+                    #"{"version":2,"savedAt":"yesterday","story":{"stage":"bogus","round":1,"doneAt":null},"residents":{},"groundObjects":[]}"#,
                 ]
                 return Data(shapes[shape].utf8)
             }
@@ -318,7 +332,9 @@ struct PersistenceTests {
                 engine.step(FrameInput(poll: source.poll(), screen: Self.screen, now: clock))
             }
             #expect(engine.state.story.round == 1)
-            #expect(engine.state.story.stage != nil)
+            // V2：开局只分配家，送花由 Wish_Director 调度（v2 Requirement 6.1）。
+            #expect(engine.state.story.stage == nil)
+            #expect(!engine.state.story.homes.isEmpty)
             let save = engine.makeSave(now: clock)
             #expect(save.story.round == 1)
             #expect(save.groundObjects.isEmpty)
@@ -363,14 +379,27 @@ struct PersistenceExampleTests {
          FakeWindowSource(snapshots: windows))
     }
 
-    static func step(_ e: WorldEngine, _ src: inout FakeWindowSource, _ now: inout Date, by dt: Double, _ n: Int) {
-        for _ in 0..<n {
+    /// 时区固定为 UTC：`t0` 为 UTC 08:00，不是 Night（Lamp_Wish 不会生成，v2 Requirement 6.3）。
+    static func step(_ e: WorldEngine, _ src: inout FakeWindowSource, _ now: inout Date, by dt: Double, _ n: Int,
+                     commands: [Command] = []) {
+        for i in 0..<n {
             now = now.addingTimeInterval(dt)
-            e.step(FrameInput(poll: src.poll(), screen: screen, now: now))
+            e.step(FrameInput(poll: src.poll(), screen: screen, commands: i == 0 ? commands : [], now: now,
+                              timeZone: TimeZone(secondsFromGMT: 0)!))
         }
     }
 
-    /// Done 恢复：倒计时未过时保持 Done，到达 doneAt + Round_Interval 后 1 秒内开始下一轮（Requirement 19.7、22.10）。
+    /// 居民 `r` 不考虑其他 active Wish 时是否满足 Flower_Wish 的生成条件（v2 Requirement 8.1）。
+    static func flowerEligible(_ e: WorldEngine, _ r: ResidentID, now: Date) -> Bool {
+        var book = e.state.wishes
+        book.active = []
+        return WishDirector.eligibleTypes(
+            r, book: book, world: e.state, ctx: WishContext(world: e.state, now: now)).contains(.flower)
+    }
+
+    /// Done 恢复（V2）：恢复的 Flower_Wish 在 Done 中立即完成，`doneAt` 作为上一次 Done 的时间；Round_Interval
+    /// 未满时下一位 Giver（嘟嘟）不满足送花条件，满了之后满足，触发送花开始第 4 轮
+    /// （v1 Requirement 19.7、22.10 按 v2 Requirement 8.1、8.4 调整）。
     @Test func doneRestoreCountdownNotYetElapsed() throws {
         let dir = Self.tempDir()
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -387,24 +416,32 @@ struct PersistenceExampleTests {
         let (e, src0) = Self.engine(restored: loaded, now: now)
         var src = src0
         Self.step(e, &src, &now, by: 0.25, 1)
-        #expect(e.state.story.stage == .done)
+        #expect(e.state.story.stage == nil)
         #expect(e.state.story.round == 3)
-        #expect(e.state.story.doneAt == doneAt)
+        #expect(e.state.wishes.active.isEmpty)
+        #expect(e.state.wishes.flowerCount == 3)
+        #expect(e.state.wishes.lastFlowerDoneAt == doneAt)
+        #expect(WishDirector.nextFlowerGiver(e.state.wishes) == .b)
+        #expect(!Self.flowerEligible(e, .b, now: now))
 
-        // 推进到倒计时结束前：仍为 Done。
+        // 推进到 Round_Interval 结束前：仍不满足。
         Self.step(e, &src, &now, by: 0.25, 4 * 19)
-        #expect(e.state.story.stage == .done)
+        #expect(!Self.flowerEligible(e, .b, now: now))
         #expect(e.state.story.round == 3)
 
-        // 越过 doneAt + Round_Interval，1 秒内开始第 4 轮，Giver 为嘟嘟。
+        // 越过 doneAt + Round_Interval：满足送花条件；触发送花开始第 4 轮，Giver 为嘟嘟。
         Self.step(e, &src, &now, by: 0.25, 4 * 2)
+        #expect(Self.flowerEligible(e, .b, now: now))
+        #expect(!Self.flowerEligible(e, .a, now: now))
+        Self.step(e, &src, &now, by: 0.25, 1, commands: [.triggerWish(.flower, nil)])
         #expect(e.state.story.round == 4)
         #expect(e.state.story.giver == .b)
         #expect(e.state.story.stage.map { [.wish, .waiting, .travel].contains($0) } == true)
         #expect(e.state.residents[.b]?.heldItem.flatMap { e.state.items[$0]?.kind.isFlower } == true)
     }
 
-    /// Done 恢复：倒计时在应用未运行期间已过，恢复后 1 秒内开始下一轮（Requirement 19.7）。
+    /// Done 恢复（V2）：Round_Interval 在应用未运行期间已过，恢复后下一位 Giver（都都）立即满足送花条件，
+    /// 触发送花开始第 3 轮（v1 Requirement 19.7 按 v2 Requirement 8.1 调整）。
     @Test func doneRestoreCountdownElapsedWhileClosed() throws {
         let dir = Self.tempDir()
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -420,9 +457,12 @@ struct PersistenceExampleTests {
         let (e, src0) = Self.engine(restored: loaded, now: now)
         var src = src0
         Self.step(e, &src, &now, by: 1.0 / 30, 30)
+        #expect(e.state.story.stage == nil)
+        #expect(Self.flowerEligible(e, .a, now: now))
+        Self.step(e, &src, &now, by: 1.0 / 30, 1, commands: [.triggerWish(.flower, nil)])
         #expect(e.state.story.round == 3)
         #expect(e.state.story.giver == .a)
-        #expect(e.state.story.stage != .done)
+        #expect(e.state.story.stage != .done && e.state.story.stage != nil)
     }
 
     /// `planting` 中保存：存为 `travel`，恢复后花在 Giver 手上且没有种下时间（Requirement 22.9、design.md）。
@@ -504,7 +544,9 @@ struct PersistenceExampleTests {
         var src = src0
         Self.step(e, &src, &now, by: 1.0 / 30, 3)
         #expect(e.state.story.round == 1)
-        #expect(e.state.story.stage != nil)
+        // V2：首次开局只分配家并开始 Wish 调度，不直接开始送花（v2 Requirement 6.1）。
+        #expect(e.state.story.stage == nil)
+        #expect(e.state.wishes.nextCheckAt != nil)
         #expect(e.state.story.homes == [.a: 1, .b: 2])
         #expect(e.state.planks.planks.isEmpty && e.state.ladders.ladders.isEmpty)
         #expect(e.state.items.items.values.allSatisfy { $0.placement.holder != nil })

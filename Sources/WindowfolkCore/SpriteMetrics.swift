@@ -12,6 +12,9 @@ public enum SpriteMetrics {
     public static let fruit = AssetCatalog.fruitSize
     public static let toolbox = AssetCatalog.toolboxSize
     public static let bubble = AssetCatalog.bubbleSize
+    public static let chair = AssetCatalog.chairSize
+    public static let lamp = AssetCatalog.lampSize
+    public static let visitFlag = AssetCatalog.visitFlagSize
     /// 木板厚度（平铺单元高度）。
     public static var plankThickness: Double { AssetCatalog.plankTileSize.height }
     /// 梯子宽度（平铺单元宽度）。
@@ -36,6 +39,14 @@ public enum SpriteMetrics {
         rect(size: resident, bottomCenter: p, lift: lift)
     }
 
+    /// 坐在 Chair 上的居民相对所站 Surface 的显示上移量（pt）。
+    public static let chairSeatHeight: Double = 10
+
+    /// 居民按状态的显示上移量：`sitting` 时为 `chairSeatHeight`，其余为 0。
+    public static func residentSeatLift(_ state: ResidentState) -> Double {
+        state == .sitting ? chairSeatHeight : 0
+    }
+
     /// 物件图形尺寸：Flower 为花盆尺寸（各生长阶段相同），Fruit 为果子尺寸。
     public static func itemSize(_ kind: ItemKind) -> AssetSize {
         switch kind {
@@ -47,6 +58,24 @@ public enum SpriteMetrics {
     /// 物件图形的外接矩形，以底边中点定位（即 `ItemView.position`）。
     public static func itemRect(kind: ItemKind, bottomCenter p: Point, lift: Double = 0) -> Rect {
         rect(size: itemSize(kind), bottomCenter: p, lift: lift)
+    }
+
+    /// Decor 图形尺寸：Chair 24×24，Lamp 16×32。
+    public static func decorSize(_ type: DecorType) -> AssetSize {
+        switch type {
+        case .chair: return chair
+        case .lamp: return lamp
+        }
+    }
+
+    /// Decor 图形的外接矩形，以底边中点定位（即 `DecorView.position`）。
+    public static func decorRect(type: DecorType, bottomCenter p: Point) -> Rect {
+        rect(size: decorSize(type), bottomCenter: p)
+    }
+
+    /// Visit_Flag 图形的外接矩形，以底边中点定位（即 `WorldView.visitFlags` 中的点）。
+    public static func visitFlagRect(bottomCenter p: Point) -> Rect {
+        rect(size: visitFlag, bottomCenter: p)
     }
 
     /// 已架设木板的外接矩形：覆盖两端点之间的线段，并向下延伸木板厚度。木板可以倾斜。

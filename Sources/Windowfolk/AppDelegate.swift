@@ -14,6 +14,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hitTestTimer: HitTestTimer?
     private var screenObserver: ScreenObserver?
     private var fullscreenMonitor: FullscreenMonitor?
+    /// v2 LLM 设置（Requirement 11）：`settings.json` 与钥匙串中的 API Key。
+    private var settingsModel: LLMSettingsModel?
+    private var settingsWindow: SettingsWindowController?
+    /// 日记批次调度（Requirement 13）。强引用：GameLoop 和 Diary_Window 都不持有它的所有权。
+    private var diaryCoordinator: DiaryCoordinator?
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         // 在启动完成前设置，避免 Dock 图标闪一下。
@@ -24,6 +29,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusMenu = StatusMenu()
         createOverlay()
         startGameLoop()
+    }
+
+    /// 组装 v2 的 LLM 设置、Settings_Window、日记与小心思（Requirement 11.2、13.12）。
+    /// 数据目录为 `~/Library/Application Support/Windowfolk/`（`settings.json`、`diary.jsonl` 都在这里）；
+    /// 无法确定目录时不提供设置和日记，世界照常运行。返回交给 GameLoop 的小心思协调器。
+    private func makeLLMComponents(eventLog: EventLogWriter?) -> ThoughtCoordinator? {
+        guard let appSupport = FileEventSink.defaultDirectory() else { return nil }
+        let settingsStore = FileLLMSettingsStore(directory: appSupport)
+        let secrets = KeychainSecretStore()
+        let model = LLMSettingsModel(store: settingsStore, secrets: secrets)
+        let client = URLSessionLLMClient()
+        settingsModel = model
+        let settingsWindow = SettingsWindowController(model: model)
+        self.settingsWindow = settingsWindow
+        statusMenu?.onShowSettings = { [weak settingsWindow] in
+            settingsWindow?.show()
+        }
+
+        if let diary = DiaryCoordinator.makeDefault(eventLog: eventLog, settings: settingsStore,
+                                                   secrets: secrets, client: client) {
+            diaryCoordinator = diary
+            statusMenu?.onShowDiary = { [weak diary] in
+                diary?.showWindow()
+            }
+            // 启动补写早于今天、缺日记的日期（Requirement 13.3）。不阻塞启动。
+            Task { await diary.startup() }
+        }
+        return ThoughtCoordinator(client: client, settings: model)
     }
 
     private func createOverlay() {
@@ -56,14 +89,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                      constants: constants)
         panel.skView.geometry = geometry
         let hitTest = HitTestTimer(panel: panel, bridge: panel.skView, geometry: geometry)
+        let eventLog = EventLogWriter.makeDefault()
+        let thoughts = makeLLMComponents(eventLog: eventLog)
         let loop = GameLoop(engine: engine, source: source, renderer: renderer,
                             screen: screen, pointerSource: panel.skView, hitTestTimer: hitTest,
-                            eventLog: EventLogWriter.makeDefault(), saveController: saves)
+                            eventLog: eventLog, saveController: saves,
+                            thoughtCoordinator: thoughts, diaryCoordinator: diaryCoordinator)
 
         statusMenu?.onToggleSurfaces = { [weak loop] _ in
             loop?.enqueue(.toggleSurfaces)
         }
-        // 调试子菜单（Requirement 26.1）：按顺序为「让都都去找嘟嘟」「给都都一个花盆」「快进」「重新开始剧情」。
+        // 调试子菜单（Requirement 26.1、v2 Requirement 17.1）：按顺序为「让都都去找嘟嘟」「给都都一个花盆」「快进」
+        // 「重置世界」（v1「重新开始剧情」更名）「触发心愿 ▸」「昼夜 ▸」「解锁全部物件」。
         statusMenu?.addDebugItem("让都都去找嘟嘟") { [weak loop] in
             loop?.enqueue(.debugSeek)
         }
@@ -73,8 +110,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusMenu?.addDebugItem("快进") { [weak loop] in
             loop?.enqueue(.fastForward)
         }
-        statusMenu?.addDebugItem("重新开始剧情") { [weak loop] in
-            loop?.enqueue(.restartStory)
+        statusMenu?.addDebugItem("重置世界") { [weak loop] in
+            loop?.enqueue(.resetWorld)
+        }
+        statusMenu?.addWishTriggerMenu(nextFlowerGiver: { [weak loop] in
+            loop?.nextFlowerGiver ?? .a
+        }, trigger: { [weak loop] type, resident in
+            loop?.enqueue(.triggerWish(type, resident))
+        })
+        // 启动为「自动」，与 WorldState.dayNightOverride 的初值一致（v2 Requirement 17.4）。
+        statusMenu?.addDayNightMenu { [weak loop] value in
+            loop?.enqueue(.setDayNight(value))
+        }
+        statusMenu?.addDebugItem("解锁全部物件") { [weak loop] in
+            loop?.enqueue(.unlockAllDecor)
         }
         // 「退出」走 NSApp.terminate，由 applicationShouldTerminate 同步保存后结束进程（Requirement 1.9）。
         statusMenu?.onQuit = {
@@ -125,13 +174,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// 同步保存后立即退出（Requirement 1.9、1.10、22.1）。保存失败时原文件不变，照常退出。
+    /// 同时写入尚未保存的 LLM 设置（v2 Requirement 11.4）。
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        settingsModel?.flush()
         gameLoop?.saveForTermination()
         return .terminateNow
     }
 
     /// 兜底：没有经过 applicationShouldTerminate 的退出路径也保存一次（已保存过则跳过）。
     func applicationWillTerminate(_ notification: Notification) {
+        settingsModel?.flush()
         gameLoop?.saveForTermination()
     }
 }

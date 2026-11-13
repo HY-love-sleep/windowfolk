@@ -8,6 +8,10 @@ import WindowfolkCore
 ///   （由 Core 的 `PollRatePolicy` 给出）调整定时器间隔，SKView 的渲染频率随之调整；
 ///   画面不变时 `RenderGate` 跳过渲染（任务 17.2，Requirement 29.1）。
 /// - `WorldEngine` 只在这里、只在主线程上调用（design.md「线程模型」）。
+/// - v2（任务 15.4）：每帧从 `LocalClock` 取 `now` 与 `timeZone`，向 `FrameInput` 填 `worldHidden`、
+///   `thoughtsEnabled`、`thoughtResults`；把 `StepOutput.thoughtRequests` 交给 `ThoughtCoordinator`；
+///   本地日期变化时通知 `DiaryCoordinator`。Idle_Poll_Rate 的判定在 Core：`sitting`、`sleeping` 不在
+///   `WorldEngine.activeResidentStates` 中，静止的坐着、睡着的居民不阻止降频（v2 Requirement 19.8）。
 @MainActor
 final class GameLoop {
     private let engine: WorldEngine
@@ -32,9 +36,20 @@ final class GameLoop {
     /// 当前是否因前台应用全屏而隐藏世界（Requirement 23.1、23.2）。
     private(set) var isWorldHidden = false
 
+    /// Local_Clock：每帧的 `now` 和 `timeZone` 都从这里取（v2 design.md「Core：Local_Clock」）。
+    private let clock: any LocalClock
+    /// 小心思请求的调度（任务 15.4）。为 nil 时每帧 `thoughtsEnabled` 为 false，Core 不发出请求。
+    var thoughtCoordinator: ThoughtCoordinator?
+    /// 日记批次的调度（任务 15.3）。本地日期变化时通知它补写前一天（v2 Requirement 13.2）。
+    var diaryCoordinator: DiaryCoordinator?
+    /// 上一帧的本地日期；第一帧之前为 nil。
+    private var lastLocalDate: LocalDate?
+
     init(engine: WorldEngine, source: CGWindowSource, renderer: SceneRenderer,
          screen: ScreenInfo, pointerSource: PointerBridge? = nil, hitTestTimer: HitTestTimer? = nil,
-         eventLog: EventLogWriter? = nil, saveController: SaveController? = nil) {
+         eventLog: EventLogWriter? = nil, saveController: SaveController? = nil,
+         clock: any LocalClock = SystemLocalClock(),
+         thoughtCoordinator: ThoughtCoordinator? = nil, diaryCoordinator: DiaryCoordinator? = nil) {
         self.engine = engine
         self.source = source
         self.renderer = renderer
@@ -43,6 +58,9 @@ final class GameLoop {
         self.hitTestTimer = hitTestTimer
         self.eventLog = eventLog
         self.saveController = saveController
+        self.clock = clock
+        self.thoughtCoordinator = thoughtCoordinator
+        self.diaryCoordinator = diaryCoordinator
     }
 
     /// 退出时停止循环并同步保存（Requirement 1.9、22.1）。重复调用只保存一次。
@@ -50,7 +68,8 @@ final class GameLoop {
         guard !savedForTermination else { return }
         savedForTermination = true
         stop()
-        saveController?.saveNow(engine.makeSave(now: Date()))
+        thoughtCoordinator?.cancelAll()
+        saveController?.saveNow(engine.makeSave(now: clock.now))
     }
 
     private var savedForTermination = false
@@ -74,6 +93,11 @@ final class GameLoop {
     /// 加入一条菜单命令，下一帧生效。
     func enqueue(_ command: Command) {
         pendingCommands.append(command)
+    }
+
+    /// 下一次 Flower_Wish 的 Giver（v2 Requirement 8.1），供 Debug_Menu「触发心愿 ▸ 送花」显示子项名称。
+    var nextFlowerGiver: ResidentID {
+        WishDirector.nextFlowerGiver(engine.state.wishes)
     }
 
     /// 低频档位下收到按下事件时立即走一帧，`step` 看到鼠标事件后给出 `.active`，
@@ -178,9 +202,18 @@ final class GameLoop {
         pendingCommands.removeAll()
         let pointer = pointerSource?.drain() ?? []
 
-        let now = Date()
+        let now = clock.now
+        let timeZone = clock.timeZone
+        // 「小心思」开关（已按 effective 处理）与上一帧以来回到主线程的结果（v2 Requirement 12.5、14.10）。
+        let thoughts = thoughtCoordinator?.takeFrameState()
         let output = engine.step(FrameInput(poll: poll, screen: screen, pointer: pointer,
-                                            commands: commands, now: now))
+                                            commands: commands, now: now, timeZone: timeZone,
+                                            worldHidden: isWorldHidden,
+                                            thoughtsEnabled: thoughts?.thoughtsEnabled ?? false,
+                                            thoughtResults: thoughts?.thoughtResults ?? []))
+        // 请求在 Game_Loop 之外异步执行，本帧不等待（v2 Requirement 12.5）。
+        thoughtCoordinator?.dispatch(output.thoughtRequests)
+        checkLocalDate(now: now, timeZone: timeZone)
         // 隐藏期间节点照常更新（恢复时立即是最新画面），但不为此重新渲染隐藏的画面。
         if renderer.render(output.view), !isWorldHidden {
             renderGate.markChanged()
@@ -196,5 +229,16 @@ final class GameLoop {
         if output.nextRate != currentRate, timer != nil {
             schedule(rate: output.nextRate)
         }
+    }
+
+    /// 本地日期与上一帧不同且更晚时，通知 `DiaryCoordinator` 为上一日期补写日记（v2 Requirement 13.2）。
+    /// 跨过多天（例如睡眠唤醒后）时由 `dateChanged(from:to:)` 一并补写中间日期。
+    /// 时钟回拨到更早的日期时只更新记录，不触发补写。第一帧只记录日期：启动补写由 `startup()` 负责（13.3）。
+    private func checkLocalDate(now: Date, timeZone: TimeZone) {
+        let today = LocalDate.of(now, timeZone: timeZone)
+        defer { lastLocalDate = today }
+        guard let last = lastLocalDate, last < today, let diary = diaryCoordinator else { return }
+        // 批次在 actor 内执行，Game_Loop 不等待它（v2 Requirement 12.5）。
+        Task { await diary.dateChanged(from: last, to: today) }
     }
 }
