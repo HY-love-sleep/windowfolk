@@ -1,0 +1,2115 @@
+{
+  "pbtResults": {
+    "1.7 编写水平距离场属性测试（`NavGraphHorizontalTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794471432670
+    },
+    "1.4 编写 Night 判定属性测试（`DayNightTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794471455265
+    },
+    "1.2 编写事件编码往返属性测试（`EventLogV2Tests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794471782579
+    },
+    "2.5 编写 Toolbox 布局属性测试（`ToolboxLayoutTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794472158994
+    },
+    "2.3 编写 Decor 松手判定属性测试（`DecorRulesTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794472222632
+    },
+    "8.2 编写 Flee_Target 选择属性测试（`ChaseRulesTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794473206028
+    },
+    "3.3 编写 Decor_Slot 拖出与上限属性测试（`DecorInteractionTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794473208101
+    },
+    "5.4 编写 Activity 可执行判定属性测试（`ActivityPlannerTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794473401707
+    },
+    "3.5 编写 Decor 跟随、隐藏、掉落与无悬空属性测试（`DecorWorldTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794473409787
+    },
+    "11.2 编写 Diary_Store 编解码与读取属性测试（`DiaryStoreTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794473658659
+    },
+    "3.6 编写 Decor 不影响通路属性测试（`DecorWorldTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794473883414
+    },
+    "8.3 编写抓到判定属性测试（`ChaseRulesTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794473959128
+    },
+    "3.4 编写 Decor 拖动跟随与点击不变属性测试（`DecorInteractionTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794474052034
+    },
+    "5.5 编写 Activity 选择属性测试（`ActivityPlannerTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794474121429
+    },
+    "11.4 编写 Prompt_Payload 隐私不变量属性测试（`PromptPayloadTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794475040844
+    },
+    "5.2 编写 Walk_Distance 累加属性测试（`ResidentV2Tests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794475139886
+    },
+    "11.6 编写 LLM 返回值校验属性测试与超时单元测试（`LLMTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794475569111
+    },
+    "5.7 编写「每位空闲居民恰好一个 Activity」属性测试（`ActivityEngineTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794475378104
+    },
+    "11.8 编写 LLM 设置校验属性测试（`LLMSettingsTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794475769171
+    },
+    "5.8 编写 Chair 占用不变量属性测试（`ActivityEngineTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794475892753
+    },
+    "11.9 编写 LLM 设置往返属性测试（`LLMSettingsTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794476949575
+    },
+    "12.2 编写日记事件归类属性测试（`DiaryWriterTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794477003159
+    },
+    "12.8 编写 Thought 文本规整属性测试（`ThoughtNormalizeTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794477021648
+    },
+    "12.4 编写日记模板确定且保序属性测试（`DiaryTemplateTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794477045900
+    },
+    "12.3 编写需要补写的日记属性测试（`DiaryWriterTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794478040764
+    },
+    "7.5 编写生成条件判定属性测试（`WishDirectorTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794478937407
+    },
+    "7.9 编写 Decor 目标选择属性测试（`WishTargetTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794479460066
+    },
+    "7.14 编写成为 Busy 时结束 Activity 属性测试（`WishBusyTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794531821024
+    },
+    "7.12 编写 Visit_Flag 位置与箭头属性测试（`VisitWishTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794531824129
+    },
+    "7.7 编写 Wish 结构不变量属性测试（`WishLifecycleTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794531929619
+    },
+    "7.13 编写 Unlocked_Decor 单调属性测试（`WishUnlockTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794531941278
+    },
+    "7.15 编写气泡与状态一致属性测试（`WishBubbleTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794533401104
+    },
+    "12.5 编写日记截断属性测试（`DiaryTemplateTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794533559685
+    },
+    "7.18 编写 Debug 触发心愿属性测试（`DebugTriggerTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794533693185
+    },
+    "7.16 编写玩家操作不受 Wish 影响属性测试（`WishInteractionTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794534000797
+    },
+    "7.6 编写 Wish 生成合法属性测试（`WishDirectorTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794534316649
+    },
+    "7.8 编写 Wish_Timeout 属性测试（`WishLifecycleTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794534426218
+    },
+    "8.5 编写追逐 ready 阶段朝向属性测试（`ChaseTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794535824648
+    },
+    "7.17 编写 Wish 独立与点击不变属性测试（`WishInteractionTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794534964374
+    },
+    "10.2 编写 Unlocked_Decor 解码容错属性测试（`SaveFileV2Tests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794535155628
+    },
+    "8.6 编写追逐速度属性测试（`ChaseSpeedTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794543594375
+    },
+    "8.10 编写重置世界属性测试（`WorldResetTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794535448191
+    },
+    "7.11 编写快进属性测试（`FlowerWishTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794536565777
+    },
+    "8.9 编写戳居民扩展状态属性测试（`PokeV2Tests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794535923952
+    },
+    "8.8 编写两种结局显示相同属性测试（`ChaseOutcomeTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794536274912
+    },
+    "7.10 编写送花轮换属性测试（`FlowerWishTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794536899343
+    },
+    "10.5 编写存档 v2 往返属性测试（`PersistenceV2Tests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794536945593
+    },
+    "8.7 编写追逐中可达性一致属性测试（`ChaseTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794537101664
+    },
+    "10.3 编写非 v2 存档回退属性测试（`SaveFileV2Tests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794537337493
+    },
+    "10.8 编写启动落位扩展到 Decor 属性测试（`RestoreLandingV2Tests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794537397885
+    },
+    "10.7 编写 Visit_Target 恢复匹配属性测试（`VisitRestoreTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794537398090
+    },
+    "10.6 编写 Wish 恢复规则属性测试（`PersistenceV2Tests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794537728420
+    },
+    "12.10 编写 Thought 状态机属性测试（`ThoughtEngineTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794537800330
+    },
+    "12.11 编写 LLM 请求不影响世界推进属性测试（`ThoughtIsolationTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794537956078
+    },
+    "12.12 编写 Thought 气泡布局属性测试（`ThoughtLayoutTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794539181684
+    },
+    "16.2 编写开关关闭时不发请求属性测试（`DisabledLLMTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794541213203
+    },
+    "16.4 编写确定性属性测试（`DeterminismTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794541218247
+    },
+    "16.1 编写 API Key 不出现在文件和 Payload 中属性测试（`PrivacyTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794541220556
+    },
+    "16.3 编写事件记录一致属性测试（`EventLogV2ConsistencyTests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794544654720
+    },
+    "16.5 编写静止时降到 Idle_Poll_Rate 属性测试（`PollRateV2Tests.swift`）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794542228518
+    }
+  },
+  "executionHistory": {
+    "1.1 扩充 Tunables、ResidentState 和 EventType": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903512
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471224530
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471485229
+      }
+    ],
+    "1.2 编写事件编码往返属性测试（`EventLogV2Tests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903515
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471495811
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472030340
+      }
+    ],
+    "1.3 实现 `DayNight.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903518
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470949621
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471208308
+      }
+    ],
+    "1.4 编写 Night 判定属性测试（`DayNightTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903521
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471225301
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471485260
+      }
+    ],
+    "1.5 编写 DayNight 单元测试（`DayNightTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903523
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471497518
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472030563
+      }
+    ],
+    "1.6 实现 `NavGraph+Horizontal.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903526
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470950559
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471208318
+      }
+    ],
+    "1.7 编写水平距离场属性测试（`NavGraphHorizontalTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903528
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471226244
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471486718
+      }
+    ],
+    "2.1 实现 `Decor.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903531
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470951907
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471209015
+      }
+    ],
+    "2.2 实现 `DecorRules.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903533
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471497789
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472031563
+      }
+    ],
+    "2.3 编写 Decor 松手判定属性测试（`DecorRulesTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903535
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472038810
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472450810
+      }
+    ],
+    "2.4 改造 `ToolboxLayout` 支持 Decor_Slot": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903537
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794471499289
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472032267
+      }
+    ],
+    "2.5 编写 Toolbox 布局属性测试（`ToolboxLayoutTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903539
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472040130
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472451915
+      }
+    ],
+    "3.1 在 WorldState 与世界更新中加入 Decor 的附着、跟随、隐藏和下落": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903541
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472041018
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472453031
+      }
+    ],
+    "3.2 实现 Decor 的拖出、拖动、放置与收回交互": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903543
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472459675
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473068343
+      }
+    ],
+    "3.3 编写 Decor_Slot 拖出与上限属性测试（`DecorInteractionTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903544
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473078575
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473502151
+      }
+    ],
+    "3.4 编写 Decor 拖动跟随与点击不变属性测试（`DecorInteractionTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903546
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473761072
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794474845902
+      }
+    ],
+    "3.5 编写 Decor 跟随、隐藏、掉落与无悬空属性测试（`DecorWorldTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903548
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473079781
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473503706
+      }
+    ],
+    "3.6 编写 Decor 不影响通路属性测试（`DecorWorldTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903550
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473762407
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794474847569
+      }
+    ],
+    "4. Checkpoint - 确保全部测试通过": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903552
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794542918166
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794543194337
+      }
+    ],
+    "5.1 扩展 Resident、Goal 与 ResidentController": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903553
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473077396
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473501827
+      }
+    ],
+    "5.2 编写 Walk_Distance 累加属性测试（`ResidentV2Tests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903555
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794474856272
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475162377
+      }
+    ],
+    "5.3 实现 `Activity.swift` 与 ActivityPlanner 的可执行判定和选择": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903556
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472460492
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473068354
+      }
+    ],
+    "5.4 编写 Activity 可执行判定属性测试（`ActivityPlannerTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903558
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473080929
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473505003
+      }
+    ],
+    "5.5 编写 Activity 选择属性测试（`ActivityPlannerTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903560
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473763522
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794474848682
+      }
+    ],
+    "5.6 实现 ActivityPlanner 推进并接入 WorldEngine": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903561
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473759889
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794474844739
+      }
+    ],
+    "5.7 编写「每位空闲居民恰好一个 Activity」属性测试（`ActivityEngineTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903562
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475170999
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475450139
+      }
+    ],
+    "5.8 编写 Chair 占用不变量属性测试（`ActivityEngineTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903564
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475610464
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476386082
+      }
+    ],
+    "5.9 编写自主活动单元测试（`ActivityExampleTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903566
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476394960
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476853271
+      }
+    ],
+    "6. Checkpoint - 确保全部测试通过": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903567
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794543201707
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794543332491
+      }
+    ],
+    "7.1 实现 `Wish.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903568
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472461624
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473068780
+      }
+    ],
+    "7.2 拆分 StoryDirector 的开局与轮次调度": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903570
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475172212
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475450153
+      }
+    ],
+    "7.3 实现 `WishDirector.swift`（生成、非追逐 Wish 的推进与结束、Debug 触发）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903571
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475607841
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476381933
+      }
+    ],
+    "7.4 把 WishDirector 接入 WorldEngine 并切换剧情开局": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903573
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476865116
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477897403
+      }
+    ],
+    "7.5 编写生成条件判定属性测试（`WishDirectorTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903574
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477921499
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531548460
+      }
+    ],
+    "7.6 编写 Wish 生成合法属性测试（`WishDirectorTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903576
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794534055007
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535006052
+      }
+    ],
+    "7.7 编写 Wish 结构不变量属性测试（`WishLifecycleTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903577
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531560559
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794532071764
+      }
+    ],
+    "7.8 编写 Wish_Timeout 属性测试（`WishLifecycleTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903578
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794534056216
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535007284
+      }
+    ],
+    "7.9 编写 Decor 目标选择属性测试（`WishTargetTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903580
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477921697
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531549639
+      }
+    ],
+    "7.10 编写送花轮换属性测试（`FlowerWishTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903581
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794536618053
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537196862
+      }
+    ],
+    "7.11 编写快进属性测试（`FlowerWishTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903583
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535609648
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794536604149
+      }
+    ],
+    "7.12 编写 Visit_Flag 位置与箭头属性测试（`VisitWishTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903584
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531561672
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794532071845
+      }
+    ],
+    "7.13 编写 Unlocked_Decor 单调属性测试（`WishUnlockTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903586
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531562881
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794532073072
+      }
+    ],
+    "7.14 编写成为 Busy 时结束 Activity 属性测试（`WishBusyTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903587
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531563848
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794532074227
+      }
+    ],
+    "7.15 编写气泡与状态一致属性测试（`WishBubbleTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903589
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531560477
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794533437704
+      }
+    ],
+    "7.16 编写玩家操作不受 Wish 影响属性测试（`WishInteractionTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903590
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794533447797
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794534043359
+      }
+    ],
+    "7.17 编写 Wish 独立与点击不变属性测试（`WishInteractionTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903591
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794534057814
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535008234
+      }
+    ],
+    "7.18 编写 Debug 触发心愿属性测试（`DebugTriggerTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903593
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794533447830
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794534044488
+      }
+    ],
+    "7.19 编写心愿单元测试（`WishExampleTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903594
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535017393
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535597817
+      }
+    ],
+    "8.1 实现 `ChaseRules.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903596
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472462841
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473069984
+      }
+    ],
+    "8.2 编写 Flee_Target 选择属性测试（`ChaseRulesTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903597
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473081542
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473505837
+      }
+    ],
+    "8.3 编写抓到判定属性测试（`ChaseRulesTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903598
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473764340
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794474849620
+      }
+    ],
+    "8.4 在 WishDirector 与 WorldEngine 中实现追逐流程": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903600
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477921467
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531547726
+      }
+    ],
+    "8.5 编写追逐 ready 阶段朝向属性测试（`ChaseTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903601
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794534058626
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794536305898
+      }
+    ],
+    "8.6 编写追逐速度属性测试（`ChaseSpeedTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903602
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535018000
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535597805
+      }
+    ],
+    "8.7 编写追逐中可达性一致属性测试（`ChaseTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903604
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794536618064
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537198039
+      }
+    ],
+    "8.8 编写两种结局显示相同属性测试（`ChaseOutcomeTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903605
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535609846
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794536306082
+      }
+    ],
+    "8.9 编写戳居民扩展状态属性测试（`PokeV2Tests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903607
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535610724
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794536307265
+      }
+    ],
+    "8.10 编写重置世界属性测试（`WorldResetTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903608
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535019200
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535599546
+      }
+    ],
+    "8.11 编写追逐单元测试（`ChaseExampleTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903610
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794536618134
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537199249
+      }
+    ],
+    "9. Checkpoint - 确保全部测试通过": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903611
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794543338340
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794543634736
+      }
+    ],
+    "10.1 扩充 `SaveFile` 到格式版本 2": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903612
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477921483
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531547753
+      }
+    ],
+    "10.2 编写 Unlocked_Decor 解码容错属性测试（`SaveFileV2Tests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903614
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535020352
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535598296
+      }
+    ],
+    "10.3 编写非 v2 存档回退属性测试（`SaveFileV2Tests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903615
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537215896
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537418441
+      }
+    ],
+    "10.4 扩展 `SaveSnapshot` 的保存与恢复": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903617
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794534053858
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794535005438
+      }
+    ],
+    "10.5 编写存档 v2 往返属性测试（`PersistenceV2Tests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903618
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794536618200
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537200194
+      }
+    ],
+    "10.6 编写 Wish 恢复规则属性测试（`PersistenceV2Tests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903619
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537431413
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537994577
+      }
+    ],
+    "10.7 编写 Visit_Target 恢复匹配属性测试（`VisitRestoreTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903621
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537217104
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537419692
+      }
+    ],
+    "10.8 编写启动落位扩展到 Decor 属性测试（`RestoreLandingV2Tests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903622
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537218109
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537420740
+      }
+    ],
+    "11.1 实现 `Diary.swift`、`DiaryStore.swift`、`EventLogReader.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903624
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472464134
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473070772
+      }
+    ],
+    "11.2 编写 Diary_Store 编解码与读取属性测试（`DiaryStoreTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903625
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473530404
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473752973
+      }
+    ],
+    "11.3 实现 `PromptPayload.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903626
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473531416
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794473753732
+      }
+    ],
+    "11.4 编写 Prompt_Payload 隐私不变量属性测试（`PromptPayloadTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903628
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794474857479
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475163569
+      }
+    ],
+    "11.5 实现 `LLM.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903629
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794474858567
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475164545
+      }
+    ],
+    "11.6 编写 LLM 返回值校验属性测试与超时单元测试（`LLMTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903630
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475173404
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475599842
+      }
+    ],
+    "11.7 实现 `LLMSettings.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903632
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475174130
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475450161
+      }
+    ],
+    "11.8 编写 LLM 设置校验属性测试（`LLMSettingsTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903633
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475611227
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476386142
+      }
+    ],
+    "11.9 编写 LLM 设置往返属性测试（`LLMSettingsTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903635
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476865151
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477898582
+      }
+    ],
+    "12.1 实现 `DiaryWriter.swift` 与 `DiaryTemplates`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903636
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475608057
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476382265
+      }
+    ],
+    "12.2 编写日记事件归类属性测试（`DiaryWriterTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903638
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476865355
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477899851
+      }
+    ],
+    "12.3 编写需要补写的日记属性测试（`DiaryWriterTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903639
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477922476
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794531550604
+      }
+    ],
+    "12.4 编写日记模板确定且保序属性测试（`DiaryTemplateTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903641
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476866110
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477900592
+      }
+    ],
+    "12.5 编写日记截断属性测试（`DiaryTemplateTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903642
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794533448348
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794534045300
+      }
+    ],
+    "12.6 编写日记单元测试（`DiaryExampleTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903644
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794533449201
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794534046555
+      }
+    ],
+    "12.7 实现 `Thought.swift` 与 `ThoughtEngine.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903645
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794475609251
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476383485
+      }
+    ],
+    "12.8 编写 Thought 文本规整属性测试（`ThoughtNormalizeTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903647
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476867093
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477901594
+      }
+    ],
+    "12.9 把 ThoughtEngine 接入 WorldEngine 并实现 Thought 气泡布局": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903648
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794536617989
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537196151
+      }
+    ],
+    "12.10 编写 Thought 状态机属性测试（`ThoughtEngineTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903650
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537432838
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537995725
+      }
+    ],
+    "12.11 编写 LLM 请求不影响世界推进属性测试（`ThoughtIsolationTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903651
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537433360
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537994600
+      }
+    ],
+    "12.12 编写 Thought 气泡布局属性测试（`ThoughtLayoutTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903652
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794538006989
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539221347
+      }
+    ],
+    "13. Checkpoint - 确保全部测试通过": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903654
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794543640801
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794544688431
+      }
+    ],
+    "14.1 扩充 AssetCatalog、SpriteMetrics 与素材规格": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903655
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537428815
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537994591
+      }
+    ],
+    "14.2 在 `AssetProvider.swift` 中实现 16 项占位图形": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903656
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539230954
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539787200
+      }
+    ],
+    "15.1 实现 `KeychainSecretStore.swift` 与 `URLSessionLLMClient.swift`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903658
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537430235
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537996938
+      }
+    ],
+    "15.2 实现 Settings_Window（`SettingsWindowController.swift`、`SettingsView.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903659
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539231548
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539787240
+      }
+    ],
+    "15.3 实现 `DiaryCoordinator.swift` 与 Diary_Window（`DiaryWindowController.swift`、`DiaryView.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903661
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539232560
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539787248
+      }
+    ],
+    "15.4 实现 `ThoughtCoordinator.swift` 并改造 `GameLoop`": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903662
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539797221
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794540835060
+      }
+    ],
+    "15.5 扩展 `SceneRenderer` 的 V2 绘制": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903664
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539797228
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794540835098
+      }
+    ],
+    "15.6 扩展 `StatusMenu` 并在 `AppDelegate` 中组装 V2 组件": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903665
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794540844159
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794541954440
+      }
+    ],
+    "16.1 编写 API Key 不出现在文件和 Payload 中属性测试（`PrivacyTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903667
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794540844572
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794541954574
+      }
+    ],
+    "16.2 编写开关关闭时不发请求属性测试（`DisabledLLMTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903668
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794540845745
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794541954588
+      }
+    ],
+    "16.3 编写事件记录一致属性测试（`EventLogV2ConsistencyTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903670
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794540846942
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794541955403
+      }
+    ],
+    "16.4 编写确定性属性测试（`DeterminismTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903671
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794540847862
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794541956053
+      }
+    ],
+    "16.5 编写静止时降到 Idle_Poll_Rate 属性测试（`PollRateV2Tests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903672
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794541963477
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794542257580
+      }
+    ],
+    "16.6 编写 V2 完整场景测试（`V2ScenarioTests.swift`）": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903674
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794542263811
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794542908684
+      }
+    ],
+    "17. Final checkpoint - 确保全部测试通过": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794470903676
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794544694420
+      },
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794544887248
+      }
+    ],
+    "1. 基础类型、昼夜与水平路线度量": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472030566
+      }
+    ],
+    "2. Decor 模型、松手规则与工具箱布局": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794472451920
+      }
+    ],
+    "3. Decor 接入世界": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794474847576
+      }
+    ],
+    "5. 居民扩展与自主活动": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794476853275
+      }
+    ],
+    "11. 日记数据、Prompt_Payload、LLM 客户端与设置": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794477898588
+      }
+    ],
+    "7. 心愿系统": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537196867
+      }
+    ],
+    "8. 追逐心愿": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537199256
+      }
+    ],
+    "10. 存档 v2": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794537994580
+      }
+    ],
+    "12. 日记生成与小心思": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539221352
+      }
+    ],
+    "14. 素材扩充": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794539787205
+      }
+    ],
+    "15. 应用层接线": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794541954443
+      }
+    ],
+    "16. 集成属性测试与场景测试": [
+      {
+        "executionId": "d7d567a2-c864-4464-a9df-b2bff229032c",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794542908688
+      }
+    ]
+  }
+}
