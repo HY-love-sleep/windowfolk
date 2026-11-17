@@ -1,0 +1,495 @@
+{
+  "entries" : [
+    {
+      "canvas" : "2048x768",
+      "description" : "A horizontal sprite sheet of 4 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Idle loop: standing still and breathing, the body gently rises and falls, with an occasional blink. Frame 1 must be a clear front or three-quarter view (it is also shown as a tiny avatar). Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 4,
+      "key" : "resident_a_idle",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Walk loop: walking empty-handed, one complete stride cycle; the last frame leads smoothly back into the first. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_a_walking",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Carrying walk loop: walking while both arms hold something against the chest, steadier and slower than the walk, one complete stride cycle. Do NOT draw the carried object: the arms hug empty space; the game overlays the object on the chest. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_a_carrying",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "2048x768",
+      "description" : "A horizontal sprite sheet of 4 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Waiting loop: standing in place, looking up and glancing left and right as if searching for a way. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 4,
+      "key" : "resident_a_waiting",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "1536x768",
+      "description" : "A horizontal sprite sheet of 2 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Falling loop: in mid-air, falling, both arms raised above the head, eyes wide open. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 2,
+      "key" : "resident_a_falling",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "1536x768",
+      "description" : "A horizontal sprite sheet of 2 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Hanging loop: both hands reach straight up and grip the edge of a bridge above, the body dangles in the air and sways slightly. Draw only the character, not the bridge. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 2,
+      "key" : "resident_a_hanging",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "2048x768",
+      "description" : "A horizontal sprite sheet of 4 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Climbing loop: seen from the back or the side, climbing upward, left and right hands raised alternately. Do NOT draw the ladder: only the character in a climbing pose; the game draws the ladder separately. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 4,
+      "key" : "resident_a_climbing",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Planting, played once (about 2 seconds): frames 1-4 squat down and pat soil into the ground, frames 5-6 jump up once with joy. Draw only the character, no pot or tools. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_a_planting",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Celebrating, played once: raise both arms and cheer, jump up; small sparkle stars are allowed; the last frame returns to the normal standing pose. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_a_celebrating",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "1536x768",
+      "description" : "A horizontal sprite sheet of 2 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Sitting loop: sitting as if on a chair, body slightly squashed, legs stretched forward, gentle breathing. Do NOT draw the chair: the character sits on empty space; the game draws the chair separately. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 2,
+      "key" : "resident_a_sitting",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "2048x768",
+      "description" : "A horizontal sprite sheet of 4 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Sleeping loop: lying down horizontally, eyes closed, the body rises and falls with each breath. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 4,
+      "key" : "resident_a_sleeping",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Running loop: leaning forward and running fast, ears pushed back, one complete stride cycle. Character: Resident A (Dudu), a round-faced silver-shaded kitten. Silver-white to light grey gradient fur, back and head top slightly darker, paws and belly whiter; short nose; small triangular ears with pink insides; big round emerald-green eyes (#3FB58A); fluffy tail with a slightly darker tip. Head about as tall as the body, very short limbs. Small quick steps, often tilts the head, tail up when happy. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_a_running",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_a.png"
+      ]
+    },
+    {
+      "canvas" : "2048x768",
+      "description" : "A horizontal sprite sheet of 4 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Idle loop: standing still and breathing, the body gently rises and falls, with an occasional blink. Frame 1 must be a clear front or three-quarter view (it is also shown as a tiny avatar). Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 4,
+      "key" : "resident_b_idle",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Walk loop: walking empty-handed, one complete stride cycle; the last frame leads smoothly back into the first. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_b_walking",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Carrying walk loop: walking while both arms hold something against the chest, steadier and slower than the walk, one complete stride cycle. Do NOT draw the carried object: the arms hug empty space; the game overlays the object on the chest. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_b_carrying",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "2048x768",
+      "description" : "A horizontal sprite sheet of 4 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Waiting loop: standing in place, looking up and glancing left and right as if searching for a way. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 4,
+      "key" : "resident_b_waiting",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "1536x768",
+      "description" : "A horizontal sprite sheet of 2 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Falling loop: in mid-air, falling, both arms raised above the head, eyes wide open. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 2,
+      "key" : "resident_b_falling",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "1536x768",
+      "description" : "A horizontal sprite sheet of 2 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Hanging loop: both hands reach straight up and grip the edge of a bridge above, the body dangles in the air and sways slightly. Draw only the character, not the bridge. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 2,
+      "key" : "resident_b_hanging",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "2048x768",
+      "description" : "A horizontal sprite sheet of 4 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Climbing loop: seen from the back or the side, climbing upward, left and right hands raised alternately. Do NOT draw the ladder: only the character in a climbing pose; the game draws the ladder separately. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 4,
+      "key" : "resident_b_climbing",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Planting, played once (about 2 seconds): frames 1-4 squat down and pat soil into the ground, frames 5-6 jump up once with joy. Draw only the character, no pot or tools. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_b_planting",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Celebrating, played once: raise both arms and cheer, jump up; small sparkle stars are allowed; the last frame returns to the normal standing pose. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_b_celebrating",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "1536x768",
+      "description" : "A horizontal sprite sheet of 2 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Sitting loop: sitting as if on a chair, body slightly squashed, legs stretched forward, gentle breathing. Do NOT draw the chair: the character sits on empty space; the game draws the chair separately. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 2,
+      "key" : "resident_b_sitting",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "2048x768",
+      "description" : "A horizontal sprite sheet of 4 equal frames, left to right, no gaps; each frame cell is taller than wide; keep the character at the bottom of its cell. Sleeping loop: lying down horizontally, eyes closed, the body rises and falls with each breath. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 4,
+      "key" : "resident_b_sleeping",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "2304x768",
+      "description" : "A horizontal sprite sheet of 6 equal frames, left to right, no gaps; each frame cell is taller than wide; the character stands at the bottom of its cell. Running loop: leaning forward and running fast, ears pushed back, one complete stride cycle. Character: Resident B (Doodoo), a golden hamster. Golden-orange fur, cream-white belly and muzzle; round chubby body; small round ears; shiny black eyes (#2A2422); puffy cheeks; tiny front paws often held at the chest; tail almost invisible. Head about as tall as the body, very short limbs. Waddles side to side, half a beat slower than Resident A. Use the attached character sheet as the exact design reference.",
+      "frames" : 6,
+      "key" : "resident_b_running",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+        "art/character_sheets/resident_b.png"
+      ]
+    },
+    {
+      "canvas" : "1024x1232",
+      "description" : "A single sprite (1 frame). A freshly delivered flower pot holding only dark soil, nothing growing yet. The pot is a small round wooden flower pot in the wood palette; its bottom touches the bottom edge, centered horizontally, about 70% of the image width and the lower half of the image. The same pot, with identical size and position, is used in flower_pot, flower_sprout and flower_bloom.",
+      "frames" : 1,
+      "key" : "flower_pot",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1232",
+      "description" : "A single sprite (1 frame). The same flower pot with two small tender green sprout leaves growing from the soil. The pot is a small round wooden flower pot in the wood palette; its bottom touches the bottom edge, centered horizontally, about 70% of the image width and the lower half of the image. The same pot, with identical size and position, is used in flower_pot, flower_sprout and flower_bloom.",
+      "frames" : 1,
+      "key" : "flower_sprout",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1232",
+      "description" : "A single sprite (1 frame). The same flower pot with one open flower on a green stem with leaves; the flower may reach the top edge. The pot is a small round wooden flower pot in the wood palette; its bottom touches the bottom edge, centered horizontally, about 70% of the image width and the lower half of the image. The same pot, with identical size and position, is used in flower_pot, flower_sprout and flower_bloom.",
+      "frames" : 1,
+      "key" : "flower_bloom",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). The fruit the hamster gives back as a gift: a small round mandarin orange (or berry) with a green leaf, rounded and eye-catching, centered horizontally, resting on the bottom edge.",
+      "frames" : 1,
+      "key" : "fruit",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1536x576",
+      "description" : "A single sprite (1 frame). A horizontal tiling unit of a wooden plank: the game repeats it left to right to build a bridge and crops the last piece on the right. A straight wooden board in the wood palette with grain running horizontally, filling the whole width edge to edge. The left and right edges must join seamlessly when tiled: no end caps, no outline on the left or right ends.",
+      "frames" : 1,
+      "key" : "plank",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A vertical tiling unit of a wooden ladder: two vertical side rails plus one horizontal rung, wood palette, centered horizontally. The game repeats it top to bottom; the rails run from the very top edge to the very bottom edge so the top and bottom edges join seamlessly, with no caps or outline at the rail ends.",
+      "frames" : 1,
+      "key" : "ladder",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1536x864",
+      "description" : "A single sprite (1 frame). A wooden crate in the wood palette standing at the bottom-right corner of the screen, wide and low (about 72:40). The LEFT half shows wooden planks (where planks are picked up); the RIGHT half shows a wooden ladder (where ladders are picked up); a clear divider separates the two halves. The crate bottom sits on the bottom edge, aligned by its bottom-left corner.",
+      "frames" : 1,
+      "key" : "toolbox",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Wish bubble: the LEFT half shows a small flower pot; the RIGHT half stays empty white, reserved for a small avatar the game overlays right of center.",
+      "frames" : 1,
+      "key" : "bubble_wish",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Waiting bubble: three round dots in a row (an ellipsis drawn as three circles).",
+      "frames" : 1,
+      "key" : "bubble_dots",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Poked bubble: a question mark drawn as a graphic shape.",
+      "frames" : 1,
+      "key" : "bubble_question",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Heart bubble: a soft pink heart in the middle.",
+      "frames" : 1,
+      "key" : "bubble_heart",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Chair wish bubble: a small wooden chair inside the bubble.",
+      "frames" : 1,
+      "key" : "bubble_chair",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Lamp wish bubble: a small table lamp inside the bubble.",
+      "frames" : 1,
+      "key" : "bubble_lamp",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Visit wish bubble: a small red triangular flag on a pole and an arrow pointing to the RIGHT inside the bubble.",
+      "frames" : 1,
+      "key" : "bubble_flag",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Flower bubble (admiring a flower): a single flower inside the bubble.",
+      "frames" : 1,
+      "key" : "bubble_flower",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Sleep bubble: three Z shapes getting smaller from large to small, drawn with lines as graphic strokes, not with a font.",
+      "frames" : 1,
+      "key" : "bubble_zzz",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Chase wish bubble: two small paw footprints inside the bubble.",
+      "frames" : 1,
+      "key" : "bubble_footprints",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1024",
+      "description" : "A single sprite (1 frame). A small wooden chair in a slight three-quarter side view: backrest, seat and four legs, same wood colors as the plank and ladder (wood palette). All four legs touch the bottom edge; centered horizontally. A character will later be drawn sitting on the seat.",
+      "frames" : 1,
+      "key" : "decor_chair",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "768x1536",
+      "description" : "A single sprite (1 frame). A small table lamp, unlit (used by day and at dusk): a lampshade on a thin pole on a round base; the lampshade is grey or dark. Tall and narrow (1:2). The base touches the bottom edge, centered horizontally. The same lamp, with identical shape, size and position, is used in decor_lamp_on.",
+      "frames" : 1,
+      "key" : "decor_lamp_off",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "768x1536",
+      "description" : "A single sprite (1 frame). The same table lamp as decor_lamp_off, identical shape, size and position, but lit (used at night): the lampshade is warm yellow with a soft semi-transparent glow around it; the glow stays fully inside the image borders. Tall and narrow (1:2). The base touches the bottom edge, centered horizontally.",
+      "frames" : 1,
+      "key" : "decor_lamp_on",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    },
+    {
+      "canvas" : "1024x1536",
+      "description" : "A single sprite (1 frame). A small visit flag planted on a window ledge: a thin vertical pole with a red triangular pennant at the top; the pole bottom touches the bottom edge, centered horizontally.",
+      "frames" : 1,
+      "key" : "visit_flag",
+      "layout" : "horizontal_no_gap",
+      "references" : [
+
+      ]
+    }
+  ],
+  "palettes" : {
+    "plant" : {
+      "highlight" : "#8FD18A",
+      "main" : "#4DAD4D",
+      "outline" : "#2A5A2E",
+      "shadow" : "#357A3A"
+    },
+    "resident_a" : {
+      "blush" : "#FF9EA8",
+      "highlight" : "#F2F3F5",
+      "main" : "#C7CCD4",
+      "outline" : "#737885",
+      "shadow" : "#9EA3AD"
+    },
+    "resident_b" : {
+      "blush" : "#FAB39E",
+      "highlight" : "#FFF1D6",
+      "main" : "#F5C24D",
+      "outline" : "#A8751F",
+      "shadow" : "#D99A3A"
+    },
+    "wood" : {
+      "highlight" : "#F5DDB5",
+      "main" : "#E6BD80",
+      "outline" : "#73401F",
+      "shadow" : "#B8834F"
+    }
+  },
+  "prefix" : [
+    "Cute, soft, hand-drawn chibi (Q-version) sprite for a macOS desktop pet game, in the spirit of classic desktop pets; clear silhouette that stays readable at 32pt.",
+    "Clean dark outline about 2px thick at the final size.",
+    "Flat shading with exactly one shadow tone.",
+    "Soft pastel color palette.",
+    "Transparent background (fully transparent, alpha 0).",
+    "Characters always face right.",
+    "Feet (or the object's base) touch the bottom edge of each frame.",
+    "Centered horizontally in each frame.",
+    "No text: no letters, numbers or writing anywhere in the image.",
+    "No ground shadow, no floor, no scenery, no background."
+  ],
+  "version" : 1
+}

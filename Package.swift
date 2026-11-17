@@ -10,10 +10,15 @@ let package = Package(
     targets: [
         .target(name: "WindowfolkCore"),
         .executableTarget(name: "Windowfolk", dependencies: ["WindowfolkCore"]),
+        .target(name: "WindowfolkArtKit", dependencies: ["WindowfolkCore"]),
+        .target(name: "WindowfolkArtIO", dependencies: ["WindowfolkArtKit"]),
+        .executableTarget(name: "windowfolk-art", dependencies: ["WindowfolkArtKit", "WindowfolkArtIO"]),
         .testTarget(
             name: "WindowfolkCoreTests",
             dependencies: [
                 "WindowfolkCore",
+                "WindowfolkArtKit",
+                "WindowfolkArtIO",
                 .product(name: "PropertyBased", package: "swift-property-based"),
             ]
         ),

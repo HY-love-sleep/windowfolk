@@ -35,3 +35,6 @@ Windowfolk.app/
 
 # Local recordings and large media (upload elsewhere, link from docs)
 artifacts/
+
+# Art pipeline work directory (raw/processed candidates, backups, previews)
+art/work/

@@ -1,0 +1,1148 @@
+{
+  "pbtResults": {
+    "5.6 编写属性测试 `Art/RedactorTests.swift`（纯函数部分）": {
+      "status": "passed",
+      "lastRunTimestamp": 1794818563726
+    },
+    "6.2 编写图像测试支撑 `Art/Support/ImageGen.swift`、`Art/Support/NearestResampler.swift` 和属性测试 `Art/FrameSlicingTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794819240317
+    },
+    "2.6 编写属性测试 `Art/ManifestRejectionTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794819715823
+    },
+    "2.5 编写清单生成器 `Art/Support/ManifestGen.swift` 和属性测试 `Art/ManifestRoundTripTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794819715655
+    },
+    "2.8 编写属性测试 `Art/PromptComposerTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794820081195
+    },
+    "6.4 编写属性测试 `Art/BackgroundRemoverTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794820241530
+    },
+    "7.5 编写属性测试 `Art/ValidationReportTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794820315417
+    },
+    "7.3 编写属性测试 `Art/AssetValidatorSizeTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794820332207
+    },
+    "7.2 编写属性测试 `Art/AssetValidatorDefectTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794820479361
+    },
+    "8.2 编写属性测试 `Art/PreviewLayoutTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794820724209
+    },
+    "8.4 编写属性测试 `Art/SheetLayoutTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794821481501
+    },
+    "6.6 编写属性测试 `Art/PostProcessorSpecTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794821662787
+    },
+    "5.2 编写属性测试 `Art/GenerationPlannerTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794822107130
+    },
+    "5.4 编写属性测试 `Art/RequestBuilderTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794822743049
+    },
+    "6.8 编写属性测试 `Art/PostProcessorAlignmentTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794821962685
+    },
+    "6.9 编写属性测试 `Art/PostProcessorIdleHeightTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794822059913
+    },
+    "6.7 编写属性测试 `Art/PostProcessorScaleTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794822126941
+    },
+    "6.12 编写属性测试 `Art/PostProcessorIdempotenceTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794822306170
+    },
+    "6.11 编写属性测试 `Art/PostProcessorTileTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794822389173
+    },
+    "6.10 编写属性测试 `Art/PostProcessorNonGroundedTests.swift`": {
+      "status": "passed",
+      "lastRunTimestamp": 1794822533153
+    }
+  },
+  "executionHistory": {
+    "1.1 在 `Package.swift` 增加 `WindowfolkArtKit`、`WindowfolkArtIO`、`windowfolk-art` 三个 target，并更新 `.gitignore`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539505
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817552610
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817673985
+      }
+    ],
+    "1.2 编写架构与快照测试 `Tests/WindowfolkCoreTests/Art/ArtArchitectureTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539510
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817681742
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817916523
+      }
+    ],
+    "2.1 实现 `Sources/WindowfolkArtKit/AssetRules.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539515
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817682940
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817912050
+      }
+    ],
+    "2.2 实现清单数据模型 `Sources/WindowfolkArtKit/ManifestModel.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539518
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817684174
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817913209
+      }
+    ],
+    "2.3 实现 `Sources/WindowfolkArtKit/ManifestPrinter.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539521
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817923958
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818428317
+      }
+    ],
+    "2.4 实现 `Sources/WindowfolkArtKit/ManifestParser.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539525
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817925162
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818429526
+      }
+    ],
+    "2.5 编写清单生成器 `Art/Support/ManifestGen.swift` 和属性测试 `Art/ManifestRoundTripTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539528
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818892780
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794819754534
+      }
+    ],
+    "2.6 编写属性测试 `Art/ManifestRejectionTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539530
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818894020
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794819755723
+      }
+    ],
+    "2.7 实现 `Sources/WindowfolkArtKit/PromptComposer.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539533
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818591488
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818879756
+      }
+    ],
+    "2.8 编写属性测试 `Art/PromptComposerTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539536
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794819769175
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820131426
+      }
+    ],
+    "2.9 编写 `AssetRules` 单元测试 `Art/AssetRulesTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539539
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818446672
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818581964
+      }
+    ],
+    "3.1 编写 `art/prompt-manifest.json`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539541
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818592296
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818884559
+      }
+    ],
+    "3.2 编写仓库清单测试 `Art/RepositoryManifestTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539543
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820143122
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820525620
+      }
+    ],
+    "4. Checkpoint - 确认清单相关测试全部通过": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539545
+      }
+    ],
+    "5.1 实现 `Sources/WindowfolkArtKit/GenerationPlanner.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539546
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794819765174
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820128647
+      }
+    ],
+    "5.2 编写属性测试 `Art/GenerationPlannerTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539548
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821523563
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822168902
+      }
+    ],
+    "5.3 实现 `Sources/WindowfolkArtKit/RequestBuilder.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539550
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794819765938
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820129445
+      }
+    ],
+    "5.4 编写属性测试 `Art/RequestBuilderTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539552
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821524356
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821780525
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822172672
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822781835
+      }
+    ],
+    "5.5 实现 `Sources/WindowfolkArtKit/Redactor.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539554
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817684936
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817914018
+      }
+    ],
+    "5.6 编写属性测试 `Art/RedactorTests.swift`（纯函数部分）": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539556
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818447138
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818582821
+      }
+    ],
+    "6.1 实现 `Sources/WindowfolkArtKit/RGBAImage.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539557
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817685753
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817916408
+      }
+    ],
+    "6.2 编写图像测试支撑 `Art/Support/ImageGen.swift`、`Art/Support/NearestResampler.swift` 和属性测试 `Art/FrameSlicingTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539559
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818895046
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794819349716
+      }
+    ],
+    "6.3 实现 `Sources/WindowfolkArtKit/BackgroundRemover.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539560
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817925946
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818430313
+      }
+    ],
+    "6.4 编写属性测试 `Art/BackgroundRemoverTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539562
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820144360
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820528866
+      }
+    ],
+    "6.5 实现 `Sources/WindowfolkArtKit/PostProcessor.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539563
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818590290
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818880944
+      }
+    ],
+    "6.6 编写属性测试 `Art/PostProcessorSpecTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539565
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821525289
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821780437
+      }
+    ],
+    "6.7 编写属性测试 `Art/PostProcessorScaleTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539566
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821796983
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822168995
+      }
+    ],
+    "6.8 编写属性测试 `Art/PostProcessorAlignmentTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539567
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821797833
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822169420
+      }
+    ],
+    "6.9 编写属性测试 `Art/PostProcessorIdleHeightTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539568
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821799023
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822170635
+      }
+    ],
+    "6.10 编写属性测试 `Art/PostProcessorNonGroundedTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539570
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822181672
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822782718
+      }
+    ],
+    "6.11 编写属性测试 `Art/PostProcessorTileTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539571
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822182821
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822783958
+      }
+    ],
+    "6.12 编写属性测试 `Art/PostProcessorIdempotenceTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539572
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822183929
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822785101
+      }
+    ],
+    "7.1 实现 `Sources/WindowfolkArtKit/AssetValidator.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539574
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817927139
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818431508
+      }
+    ],
+    "7.2 编写属性测试 `Art/AssetValidatorDefectTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539575
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820145521
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820526825
+      }
+    ],
+    "7.3 编写属性测试 `Art/AssetValidatorSizeTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539576
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820146753
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820524428
+      }
+    ],
+    "7.4 实现 `Sources/WindowfolkArtKit/ValidationReport.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539577
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818593492
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818882142
+      }
+    ],
+    "7.5 编写属性测试 `Art/ValidationReportTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539578
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820147554
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820528027
+      }
+    ],
+    "8.1 实现 `Sources/WindowfolkArtKit/PreviewLayout.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539580
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817927919
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818432271
+      }
+    ],
+    "8.2 编写属性测试 `Art/PreviewLayoutTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539581
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820542423
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820823039
+      }
+    ],
+    "8.3 实现 `Sources/WindowfolkArtKit/SheetLayout.swift` 和 `Sources/WindowfolkArtKit/CharacterSheetPrompts.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539582
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818595209
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794818883736
+      }
+    ],
+    "8.4 编写属性测试 `Art/SheetLayoutTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539583
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820543120
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820831064
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821513550
+      }
+    ],
+    "9. Checkpoint - 确认纯逻辑层测试全部通过": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539584
+      }
+    ],
+    "10.1 实现 `Sources/WindowfolkArtIO/PNGCodec.swift` 和 `Sources/WindowfolkArtIO/CGResampler.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539585
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794819767192
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820127472
+      }
+    ],
+    "10.2 编写单元测试 `Art/PNGCodecTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539586
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821799788
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822171446
+      }
+    ],
+    "10.3 实现 `Sources/WindowfolkArtIO/FileStore.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539587
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794819768329
+      },
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820130635
+      }
+    ],
+    "10.4 实现 `Sources/WindowfolkArtIO/ImageTransport.swift` 和 `Sources/WindowfolkArtIO/URLSessionTransport.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539588
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821522206
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821781725
+      }
+    ],
+    "10.5 实现 `Sources/WindowfolkArtIO/PreviewRenderer.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539589
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821522365
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821782925
+      }
+    ],
+    "11.1 实现命令行基础 `Sources/WindowfolkArtIO/Commands/CommandSupport.swift`、`Sources/WindowfolkArtIO/Commands/CommandRouter.swift` 和 `Sources/windowfolk-art/main.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539590
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822798418
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794823104192
+      }
+    ],
+    "11.2 实现 `generate` 子命令 `Commands/GenerateCommand.swift` 并接入 `CommandRouter`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539592
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794823113471
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794823488219
+      }
+    ],
+    "11.3 编写 `Art/Support/FakeTransport.swift` 和属性测试 `Art/GenerateFailureIsolationTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539593
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794823497914
+      }
+    ],
+    "11.4 编写单元测试 `Art/GenerateCommandTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539594
+      }
+    ],
+    "11.5 实现 `process` 子命令 `Commands/ProcessCommand.swift` 并接入 `CommandRouter`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539595
+      },
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794823498791
+      }
+    ],
+    "11.6 编写属性测试 `Art/ProcessCommandEmptyFrameTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539596
+      }
+    ],
+    "11.7 实现 `promote` 子命令 `Commands/PromoteCommand.swift` 并接入 `CommandRouter`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539597
+      }
+    ],
+    "11.8 编写属性测试 `Art/PromoteCommandTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539598
+      }
+    ],
+    "11.9 实现 `validate` 子命令 `Commands/ValidateCommand.swift` 并接入 `CommandRouter`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539599
+      }
+    ],
+    "11.10 编写单元测试 `Art/ValidateCommandTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539600
+      }
+    ],
+    "11.11 实现 `preview` 子命令 `Commands/PreviewCommand.swift` 并接入 `CommandRouter`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539601
+      }
+    ],
+    "11.12 编写单元测试 `Art/PreviewCommandTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539602
+      }
+    ],
+    "11.13 实现 `sheet generate` 与 `sheet compose` 子命令 `Commands/SheetCommand.swift` 并接入 `CommandRouter`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539604
+      }
+    ],
+    "11.14 编写单元测试 `Art/SheetCommandTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539605
+      }
+    ],
+    "12.1 实现仓库素材测试 `Tests/WindowfolkCoreTests/Art/RepositoryAssetsTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539606
+      }
+    ],
+    "12.2 更新 `docs/art-spec.md`，增加「出图流水线」一节": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539607
+      }
+    ],
+    "12.3 编写文档测试 `Art/ArtSpecDocTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539608
+      }
+    ],
+    "12.4 编写设定图测试 `Art/CharacterSheetTests.swift`": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539609
+      }
+    ],
+    "13. Final checkpoint - 确认代码部分全部完成": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539610
+      }
+    ],
+    "14.1 【手动】制作两张角色设定图": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539611
+      }
+    ],
+    "14.2 【手动】核对提示词清单": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539612
+      }
+    ],
+    "14.3 【手动】批量生成原始图": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539613
+      }
+    ],
+    "14.4 【手动】后处理与挑图": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539615
+      }
+    ],
+    "14.5 【手动】Promotion 全部 45 张": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539616
+      }
+    ],
+    "14.6 【手动】校验与目视验收": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539617
+      }
+    ],
+    "14.7 【手动】应用内确认并提交": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817539618
+      }
+    ],
+    "1. 搭建 target 骨架": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794817916526
+      }
+    ],
+    "2. 素材分类、清单模型、解析与格式化、提示词组合": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820131430
+      }
+    ],
+    "3. 编写提示词清单": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820525623
+      }
+    ],
+    "7. 素材校验（纯逻辑）": [
+      {
+        "executionId": "0e747a60-2f4c-4700-ade4-62a529be7fab",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794820528030
+      }
+    ],
+    "8. 预览与设定图布局（纯逻辑）": [
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794821513553
+      }
+    ],
+    "5. 生成计划、请求构造与脱敏（纯逻辑）": [
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822168905
+      }
+    ],
+    "10. IO 层（WindowfolkArtIO）": [
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822171450
+      }
+    ],
+    "6. RGBA 缓冲区与后处理（纯逻辑）": [
+      {
+        "executionId": "fed5a158-f6af-46c0-ad1a-eb757f2e9a84",
+        "chatSessionId": "sess_42961d05-57eb-4e60-9348-39da07e35a0c",
+        "timestamp": 1794822785105
+      }
+    ]
+  }
+}

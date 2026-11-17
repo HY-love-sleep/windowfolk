@@ -206,3 +206,90 @@ Use the attached character sheet as the exact design reference.
 - [ ] `sitting` 不画椅子；两张台灯图位置一致。
 - [ ] 都都和嘟嘟的配色、比例与角色设定图一致。
 - [ ] 放入素材目录并重启应用后，在深色和浅色桌面背景下都检查过显示效果；仍显示占位图形的那一项，说明文件名或像素尺寸不符，按本清单重新检查。
+
+## 8. 出图流水线
+
+前几节的手工步骤可以由仓库内的流水线完成。所有命令都在**仓库根目录**执行（当前目录须含 `Package.swift` 和 `art/`），工具为 `swift run windowfolk-art`。中间产物只写进被 `.gitignore` 忽略的 `art/work/`。
+
+流水线的输入与输出：
+
+- 提示词清单：`art/prompt-manifest.json`（入库）。
+- 角色设定图：`art/character_sheets/resident_a.png` 与 `art/character_sheets/resident_b.png`（入库）。
+- 最终素材：`Assets/<asset_key>.png`（入库）。
+
+按以下顺序执行：
+
+### 步骤 1：设置 API Key 与模型
+
+```sh
+export OPENAI_API_KEY=你的Key
+# 可选：覆盖默认模型 gpt-image-2.5-flare
+export WINDOWFOLK_IMAGE_MODEL=gpt-image-2.5-sunburst
+```
+
+Key 只从环境变量读取，不会写进仓库；所有输出都会脱敏。
+
+### 步骤 2：生成原始图（generate）
+
+```sh
+swift run windowfolk-art generate --dry-run
+swift run windowfolk-art generate --count 2
+# 只重出某几项：
+swift run windowfolk-art generate resident_a_idle resident_b_idle --count 3
+```
+
+原始图写到 `art/work/<asset_key>/raw_<n>.png`。
+
+### 步骤 3：后处理（process）
+
+```sh
+swift run windowfolk-art process resident_a_idle art/work/resident_a_idle/raw_2.png
+```
+
+去背景、切帧、对齐、缩放并拼成规格尺寸，输出 `art/work/<asset_key>/processed_<n>.png`。先处理两位居民的 `idle` 并写入 `Assets/`，其余 Grounded 状态才能按 idle 的高度缩放。
+
+### 步骤 4：预览（preview）
+
+```sh
+swift run windowfolk-art preview art/work/resident_a_idle
+swift run windowfolk-art preview
+```
+
+在 `art/work/preview/preview_dark.png` 与 `preview_light.png` 上检查白边、风格和辨认度。第二条命令默认检查 `Assets/`。
+
+### 步骤 5：写入最终素材（promote）
+
+```sh
+swift run windowfolk-art promote resident_a_idle art/work/resident_a_idle/processed_1.png
+```
+
+先按 Asset_Catalog 规格校验，通过后写入 `Assets/<asset_key>.png`；同名文件会先备份到 `art/work/backups/`。
+
+### 步骤 6：校验（validate）
+
+```sh
+swift run windowfolk-art validate
+```
+
+按 Asset_Catalog 顺序输出 45 行结果。全部「通过」且无未知文件时退出码为 0。
+
+### 制作角色设定图
+
+```sh
+swift run windowfolk-art sheet generate resident_a --count 3
+swift run windowfolk-art sheet compose resident_a art/work/sheets/resident_a/raw_2.png
+```
+
+`sheet compose` 把三视图三等分、去背景并按固定布局排版，写入 `art/character_sheets/resident_a.png`；对 `resident_b` 重复即可。
+
+### 调色板
+
+四组颜色与 `art/prompt-manifest.json` 中的 `palettes` 一致：
+
+| 组 | main | shadow | highlight | outline | blush |
+|---|---|---|---|---|---|
+| `resident_a` | `#C7CCD4` | `#9EA3AD` | `#F2F3F5` | `#737885` | `#FF9EA8` |
+| `resident_b` | `#F5C24D` | `#D99A3A` | `#FFF1D6` | `#A8751F` | `#FAB39E` |
+| `wood` | `#E6BD80` | `#B8834F` | `#F5DDB5` | `#73401F` | — |
+| `plant` | `#4DAD4D` | `#357A3A` | `#8FD18A` | `#2A5A2E` | — |
+
