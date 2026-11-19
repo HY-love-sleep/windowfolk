@@ -223,6 +223,8 @@ Use the attached character sheet as the exact design reference.
 
 ```sh
 export OPENAI_API_KEY=你的Key
+# 可选：使用兼容 OpenAI Images API 的 HTTPS 服务（支持以 /v1 结尾的地址）
+export WINDOWFOLK_IMAGE_BASE_URL=https://你的服务地址/v1
 # 可选：覆盖默认模型 gpt-image-2.5-flare
 export WINDOWFOLK_IMAGE_MODEL=gpt-image-2.5-sunburst
 ```

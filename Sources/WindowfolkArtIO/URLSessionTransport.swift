@@ -18,13 +18,27 @@ public final class URLSessionTransport: ImageTransport, Sendable {
     /// 单个请求的超时秒数（R3.7）。
     public static let timeout: TimeInterval = 180
 
-    private let baseURL: URL
+    private let baseURL: URL?
     private let session: URLSession
     private let redirectGuard = SameOriginRedirectGuard()
 
-    public init(baseURL: URL = URLSessionTransport.defaultBaseURL) {
+    public init(baseURL: URL? = URLSessionTransport.defaultBaseURL) {
         self.baseURL = baseURL
         self.session = URLSession(configuration: Self.makeConfiguration())
+    }
+
+    /// 自定义 OpenAI 兼容服务可传入服务根地址或以 /v1 结尾的 API 地址。
+    /// 无效配置返回 nil，调用方必须拒绝发请求，避免密钥误发到默认服务。
+    public static func baseURL(from variables: [String: String]) -> URL? {
+        guard let value = variables["WINDOWFOLK_IMAGE_BASE_URL"], !value.isEmpty else {
+            return defaultBaseURL
+        }
+        guard let components = URLComponents(string: value),
+              components.scheme?.lowercased() == "https", components.host != nil,
+              components.user == nil, components.password == nil,
+              components.query == nil, components.fragment == nil,
+              let url = components.url else { return nil }
+        return url.lastPathComponent == "v1" ? url.deletingLastPathComponent() : url
     }
 
     /// 会话配置：ephemeral、不缓存、不存 Cookie、请求与资源超时都为 180 秒。
@@ -63,6 +77,9 @@ public final class URLSessionTransport: ImageTransport, Sendable {
     public func send(
         _ request: ImageRequest, body: Data, contentType: String, apiKey: String
     ) async -> Result<Data, GenerationFailure> {
+        guard let baseURL else {
+            return .failure(.transport("WINDOWFOLK_IMAGE_BASE_URL 不是有效的 HTTPS 地址"))
+        }
         let urlRequest = Self.makeURLRequest(
             request, body: body, contentType: contentType, apiKey: apiKey, baseURL: baseURL)
         do {

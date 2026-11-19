@@ -137,7 +137,7 @@ public struct CommandEnvironment: Sendable {
         CommandEnvironment(
             variables: variables,
             fileStore: LocalFileStore.currentDirectory(),
-            transport: URLSessionTransport(),
+            transport: URLSessionTransport(baseURL: URLSessionTransport.baseURL(from: variables)),
             standardOutput: StandardStreamOutput.standardOutput,
             standardError: StandardStreamOutput.standardError)
     }
