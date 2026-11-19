@@ -312,7 +312,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Wish bubble: the LEFT half shows a small flower pot; the RIGHT half stays empty white, reserved for a small avatar the game overlays right of center.",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Wish bubble: the LEFT half shows a small flower pot with soil only, no flower or leaves; the RIGHT half stays empty white, reserved for a small avatar the game overlays right of center.",
       "frames" : 1,
       "key" : "bubble_wish",
       "layout" : "horizontal_no_gap",
@@ -322,7 +322,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Waiting bubble: three round dots in a row (an ellipsis drawn as three circles).",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Waiting bubble: three round dots in a row (an ellipsis drawn as three circles).",
       "frames" : 1,
       "key" : "bubble_dots",
       "layout" : "horizontal_no_gap",
@@ -332,7 +332,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Poked bubble: a question mark drawn as a graphic shape.",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Poked bubble: a question mark drawn as a graphic shape.",
       "frames" : 1,
       "key" : "bubble_question",
       "layout" : "horizontal_no_gap",
@@ -342,7 +342,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Heart bubble: a soft pink heart in the middle.",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Heart bubble: a soft pink heart in the middle.",
       "frames" : 1,
       "key" : "bubble_heart",
       "layout" : "horizontal_no_gap",
@@ -352,7 +352,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Chair wish bubble: a small wooden chair inside the bubble.",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Chair wish bubble: a small wooden chair inside the bubble.",
       "frames" : 1,
       "key" : "bubble_chair",
       "layout" : "horizontal_no_gap",
@@ -362,7 +362,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Lamp wish bubble: a small table lamp inside the bubble.",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Lamp wish bubble: a small table lamp inside the bubble.",
       "frames" : 1,
       "key" : "bubble_lamp",
       "layout" : "horizontal_no_gap",
@@ -372,7 +372,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Visit wish bubble: a small red triangular flag on a pole and an arrow pointing to the RIGHT inside the bubble.",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Visit wish bubble: a small red triangular flag on a pole and an arrow pointing to the RIGHT inside the bubble.",
       "frames" : 1,
       "key" : "bubble_flag",
       "layout" : "horizontal_no_gap",
@@ -382,7 +382,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Flower bubble (admiring a flower): a single flower inside the bubble.",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Flower bubble (admiring a flower): a single flower inside the bubble.",
       "frames" : 1,
       "key" : "bubble_flower",
       "layout" : "horizontal_no_gap",
@@ -392,7 +392,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Sleep bubble: three Z shapes getting smaller from large to small, drawn with lines as graphic strokes, not with a font.",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Sleep bubble: three Z shapes getting smaller from large to small, drawn with lines as graphic strokes, not with a font.",
       "frames" : 1,
       "key" : "bubble_zzz",
       "layout" : "horizontal_no_gap",
@@ -402,7 +402,7 @@
     },
     {
       "canvas" : "1024x1024",
-      "description" : "A single sprite (1 frame). A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Chase wish bubble: two small paw footprints inside the bubble.",
+      "description" : "A single sprite (1 frame). Draw ONLY the isolated speech bubble icon. Do not draw any animal, character, person, face, body or figure anywhere in the image. A white round speech bubble with a dark outline and a small tail at the bottom pointing down to the character; the tail tip touches the bottom edge. No text characters of any kind; every symbol is drawn as a shape, not typed with a font. Chase wish bubble: two small paw footprints inside the bubble.",
       "frames" : 1,
       "key" : "bubble_footprints",
       "layout" : "horizontal_no_gap",
