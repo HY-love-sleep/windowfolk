@@ -54,6 +54,7 @@ Swift, AppKit, SpriteKit, SwiftUI, Core Graphics, Swift Testing, swift-property-
 
 ## Links and judge instructions
 
+- Public YouTube demo (2:55): https://www.youtube.com/watch?v=8utV-wg0Fo4
 - Source: https://github.com/HY-love-sleep/windowfolk
 - Working application: https://github.com/HY-love-sleep/windowfolk/releases/latest
 - English installation and testing guide: https://github.com/HY-love-sleep/windowfolk/blob/main/docs/README.en.md

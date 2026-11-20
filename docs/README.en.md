@@ -6,6 +6,10 @@ Windowfolk resurrects the playful desktop companions of the early internet as a 
 
 You change the environment rather than directly controlling the characters: connect two windows with a plank, rescue a stranded resident with a ladder, and watch a flower delivery become a planted flower and a return gift.
 
+[![Watch the English on-device demo](images/windowfolk-demo.png)](https://www.youtube.com/watch?v=8utV-wg0Fo4)
+
+[Watch the 2:55 English demo](https://www.youtube.com/watch?v=8utV-wg0Fo4). It covers all five wish types, rescue, diaries, and persistence; speed changes and demonstration controls are labeled.
+
 ## Get the app
 
 Download `Windowfolk-macOS-universal.zip` from the [latest GitHub release](https://github.com/HY-love-sleep/windowfolk/releases/latest), extract it, and open `Windowfolk.app`. Requires macOS 14 or later. The app is built for Apple Silicon and Intel and uses the primary display. It appears in the menu bar, with no Dock icon.

@@ -12,6 +12,10 @@ Windowfolk is a tiny world living between your application windows. Move windows
 
 **For judges:** [English guide and testing instructions](docs/README.en.md) · [How we used Kiro](docs/kiro-usage.md) · [Download the Mac app](https://github.com/HY-love-sleep/windowfolk/releases/latest)
 
+[![观看 2 分 55 秒英文实机演示](docs/images/windowfolk-demo.png)](https://www.youtube.com/watch?v=8utV-wg0Fo4)
+
+[英文参赛演示 · 2:55](https://www.youtube.com/watch?v=8utV-wg0Fo4) · [下载 macOS 通用版本 v0.2.0](https://github.com/HY-love-sleep/windowfolk/releases/tag/v0.2.0)
+
 ## 窗间里有什么
 
 - **两位居民**：都都是一只银渐层小猫，嘟嘟是一只金丝熊。它们会在窗沿和地面上走动、休息、拜访邻居。
