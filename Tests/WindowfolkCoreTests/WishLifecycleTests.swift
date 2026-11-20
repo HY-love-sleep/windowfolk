@@ -310,7 +310,8 @@ fileprivate var timeoutScenarioGen: Generator<TimeoutScenario, some SendableSequ
 ///
 /// - Chair_Wish、Lamp_Wish、Visit_Wish：step 前 active 且本次 step 的 `now - createdAt` 首次达到 Wish_Timeout 时，
 ///   本次 step 后不再 active，写了 `wish_dropped`（actor 为 Wisher，`wish_type` 一致），Wisher 的
-///   上一个 Wish 结束时间为本次 `now`；Decor 集合、Plank、Ladder 与 step 前相同，Item 集合与 step 前相同（同一
+///   上一个 Wish 结束时间为本次 `now`；Decor 集合（ID 与类型）、静止 Decor 的放置、Plank、Ladder 与 step 前相同
+///   （下落中的 Decor 照常受重力移动），Item 集合与 step 前相同（同一
 ///   step 中开始了 Flower_Wish 时除外），Unlocked_Decor 只多出
 ///   本次 `decor_unlocked` 记录的类型（同一 step 中另一位居民开始 Chair_Wish / Lamp_Wish 引起）。
 /// - Flower_Wish、Chase_Wish：任何时候都不写 `wish_dropped`。
@@ -339,7 +340,16 @@ fileprivate func checkTimeout(before: WorldState, after: WorldState, out: StepOu
         if after.wishes.lastEnded[w.wisher] != now {
             v.append("\(tag) lastEnded \(String(describing: after.wishes.lastEnded[w.wisher])) != now \(now)")
         }
-        if after.decors.decors != before.decors.decors { v.append("\(tag) decors changed") }
+        // Property 21 要求 Decor 集合不变：不移除、不新增、不换类型，静止的 Decor 原样不动。
+        // 下落中的 Decor 照常受重力移动或落地（例如所在窗口被完全遮挡而被动下落），与放弃无关，不比较其位置。
+        func decorSet(_ s: WorldState) -> [DecorID: DecorType] { s.decors.decors.mapValues(\.type) }
+        if decorSet(after) != decorSet(before) {
+            v.append("\(tag) decors \(decorSet(before)) -> \(decorSet(after))")
+        }
+        for (id, d) in before.decors.decors {
+            if case .falling = d.placement { continue }
+            if after.decors.decors[id] != d { v.append("\(tag) resting decor \(id.rawValue) changed") }
+        }
         let newlyUnlocked = Set(out.events.filter { $0.type == .decorUnlocked }
             .compactMap { $0.detail["decor_type"].flatMap(DecorType.init(rawValue:)) })
         if after.decors.unlocked != before.decors.unlocked.union(newlyUnlocked) {
