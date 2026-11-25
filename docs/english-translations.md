@@ -112,6 +112,18 @@ At 2:25–2:32, the video shows the November 20 diaries, headed by each resident
 
 For a wish about another resident, “my neighbor wanted …” replaces “I wanted …”; the requested action has the same translation. The template implementation is in [DiaryWriter.swift](../Sources/WindowfolkCore/DiaryWriter.swift).
 
+## English translation of the two recorded diary entries
+
+The following translates the actual November 20 demo diary entries shown at 2:25.80–2:32.80, preserving repeated sentences in their original order. Both original entries hit the length limit and end mid-sentence; the translations retain that incomplete ending. These are recorded template diaries, not newly generated AI text.
+
+### Dudu — silver cat
+
+I wanted to give flowers to Doodoo. I stopped to wait for Doodoo. I wanted to give flowers to Doodoo. I stopped to wait for Doodoo. I wanted to give flowers to Doodoo. I stopped to wait for Doodoo. I wanted to give flowers to Doodoo. I stopped to wait for Doodoo. I crossed a plank bridge. I planted a flower for Doodoo. I wanted to give flowers to Doodoo. I stopped to wait for Doodoo. I stopped to wait for Doodoo. I wanted to give flowers to Doodoo. I stopped to wait for Doodoo. I accidentally fell. I landed safely. I stopped to wait for Doodoo. I climbed a ladder. I planted a flower for Doodoo. Doodoo gave me a piece of fruit. My wish to give flowers to Doodoo came true. Doodoo came to play with me. Doodoo came to play with me. Doodoo came to play with me. I went to play with Doodoo. I went to play with Doodoo. I went to play with Doodoo. I went to play with Doodoo. I went to play with Doodoo. I wanted to play chase with Doodoo. I climbed a ladder. I played chase with Doodoo and caught Doodoo! I went to play with Doodoo. Doodoo came to… [entry truncated]
+
+### Doodoo — golden hamster
+
+Dudu wanted to give me flowers. Dudu stopped to wait for me. Dudu wanted to give me flowers. Dudu stopped to wait for me. Dudu wanted to give me flowers. Dudu stopped to wait for me. Dudu wanted to give me flowers. Dudu stopped to wait for me. Dudu planted a flower for me. Dudu wanted to give me flowers. Dudu stopped to wait for me. Dudu stopped to wait for me. I wanted to explore another window. I stopped and waited for a while. Dudu wanted to give me flowers. Dudu stopped to wait for me. Dudu stopped to wait for me. Dudu planted a flower for me. I gave the fruit to Dudu. Dudu's wish to give me flowers came true. I went to play with Dudu. I went to play with Dudu. I went to play with Dudu. Dudu came to play with me. Dudu came to play with me. Dudu came to play with me. Dudu came to play with me. Dudu came to play with me. Dudu wanted to play chase with me. I climbed a ladder. I played chase with Dudu, who caught me. Dudu came to play with me. I went to play with Dudu. I climbed a ladder. I went… [entry truncated]
+
 ## Optional AI settings and disclosure
 
 AI generation is disabled by default and was not used in the video. Judges need no API key, subscription, or account. The settings panel shown at 2:32–2:37 translates as follows.
