@@ -2,6 +2,8 @@
 
 > A little civilization between your windows.
 
+**Judge access:** [Download the working macOS build directly](https://github.com/HY-love-sleep/windowfolk/releases/download/v0.2.0/Windowfolk-macOS-universal.zip) · [Public source repository](https://github.com/HY-love-sleep/windowfolk) · [MIT license](../LICENSE) · [Root .kiro evidence](../.kiro) · [Complete interface and video translations](english-translations.md).
+
 Windowfolk resurrects the playful desktop companions of the early internet as a tiny world on your actual macOS windows. Window tops become roads, gaps become canyons, and moving a window changes what its residents can reach.
 
 You change the environment rather than directly controlling the characters: connect two windows with a plank, rescue a stranded resident with a ladder, and watch a flower delivery become a planted flower and a return gift.
@@ -12,9 +14,11 @@ You change the environment rather than directly controlling the characters: conn
 
 ## Get the app
 
-Download `Windowfolk-macOS-universal.zip` from the [latest GitHub release](https://github.com/HY-love-sleep/windowfolk/releases/latest), extract it, and open `Windowfolk.app`. Requires macOS 14 or later. The app is built for Apple Silicon and Intel and uses the primary display. It appears in the menu bar, with no Dock icon.
+Download [Windowfolk-macOS-universal.zip](https://github.com/HY-love-sleep/windowfolk/releases/download/v0.2.0/Windowfolk-macOS-universal.zip) (about 3.3 MB), extract it, and open `Windowfolk.app`. This is a downloadable native macOS application, not a browser application. Requires macOS 14 or later; Windows, Linux, phones, and browser-only environments cannot run it. The app is built for Apple Silicon and Intel and uses the primary display. It appears in the menu bar, with no Dock icon.
 
-The downloadable hackathon build is ad-hoc signed and is not Apple-notarized. If macOS blocks it, you can build locally from source:
+No login credentials, invitation, API key, or payment is required. The ZIP includes the executable, all 45 game PNGs, and the MIT license. The [release page](https://github.com/HY-love-sleep/windowfolk/releases/tag/v0.2.0) also provides `SHA256SUMS.txt`.
+
+The downloadable hackathon build is ad-hoc signed and is not Apple-notarized. macOS may block a downloaded copy the first time. If you trust this project, attempt to open it, then use **System Settings → Privacy & Security → Open Anyway** for this specific application and confirm **Open** when prompted. Do not disable Gatekeeper globally. If your Mac's policy does not allow this, or you prefer to compile it yourself, build locally from source:
 
 ```sh
 git clone https://github.com/HY-love-sleep/windowfolk.git
@@ -27,7 +31,7 @@ Building requires Xcode or Command Line Tools with Swift 6 and an internet conne
 
 ## Try it in five minutes
 
-The interface currently uses Chinese. The menu translations below make the demo reproducible.
+The interface currently uses Chinese. The menu translations below make the demo reproducible; [complete English translations](english-translations.md) cover all menus, settings, diary templates, and Chinese text visible in the submission video and gallery.
 
 1. Open two ordinary application windows on your primary display. Avoid fullscreen and leave their top edges exposed. Start Windowfolk and look for a silver cat and a golden hamster.
 2. Drag a plank from the left half of the toolbox at the bottom right to connect window tops. Drag a ladder from the right half to connect different heights or reach the floor.

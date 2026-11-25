@@ -56,11 +56,13 @@ Swift, AppKit, SpriteKit, SwiftUI, Core Graphics, Swift Testing, swift-property-
 
 - Public YouTube demo (2:55): https://www.youtube.com/watch?v=8utV-wg0Fo4
 - Source: https://github.com/HY-love-sleep/windowfolk
-- Working application: https://github.com/HY-love-sleep/windowfolk/releases/latest
+- Working macOS application (direct ZIP download): https://github.com/HY-love-sleep/windowfolk/releases/download/v0.2.0/Windowfolk-macOS-universal.zip
+- English access page: https://hy-love-sleep.github.io/windowfolk/
 - English installation and testing guide: https://github.com/HY-love-sleep/windowfolk/blob/main/docs/README.en.md
+- English translations of all menus, diary templates, settings, and Chinese text shown in the video and gallery: https://github.com/HY-love-sleep/windowfolk/blob/main/docs/english-translations.md
 - Kiro usage: https://github.com/HY-love-sleep/windowfolk/blob/main/docs/kiro-usage.md
 - License: MIT.
 - Platform: macOS 14+, primary display, Apple Silicon and Intel.
 - No account or API key is required for the core experience.
-- The interface currently uses Chinese; the English guide translates the relevant menus.
+- This is a downloadable native macOS application, not a browser application. The interface uses Chinese; the English translation document covers the full interface and the text visible in the submitted video and gallery. The repository homepage, project description, installation/testing guide, Kiro usage write-up, and current validation report are in English.
 - The demonstration is segmented and uses existing debug controls for wishes, time of day, and flower growth. Speed changes and skipped waits are labeled. Optional AI generation is not enabled in the video.

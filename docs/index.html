@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Download and test Windowfolk, a native macOS desktop world created for Kiroween 2026. English instructions, source, and translations.">
+  <title>Windowfolk — Download and judge guide</title>
+  <style>
+    :root { color-scheme: dark; --bg:#121c24; --panel:#1a2932; --ink:#f6f0d9; --muted:#bacacb; --accent:#8dd2bb; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:17px/1.65 system-ui,-apple-system,sans-serif; }
+    main { max-width:1040px; margin:auto; padding:48px 24px 64px; }
+    h1 { font-size:clamp(40px,7vw,72px); line-height:1.05; margin:14px 0; letter-spacing:-.04em; }
+    h2 { font-size:27px; line-height:1.25; margin:0 0 18px; }
+    p { margin:0 0 20px; }
+    a { color:var(--accent); text-underline-offset:4px; }
+    a:focus-visible { outline:3px solid var(--ink); outline-offset:5px; }
+    .eyebrow { color:var(--accent); font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .lead { font-size:23px; max-width:680px; color:var(--muted); }
+    .actions { display:flex; gap:14px; flex-wrap:wrap; margin:26px 0 16px; }
+    .button { padding:13px 20px; border:1px solid var(--accent); border-radius:8px; font-weight:700; text-decoration:none; }
+    .primary { color:var(--bg); background:var(--accent); }
+    .small { font-size:14px; color:var(--muted); }
+    section { padding:30px 0; border-top:1px solid #35464c; }
+    .hero { padding-bottom:34px; }
+    .cover { width:100%; height:auto; border-radius:12px; margin-top:18px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    .card { background:var(--panel); padding:24px; border-radius:12px; }
+    ol,ul { padding-left:24px; margin:0; }
+    li { padding:0 0 13px 5px; }
+    code { overflow-wrap:anywhere; color:var(--ink); }
+    pre { padding:18px; background:var(--bg); overflow-x:auto; font-size:14px; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { text-align:left; padding:12px; border-bottom:1px solid #35464c; vertical-align:top; }
+    .table-wrap { overflow-x:auto; }
+    @media(max-width:700px) { .grid { grid-template-columns:1fr; } main { padding-top:28px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <div class="eyebrow">Kiroween 2026 · Resurrection · Native macOS app</div>
+    <h1>Windowfolk</h1>
+    <p class="lead">A little civilization between your windows.</p>
+    <p>Move real application windows. Build bridges and ladders. Help a silver cat and a golden hamster deliver flowers, visit neighbors, find furniture, and play chase.</p>
+    <div class="actions">
+      <a class="button primary" href="https://github.com/HY-love-sleep/windowfolk/releases/download/v0.2.0/Windowfolk-macOS-universal.zip">Download for macOS</a>
+      <a class="button" href="https://github.com/HY-love-sleep/windowfolk">Public source on GitHub</a>
+      <a class="button" href="https://www.youtube.com/watch?v=8utV-wg0Fo4">Watch the 2:55 demo</a>
+    </div>
+    <p class="small">v0.2.0 · 3.3 MB ZIP · macOS 14+ · Apple Silicon and Intel · Primary display<br>No account, credentials, API key, or payment required. This application runs on a Mac, not inside a web browser.</p>
+    <img class="cover" src="images/windowfolk-demo.png" width="1200" height="800" alt="Windowfolk: a little civilization between your windows. A cat and hamster live on real window ledges; build connections between them.">
+  </header>
+  <section aria-labelledby="start">
+    <h2 id="start">Start the application</h2>
+    <div class="grid">
+      <div class="card">
+        <ol>
+          <li>Download the ZIP above and extract it. It contains <code>Windowfolk.app</code>, all game images, and an MIT license.</li>
+          <li>Open two ordinary application windows on your main display. Leave their top edges visible and avoid fullscreen.</li>
+          <li>Open <code>Windowfolk.app</code>. Look for a window-shaped icon in the menu bar; the application has no Dock icon.</li>
+          <li>Drag planks and ladders from the toolbox at the bottom right to connect the windows and floor. The residents move autonomously.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h2>First launch on macOS</h2>
+        <p>This hackathon build is ad-hoc signed and is not Apple-notarized. A downloaded copy may be blocked on first launch.</p>
+        <p>If you trust this project, attempt to open the app, then use <strong>System Settings → Privacy &amp; Security → Open Anyway</strong> for this application and confirm <strong>Open</strong>.</p>
+        <p class="small">If your Mac policy prevents this, use the source-build option below. Windows, Linux, and mobile devices cannot run this macOS app.</p>
+      </div>
+    </div>
+  </section>
+  <section aria-labelledby="test">
+    <h2 id="test">Try all five wishes</h2>
+    <p>The current application interface is Chinese. The translations below identify the commands. <a href="https://github.com/HY-love-sleep/windowfolk/blob/main/docs/english-translations.md">Complete English translations</a> cover the menus, settings, diaries, video, and gallery.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Chinese menu text</th><th>English</th><th>What to test</th></tr></thead>
+      <tbody>
+        <tr><td lang="zh-CN">调试 → 触发心愿 → 送花</td><td>Debug → Trigger wish → Deliver flowers</td><td>Build a bridge. During crossing, move its supporting window to observe hanging and falling. Add a ladder for rescue. Planting, blooming, and a fruit return gift complete the loop.</td></tr>
+        <tr><td lang="zh-CN">椅子 / 台灯</td><td>Chair / Lamp</td><td>Trigger the respective wish, then place the unlocked furniture. Sit on a chair; sleep beside a lamp at night.</td></tr>
+        <tr><td lang="zh-CN">去看看</td><td>Visit another window</td><td>A flag marks the target. Connect a route to let the resident reach it.</td></tr>
+        <tr><td lang="zh-CN">追逐</td><td>Play chase</td><td>Watch a chase end in a catch or escape; both count as completion.</td></tr>
+        <tr><td lang="zh-CN">调试 → 昼夜 → 白天 / 夜晚</td><td>Debug → Day/night → Day / Night</td><td>Switch between lamp sleep and daylight waking.</td></tr>
+        <tr><td lang="zh-CN">调试 → 快进</td><td>Debug → Fast-forward</td><td>Advance flower growth during a demonstration.</td></tr>
+        <tr><td lang="zh-CN">日记 → 写今天的日记</td><td>Diary → Write today's diary</td><td>Generate a separate template diary for each resident. English translations are linked above.</td></tr>
+        <tr><td lang="zh-CN">退出</td><td>Quit</td><td>Save, quit, and reopen to verify persistence. Furniture restores onto the floor.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">Wishes have prerequisites and may not start if another is active. Debug → Reset world (重置世界) erases current progress; use only for disposable test progress. Debug shortcuts trigger the existing simulation. They do not replace normal window interaction.</p>
+  </section>
+  <section aria-labelledby="source">
+    <h2 id="source">Source, license, and Kiro evidence</h2>
+    <div class="grid">
+      <div class="card">
+        <ul>
+          <li><a href="https://github.com/HY-love-sleep/windowfolk">Public GitHub repository</a> contains source and all 45 game PNGs.</li>
+          <li><a href="https://github.com/HY-love-sleep/windowfolk/blob/main/LICENSE">MIT license</a>, recognized by GitHub.</li>
+          <li><a href="https://github.com/HY-love-sleep/windowfolk/tree/main/.kiro">Root .kiro directory</a> contains specifications and steering; it is tracked and not ignored.</li>
+          <li><a href="https://github.com/HY-love-sleep/windowfolk/blob/main/docs/kiro-usage.md">English Kiro usage write-up</a> explains the workflow and evidence.</li>
+          <li><a href="https://github.com/HY-love-sleep/windowfolk/blob/main/docs/README.en.md">English installation and testing guide</a> and <a href="https://github.com/HY-love-sleep/windowfolk/blob/main/docs/validation/2026-11-20/report.md">on-device validation report</a>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Build from source</h2>
+        <p>Requires macOS 14+ and Xcode or Command Line Tools with Swift 6. The first build downloads package dependencies.</p>
+        <pre><code>git clone https://github.com/HY-love-sleep/windowfolk.git
+cd windowfolk
+./build-app.sh
+open Windowfolk.app</code></pre>
+        <p class="small">Run <code>swift test</code> to run the automated tests. The November 20 validation passed 754 tests across 178 suites.</p>
+      </div>
+    </div>
+  </section>
+  <section aria-labelledby="scope">
+    <h2 id="scope">Demo scope and privacy</h2>
+    <p>The 2:55 video contains segmented real Mac footage and English explanations. Debug controls trigger wishes, day/night changes, and flower growth; speed changes and omitted waits are labeled. <a href="https://github.com/HY-love-sleep/windowfolk/blob/main/docs/english-translations.md">English translations of Chinese text shown in the recording</a> are provided separately.</p>
+    <p>Optional AI diaries and thoughts are disabled by default and were not used in the video. The core game and template diaries work offline. Windowfolk reads window geometry and owning application names, not window titles or pixels. Normal gameplay needs no Screen Recording or Accessibility permission.</p>
+    <p class="small">Primary display only. This build has not received complete multi-machine, fullscreen, sleep/wake, or long-duration performance validation.</p>
+    <a href="https://devpost.com/software/windowfolk">View the Kiroween submission</a>
+  </section>
+</main>
+</body>
+</html>

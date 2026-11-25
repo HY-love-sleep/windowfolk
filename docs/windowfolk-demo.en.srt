@@ -1,0 +1,94 @@
+1
+00:00:00,000 --> 00:00:06,000
+Windowfolk: a little civilization between your windows.
+A native macOS application, built from Kiro specifications.
+
+2
+00:00:06,000 --> 00:00:14,000
+Chinese menu: Debug > Trigger wish > Deliver flowers.
+Dudu is the silver cat; Doodoo is the golden hamster.
+
+3
+00:00:14,000 --> 00:00:23,000
+Drag a plank from the toolbox to connect two real windows.
+The residents use the window tops as roads.
+
+4
+00:00:23,000 --> 00:00:33,000
+Move a supporting window while the resident is crossing.
+The broken route causes hanging, falling, and landing.
+
+5
+00:00:33,000 --> 00:00:43,000
+Place a ladder to restore a route from the floor.
+The resident climbs and can continue the flower delivery.
+
+6
+00:00:43,000 --> 00:00:52,000
+The flower is planted for the neighbor.
+Chinese menu: Debug > Fast-forward advances flower growth.
+
+7
+00:00:52,000 --> 00:01:01,566
+The flower sprouts and blooms.
+The neighbor returns a piece of fruit.
+
+8
+00:01:01,566 --> 00:01:12,000
+Chinese menu: Debug > Trigger wish > Chair.
+Place the unlocked chair on a window ledge.
+
+9
+00:01:12,000 --> 00:01:23,000
+Chinese menu: Debug > Trigger wish > Lamp.
+Day/night > Night enables sleeping beside the lamp.
+
+10
+00:01:23,000 --> 00:01:34,300
+Day/night > Day demonstrates waking.
+Furniture can be moved or returned to the toolbox.
+
+11
+00:01:34,300 --> 00:01:44,000
+Chinese menu: Debug > Trigger wish > Visit another window.
+A flag marks the resident's destination.
+
+12
+00:01:44,000 --> 00:01:54,300
+Connect a route to the flag. TextEdit's note reads:
+“Windowfolk. Welcome to visit the new window.”
+
+13
+00:01:54,300 --> 00:02:09,800
+Chinese menu: Debug > Trigger wish > Play chase.
+Dudu catches Doodoo in this chase.
+
+14
+00:02:09,800 --> 00:02:17,800
+Changing the window layout can break the chase route.
+This time, Doodoo escapes.
+
+15
+00:02:17,800 --> 00:02:25,800
+Both a catch and an escape complete the chase wish.
+The residents keep a memory of what happened.
+
+16
+00:02:25,800 --> 00:02:32,800
+Diary > Write today's diary. Dudu and Doodoo record their events.
+Full diary translations: the English translations link in the description.
+
+17
+00:02:32,800 --> 00:02:36,800
+Settings: LLM service, endpoint, model name, API key.
+Use LLM for diaries / Resident thoughts: both off.
+
+18
+00:02:36,800 --> 00:02:48,800
+Chinese menu: Quit saves the world.
+Reopening restores the residents, objects, and unlocks.
+
+19
+00:02:48,800 --> 00:02:54,800
+Old-school desktop magic, reimagined.
+Download, source, and English testing instructions are linked below.

@@ -6,7 +6,7 @@ Windowfolk was created during the Kiroween 2026 submission period; its first rep
 
 The initial idea was deliberately concrete: one resident wants to carry a flowerpot to a neighbor on another window. Together with Kiro, we developed version 1 around that scene and a complete playable loop: build a bridge, lose the route, rescue the resident, plant a flower, and receive a gift.
 
-We kept requirements, design, and implementation tasks in the root `.kiro` directory:
+We kept requirements, design, and implementation tasks in the root `.kiro` directory. These are the original Chinese development records. This English write-up explains the workflow and evidence; they have not been replaced with retroactively invented Kiro output:
 
 - [V1 requirements](../.kiro/specs/v1/requirements.md), [design](../.kiro/specs/v1/design.md), and [tasks](../.kiro/specs/v1/tasks.md).
 - [V2 requirements](../.kiro/specs/V2/requirements.md), [design](../.kiro/specs/V2/design.md), and [tasks](../.kiro/specs/V2/tasks.md).
